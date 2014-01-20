@@ -36,6 +36,7 @@ public:
     {
         NoOp,    ///< No-operation event, just send the frontend an ack
         DumpProperties,   ///< Request for all the Q_PROPERTYs of a given QObject
+        SetProperty,
         DumpWidgetsTree,    ///< Dump widgets tree
         DumpModel,
         GetWidget,
@@ -100,6 +101,21 @@ public:
     virtual ~GenericObjectEvent();
 };
 
+class SetPropertyEvent: public Event, public ObjectPath {
+    public:
+    SetPropertyEvent(const QString & objectPath,
+                       const QString & propName,
+                       const QVariant & value) : Event(Event::SetProperty, Event::Widget),
+                                                  ObjectPath(objectPath),
+                                                  m_propName(propName),
+                                                  m_propValue(value) {}
+    inline QString propName() { return m_propName; }
+    inline QVariant propValue() { return m_propValue; }
+    
+    private:
+    QString m_propName;
+    QVariant m_propValue;
+};
 
 class ModelItemEvent: public Event, public ObjectPath
 {

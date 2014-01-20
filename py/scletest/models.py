@@ -20,6 +20,21 @@ class ScleHooqClientModel(Model):
     def _attach_client(self, scle_hooq_client):
         self._scle_hooq_client = scle_hooq_client
 
+def prop_pytype2qtName(type_):
+    if issubclass(type_, basestring):
+        return 'QString'
+    elif issubclass(type_, int):
+        return 'int'
+    elif issubclass(type_, float):
+        return 'double'
+    elif issubclass(type_, bool):
+        return 'bool'
+
+def prop_value2str(value):
+    if isinstance(value, bool):
+        return 'true' if value else 'false'
+    return str(value)
+
 class Widget(ScleHooqClientModel):
     """
     Classe Widget 
@@ -49,6 +64,18 @@ class Widget(ScleHooqClientModel):
         for w in self.iter_widgets():
             if w.path == path:
                 return w
+
+    def set_property(self, name, value, type_=None):
+        if type_ is None:
+            type_ = prop_pytype2qtName(type(value))
+            value = prop_value2str(value)
+        client = self.client()
+        data = client.send_command(client.COMMANDE_SET_PROPERTY
+                                    .format(target=self.path,
+                                            propName=name,
+                                            propValue=value,
+                                            propType=type_))
+        
 
     def properties(self, as_py_dict=True):
         """

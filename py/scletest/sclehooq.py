@@ -59,6 +59,10 @@ class ScleHooqClient(object):
                            ' item_path="{item_path}"'
                            ' row="{row}"'
                            ' column="{column}"/>')
+    COMMANDE_SET_PROPERTY = ('<setProperty target="{target}"'
+                            ' propType="{propType}"'
+                            ' propValue="{propValue}"'
+                            ' propName="{propName}"/>')
     
     def __init__(self, addr=None, port=None, aliases=None):
         self.addr = addr or self.DEFAUT_HOOQ_ADDR

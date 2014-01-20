@@ -335,6 +335,45 @@ void Player::processEvents()
             delete event;
             break;
         }
+        case Event::SetProperty:
+        {
+            SetPropertyEvent* e = dynamic_cast<SetPropertyEvent*>(event);
+            if (e == NULL) {
+                m_error = true;
+                m_return = "SleepEvent cast failed";
+            } else {
+                o = findObject(e->path());
+                if (o == NULL) {
+                    m_error = true;
+                    m_return = "Couldn't find receiver from path: " + e->path();
+                } else {
+                    QVariant propValue = e->propValue();
+                    if (!propValue.isValid()) {
+                        m_error = true;
+                        m_return = "SetProperty: Type de property non geree";
+                    } else {
+                    
+                        bool validProp = false;
+                        const QMetaObject * meta = o->metaObject();
+                        for (int i = 0; i<meta->propertyCount(); i++) {
+                            if (e->propName() == meta->property(i).name()) {
+                                validProp = true;
+                                break;
+                            }
+                        }
+                        
+                        if (!validProp) {
+                            m_error = true;
+                            m_return = "SetProperty: property inexistante: " + e->propName();
+                        } else {
+                            o->setProperty(e->propName().toStdString().c_str(), propValue);
+                        }
+                    }
+                }
+            }
+            delete event;
+            break;
+        }
         case Event::DumpWidgetsTree:
         {
             QXmlStreamWriter xml(device());
@@ -542,6 +581,27 @@ bool Player::handleElement()
     else if(name() == "dumpProperties")
     {
         m_eventQueue.enqueue(new GenericObjectEvent(Event::DumpProperties, Event::Widget, attributes().value("target").toString()));
+    }
+    else if (name() == "setProperty")
+    {
+        QString propType = attributes().value("propType").toString();
+        QString propValue = attributes().value("propValue").toString();
+        
+        QVariant value;
+        if (propType == "QString") {
+            value = propValue;
+        } else if (propType == "int") {
+            value = propValue.toInt();
+        } else if (propType == "double") {
+            value = propValue.toDouble();
+        } else if (propType == "bool") {
+            value = (propValue == "true");
+        }
+        
+        SetPropertyEvent * evt = new SetPropertyEvent(attributes().value("target").toString(),
+                                                      attributes().value("propName").toString(),
+                                                      value);
+        m_eventQueue.enqueue(evt);
     }
     else if(name() == "dumpWidgetsTree")
     {
