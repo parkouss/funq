@@ -1,0 +1,9 @@
+# référence le widget principal
+mainWidget = fenPrincipale::widgetCentral
+
+# et quelques autres widgets
+
+btnTest = {mainWidget}::btnTest
+
+dialog1 = fenPrincipale::QMessageBox-1
+dialog1_btn_ok = {dialog1}::qt_msgbox_buttonbox::QPushButton-1

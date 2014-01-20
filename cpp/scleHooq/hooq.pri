@@ -1,0 +1,17 @@
+
+QT += core network
+
+INCLUDEPATH += $${PWD}
+DEPENDPATH += $${PWD}
+
+SOURCES += $${PWD}/ObjectHookName.cpp \
+        $${PWD}/Player.cpp \
+        $${PWD}/Event.cpp \
+        $${PWD}/scleHook.cpp
+
+HEADERS  += \
+        $${PWD}/Communication.h \
+        $${PWD}/ObjectHookName.h \
+        $${PWD}/Player.h \
+        $${PWD}/Event.h \
+        $${PWD}/scleHook.h
