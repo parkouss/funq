@@ -183,6 +183,7 @@ class Item(ScleHooqClientModel):
     view_path = fields.String(attrname="view_path")
     row = fields.String(attrname="row")
     column = fields.String(attrname="column")
+    value = fields.String(attrname="value")
     path = fields.String(attrname="path", required=False)
     items = fields.List("Item")
     
