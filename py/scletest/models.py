@@ -211,4 +211,18 @@ class ModelItems(ScleHooqClientModel):
     def _attach_client(self, scle_hooq_client):
         for item in self.items:
             item._attach_client(scle_hooq_client)
+    
+    def item_by_named_path(self, named_path):
+        parts = named_path.split('/')
+        item = self
+        while parts:
+            next_item = None
+            part = parts.pop(0)
+            for item_ in item.items:
+                if item_.value == part:
+                    next_item = item_
+            if not next_item:
+                return None
+            item = next_item
+        return item
 
