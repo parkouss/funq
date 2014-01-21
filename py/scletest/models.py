@@ -3,6 +3,15 @@
 
 from dexml import fields, Model
 
+# monkey patch pour permettre à la methode render()
+# de fonctionner avec des accents (au moins pour dexml version 0.4.2)
+
+def _render_value(self, val):
+    if isinstance(val, unicode):
+        return val.encode('utf-8')
+    return str(val)
+fields.Value.render_value = _render_value
+
 class ScleHooqClientModel(Model):
     @classmethod
     def parse_and_attach(cls, scle_hooq_client, data):
@@ -232,7 +241,10 @@ class ModelItems(ScleHooqClientModel):
             item._attach_client(scle_hooq_client)
     
     def item_by_named_path(self, named_path):
-        parts = named_path.split('/')
+        if isinstance(named_path, (list, tuple)):
+            parts = named_path
+        else:
+            parts = named_path.split('/')
         item = self
         while parts:
             next_item = None
