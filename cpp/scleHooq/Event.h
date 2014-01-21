@@ -55,7 +55,9 @@ public:
         ModelColumnCount,
         ItemGet,
         ItemProperty,
-        ItemSelect
+        ItemSelect,
+        ItemClick,
+        ItemDClick
     };
 
     enum TargetType {

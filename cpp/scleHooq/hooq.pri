@@ -1,5 +1,6 @@
 
 QT += core network
+CONFIG += qtestlib
 
 INCLUDEPATH += $${PWD}
 DEPENDPATH += $${PWD}

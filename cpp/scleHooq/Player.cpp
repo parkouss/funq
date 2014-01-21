@@ -41,6 +41,8 @@
 #include <QMetaProperty>
 #include "unistd.h"
 
+#include <QTest>
+
 #ifdef Q_OS_WIN32
 
 #include <QDrag>
@@ -541,7 +543,10 @@ void Player::processEvents()
             break;
         }
 
-        case Event::ItemSelect: {
+        case Event::ItemSelect:
+        case Event::ItemClick:
+        case Event::ItemDClick:
+        {
             ModelItemEvent* e = dynamic_cast<ModelItemEvent*>(event);
             if (e == NULL) {
                 m_error = true;
@@ -558,7 +563,18 @@ void Player::processEvents()
 								.arg(e->path());
 				}
 				else {
-					view->setCurrentIndex(index);
+					view->scrollTo(index); // item visible
+                    if (e->type() == Event::ItemSelect) {
+                        view->setCurrentIndex(index);
+                    }
+                    else if (e->type() == Event::ItemClick) {
+                        QRect visualRect = view->visualRect(index);
+                        QTest::mouseClick(view->viewport(), Qt::LeftButton, 0, visualRect.center());
+                    }
+                    else if (e->type() == Event::ItemDClick) {
+                        QRect visualRect = view->visualRect(index);
+                        QTest::mouseDClick(view->viewport(), Qt::LeftButton, 0, visualRect.center());
+                    }
                 }
             }
             delete event;
@@ -637,6 +653,26 @@ bool Player::handleElement()
     {
         m_eventQueue.enqueue(new ModelItemEvent(
 					Event::ItemSelect,
+					attributes().value("view_target").toString(),
+					attributes().value("item_path").toString(),
+					attributes().value("row").toString().toInt(),
+					attributes().value("column").toString().toInt()
+					));
+    }
+    else if(name() == "clickItem")
+    {
+        m_eventQueue.enqueue(new ModelItemEvent(
+					Event::ItemClick,
+					attributes().value("view_target").toString(),
+					attributes().value("item_path").toString(),
+					attributes().value("row").toString().toInt(),
+					attributes().value("column").toString().toInt()
+					));
+    }
+    else if(name() == "dClickItem")
+    {
+        m_eventQueue.enqueue(new ModelItemEvent(
+					Event::ItemDClick,
 					attributes().value("view_target").toString(),
 					attributes().value("item_path").toString(),
 					attributes().value("row").toString().toInt(),

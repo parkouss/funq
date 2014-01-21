@@ -196,11 +196,30 @@ class Item(ScleHooqClientModel):
 
     def select(self):
         client = self.client()
-        data = client.send_command(client.COMMANDE_SELECT_ITEM
+        data = client.send_command(client.COMMANDE_MODEL_ITEM
                      .format(view_target=self.view_path,
                              item_path=self.path or '',
                              row=self.row,
-                             column=self.column))
+                             column=self.column,
+                             action='selectItem'))
+    
+    def click(self):
+        client = self.client()
+        data = client.send_command(client.COMMANDE_MODEL_ITEM
+                     .format(view_target=self.view_path,
+                             item_path=self.path or '',
+                             row=self.row,
+                             column=self.column,
+                             action='clickItem'))
+    
+    def dclick(self):
+        client = self.client()
+        data = client.send_command(client.COMMANDE_MODEL_ITEM
+                     .format(view_target=self.view_path,
+                             item_path=self.path or '',
+                             row=self.row,
+                             column=self.column,
+                             action='dClickItem'))
 
 class ModelItems(ScleHooqClientModel):
     name = fields.String(attrname="name")

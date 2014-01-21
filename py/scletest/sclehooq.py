@@ -55,7 +55,7 @@ class ScleHooqClient(object):
                            ' item_path="{item_path}"'
                            ' row="{row}"'
                            ' column="{column}"/>')
-    COMMANDE_SELECT_ITEM = ('<selectItem view_target="{view_target}"'
+    COMMANDE_MODEL_ITEM = ('<{action} view_target="{view_target}"'
                            ' item_path="{item_path}"'
                            ' row="{row}"'
                            ' column="{column}"/>')
