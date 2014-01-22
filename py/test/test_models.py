@@ -11,9 +11,9 @@ def test_sclehooq_client():
     
 class TestWidget:
     def setup(self):
-        self.widget = models.Widget(name="name1", class_type="class1", path="path1")
-        self.widget.widgets.append(models.Widget(name="name2", class_type="class2", path="path2"))
-        self.widget.widgets[0].widgets.append(models.Widget(name="name3", class_type="class3", path="path3"))
+        self.widget = models.Widget(name="name1", class_type="class1", path="path1", qt_class_type="QWidget")
+        self.widget.widgets.append(models.Widget(name="name2", class_type="class2", path="path2", qt_class_type="QWidget"))
+        self.widget.widgets[0].widgets.append(models.Widget(name="name3", class_type="class3", path="path3", qt_class_type="QWidget"))
     
     def test_parse_and_attach(self):
         client = object()

@@ -821,6 +821,19 @@ void Player::endPick()
 void Player::dumpWidget(QXmlStreamWriter & streamWriter, QWidget* widget) {
     streamWriter.writeAttribute("name", ObjectHookName::objectName(widget));
     streamWriter.writeAttribute("class_type", widget->metaObject()->className());
+    
+    const QMetaObject * mo = widget->metaObject();
+    QString qt_class_type;
+    while (mo) {
+        const char * class_name = mo->className();
+        if (class_name && class_name[0] == 'Q') {
+            // on suppose qu'une classe commencant par Q est une classe de Qt
+            qt_class_type = class_name;
+            break;
+        }
+        mo = mo->superClass();
+    }
+    streamWriter.writeAttribute("qt_class_type", qt_class_type);
     streamWriter.writeAttribute("path", ObjectHookName::objectPath(widget));
 }
 

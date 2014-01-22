@@ -52,6 +52,7 @@ class Widget(ScleHooqClientModel):
     """
     name = fields.String(attrname="name")
     class_type = fields.String(attrname="class_type")
+    qt_class_type = fields.String(attrname="qt_class_type")
     path = fields.String(attrname="path")
     widgets = fields.List("Widget")
 
