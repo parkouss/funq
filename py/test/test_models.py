@@ -8,7 +8,7 @@ def test_sclehooq_client():
     model = models.ScleHooqClientModel.parse_and_attach(client, '<ScleHooqClientModel/>')
     
     assert_equals(model.client(), client)
-    
+
 class TestWidget:
     def setup(self):
         self.widget = models.Widget(name="name1", class_type="class1", path="path1", qt_class_type="QWidget")
@@ -70,3 +70,12 @@ class TestWidget:
         
         assert_is_instance(props, dict)
         assert_equals(props, {'name1':2, 'name2': False, 'name3': True, 'name4': 'toto', 'name5': 'toto'})
+
+class TestWidgetInheritance:
+    def test_inheritance(self):
+        class MyWidget(models.Widget):
+            pass
+                
+        xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_type="QMyWidget"/>'
+        instance = models.Widget.parse(xml)
+        assert_is_instance(instance, MyWidget)

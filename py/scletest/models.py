@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from dexml import fields, Model
+from dexml import fields, Model, ModelMetaclass
+from xml.dom import minidom
 
 # monkey patch pour permettre à la methode render()
 # de fonctionner avec des accents (au moins pour dexml version 0.4.2)
@@ -44,17 +45,53 @@ def prop_value2str(value):
         return 'true' if value else 'false'
     return str(value)
 
+class WidgetMetaClass(ModelMetaclass):
+    """
+    Ce constructeur de classe force le tagname dexml a etre 'Widget' pour
+    toute classe créée.
+    """
+    def __new__(mcls, name, bases, attrs):
+        cls = super(WidgetMetaClass, mcls).__new__(mcls, name, bases, attrs)
+        cls.meta.tagname = 'Widget'
+        return cls
+
 class Widget(ScleHooqClientModel):
     """
     Classe Widget 
     Dérivé de la classe dexml.Model pour le parsing XML des dumps
     
     """
+    __metaclass__ = WidgetMetaClass
     name = fields.String(attrname="name")
     class_type = fields.String(attrname="class_type")
     qt_class_type = fields.String(attrname="qt_class_type")
     path = fields.String(attrname="path")
     widgets = fields.List("Widget")
+
+    @classmethod
+    def parse(cls, xml):
+        """
+        Cette méthode de classe permet de renvoyer une instance de sous-classe
+        de Widget selon la valeur de l'attribut qt_class_type magiquement.
+        
+        Remarque: le nom de la sous-classe doit être la valeur de l'attribut qt_class_type
+        mais sans le 'Q'.
+        
+        Exemple:
+          
+          class ComboBox(Widget):
+              pass
+                
+          xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_type="QComboBox"/>'
+          instance = Widget.parse(xml)
+          assert_is_instance(instance, ComboBox)
+        
+        """
+        if isinstance(xml, basestring):
+            node = minidom.parseString(xml).documentElement
+            class_name = node.attributes['qt_class_type'].value
+            cls = ModelMetaclass.instances_by_classname.get(class_name[1:], Widget)
+        return super(Widget, cls).parse(xml)
 
     def _attach_client(self, scle_hooq_client):
         widgets = [self]
@@ -105,6 +142,15 @@ class Widget(ScleHooqClientModel):
         else:
             return properties
 
+    def click(self):
+        """
+        Click sur le widget
+        """
+        client = self.client()
+        return client.send_command(client.COMMANDE_CLICK_WIDGET
+                                                    .format(self.path))
+
+class AbstractItemView(Widget):
     def model_items(self):
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_MODEL
@@ -120,13 +166,26 @@ class Widget(ScleHooqClientModel):
                              column=column))
         return Item.parse_and_attach(client, data)
 
-    def click(self):
-        """
-        Click sur le widget
-        """
-        client = self.client()
-        return client.send_command(client.COMMANDE_CLICK_WIDGET
-                                                    .format(self.path))
+class ComboBoxListView(AbstractItemView):
+    pass
+
+class ListView(AbstractItemView):
+    pass
+
+class TableView(AbstractItemView):
+    pass
+
+class TreeView(AbstractItemView):
+    pass
+
+class ListWidget(AbstractItemView):
+    pass
+
+class TableWidget(AbstractItemView):
+    pass
+
+class TreeWidget(AbstractItemView):
+    pass
 
 class WidgetsTree(ScleHooqClientModel):
     """
