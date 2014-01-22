@@ -11,9 +11,9 @@ def test_sclehooq_client():
 
 class TestWidget:
     def setup(self):
-        self.widget = models.Widget(name="name1", class_type="class1", path="path1", qt_class_type="QWidget")
-        self.widget.widgets.append(models.Widget(name="name2", class_type="class2", path="path2", qt_class_type="QWidget"))
-        self.widget.widgets[0].widgets.append(models.Widget(name="name3", class_type="class3", path="path3", qt_class_type="QWidget"))
+        self.widget = models.Widget(name="name1", class_type="class1", path="path1", qt_class_types="QWidget")
+        self.widget.widgets.append(models.Widget(name="name2", class_type="class2", path="path2", qt_class_types="QWidget"))
+        self.widget.widgets[0].widgets.append(models.Widget(name="name3", class_type="class3", path="path3", qt_class_types="QWidget"))
     
     def test_parse_and_attach(self):
         client = object()
@@ -76,6 +76,24 @@ class TestWidgetInheritance:
         class MyWidget(models.Widget):
             pass
                 
-        xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_type="QMyWidget"/>'
+        xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QMyWidget"/>'
+        instance = models.Widget.parse(xml)
+        assert_is_instance(instance, MyWidget)
+    
+    def test_multi_inheritance_priority(self):
+        class MyWidget(models.Widget):
+            pass
+        class SomethingFirst(models.Widget):
+            pass
+                
+        xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QSomethingFirst,QMyWidget"/>'
+        instance = models.Widget.parse(xml)
+        assert_is_instance(instance, SomethingFirst)
+    
+    def test_multi_inheritance(self):
+        class MyWidget(models.Widget):
+            pass
+                
+        xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QSomethingFirst,QMyWidget"/>'
         instance = models.Widget.parse(xml)
         assert_is_instance(instance, MyWidget)

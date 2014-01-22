@@ -64,7 +64,7 @@ class Widget(ScleHooqClientModel):
     __metaclass__ = WidgetMetaClass
     name = fields.String(attrname="name")
     class_type = fields.String(attrname="class_type")
-    qt_class_type = fields.String(attrname="qt_class_type")
+    qt_class_types = fields.String(attrname="qt_class_types")
     path = fields.String(attrname="path")
     widgets = fields.List("Widget")
 
@@ -72,9 +72,9 @@ class Widget(ScleHooqClientModel):
     def parse(cls, xml):
         """
         Cette méthode de classe permet de renvoyer une instance de sous-classe
-        de Widget selon la valeur de l'attribut qt_class_type magiquement.
+        de Widget selon la valeur de l'attribut qt_class_types magiquement.
         
-        Remarque: le nom de la sous-classe doit être la valeur de l'attribut qt_class_type
+        Remarque: le nom de la sous-classe doit être la valeur de l'attribut qt_class_types
         mais sans le 'Q'.
         
         Exemple:
@@ -82,15 +82,21 @@ class Widget(ScleHooqClientModel):
           class ComboBox(Widget):
               pass
                 
-          xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_type="QComboBox"/>'
+          xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QComboBox"/>'
           instance = Widget.parse(xml)
           assert_is_instance(instance, ComboBox)
         
         """
         if isinstance(xml, basestring):
             node = minidom.parseString(xml).documentElement
-            class_name = node.attributes['qt_class_type'].value
-            cls = ModelMetaclass.instances_by_classname.get(class_name[1:], Widget)
+            class_names = [ cn[1:] for cn in node.attributes['qt_class_types'].value.split(',') ]
+            cls = Widget
+            for class_name in class_names:
+                # parcours des classes en commencant par la plus haute dans la hierarchie
+                acceptable_cls = ModelMetaclass.instances_by_classname.get(class_name)
+                if acceptable_cls:
+                    cls = acceptable_cls
+                    break
         return super(Widget, cls).parse(xml)
 
     def _attach_client(self, scle_hooq_client):
@@ -151,6 +157,9 @@ class Widget(ScleHooqClientModel):
                                                     .format(self.path))
 
 class AbstractItemView(Widget):
+    """
+    Ajout de méthodes spécifiques à toutes les instances de QAbstractItemView.
+    """
     def model_items(self):
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_MODEL
@@ -166,26 +175,33 @@ class AbstractItemView(Widget):
                              column=column))
         return Item.parse_and_attach(client, data)
 
-class ComboBoxListView(AbstractItemView):
-    pass
-
-class ListView(AbstractItemView):
-    pass
-
-class TableView(AbstractItemView):
-    pass
-
-class TreeView(AbstractItemView):
-    pass
-
-class ListWidget(AbstractItemView):
-    pass
-
-class TableWidget(AbstractItemView):
-    pass
-
-class TreeWidget(AbstractItemView):
-    pass
+class ComboBox(Widget):
+    """
+    Ajoute des méthodes spécifiques aux ComboBox.
+    """
+    def model_items(self):
+        client = self.client()
+        # création et affichage de QComboBoxListView
+        self.click()
+        # recuperation de ce widget QComboBoxListView
+        internal_qt_name = '::QComboBoxPrivateContainer-1::QComboBoxListView-1'
+        combo_edit_view = client.widget(path=self.path + internal_qt_name)
+        model_items = combo_edit_view.model_items()
+        # on cache la QComboBoxListView
+        combo_edit_view.set_property('visible', False)
+        return model_items
+    
+    def set_current_text(self, text):
+        model_items = self.model_items()
+        column = self.properties()['modelColumn']
+        index = -1
+        for item in model_items.items:
+            if column == int(item.column) and item.value == text:
+                index = int(item.row)
+                break
+        assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
+                             % (text, self.path))
+        self.set_property('currentIndex', index)
 
 class WidgetsTree(ScleHooqClientModel):
     """
@@ -249,6 +265,9 @@ class Properties(Model):
         return d
 
 class Item(ScleHooqClientModel):
+    """
+    Représente un model item de QT contenu dans un modele QT.
+    """
     view_path = fields.String(attrname="view_path")
     row = fields.String(attrname="row")
     column = fields.String(attrname="column")
@@ -272,15 +291,27 @@ class Item(ScleHooqClientModel):
                              column=self.column,
                              action=action))
     def select(self):
+        """
+        Sélectionne l'item.
+        """
         self._item_action('selectItem')
     
     def click(self):
+        """
+        Clique sur l'item.
+        """
         self._item_action('clickItem')
     
     def dclick(self):
+        """
+        Effectue un double-click sur l'item.
+        """
         self._item_action('dClickItem')
     
     def edit(self):
+        """
+        Passe l'item en mode editable, en ouvrant l'éditeur associé.
+        """
         self._item_action('editItem')
 
 class ModelItems(ScleHooqClientModel):
@@ -293,20 +324,71 @@ class ModelItems(ScleHooqClientModel):
         for item in self.items:
             item._attach_client(scle_hooq_client)
     
-    def item_by_named_path(self, named_path):
+    def item_by_named_path(self, named_path, match_column=0, sep='/', column=0):
+        """
+        Renvoie l'item (:class:`Item`) correspondant au chemin arborescent
+        défini par `named_path` correspondant à la colonne `column` ou
+        None si le chemin n'existe pas.
+        
+        .. note::
+          
+          Les arguments sont les mêmes que pour :meth:`row_by_named_path`,
+          avec l'ajout de `column`.
+        
+        :param column: la colonne de l'item à récupérer.
+        """
+        items = self.row_by_named_path(named_path,
+                                         match_column=match_column,
+                                         sep=sep)
+        if items:
+            return items[column]
+
+    def row_by_named_path(self, named_path, match_column=0, sep='/'):
+        """
+        Renvoie la liste de :class:`Item` correspondant à une ligne
+        du modèle selon un chemin arborescent défini par le nom
+        des items, ou None si le chemin n'existe pas.
+        
+        .. important::
+          
+          Penser à utiliser des chaines unicodes pour matcher les éléments
+          contenant des accents pour le paramètre `named_path`.
+        
+        Exemple::
+          
+          model_items.row_by_named_path([u'TG/CBO/AP (AUT 1)',
+                                         u'Paramètres tranche',
+                                         u'TG',
+                                         u'DANGER'])
+        
+        :param named_path: le chemin du modelIndex interessant. Peut être
+                           défini par une liste de chaine, chacune étant
+                           un nom d'item ou par un chaine unique utilisant
+                           `sep` comme séparateur.
+        :param match_column: colonne sur laquelle on vérifie le nom des
+                             items.
+        :param sep: Séparateur, utilisé selement si `named_path` est une
+                    chaine.
+        """
         if isinstance(named_path, (list, tuple)):
-            parts = named_path
+            parts = named_path[:]
         else:
-            parts = named_path.split('/')
+            parts = named_path.split(sep)
         item = self
-        while parts:
+        result = []
+        while item and parts:
             next_item = None
             part = parts.pop(0)
             for item_ in item.items:
-                if item_.value == part:
-                    next_item = item_
-            if not next_item:
-                return None
+                if match_column == int(item_.column) and item_.value == part:
+                    # on a trouvé l'item que l'on veut
+                    # si c'est le dernier, ramassons toutes les colonnes
+                    if not parts:
+                        row = [ it for it in item.items
+                                if it.row == item_.row ]
+                        return sorted(row, key=lambda it: it.column)
+                    else:
+                        next_item = item_
             item = next_item
-        return item
+        return None
 
