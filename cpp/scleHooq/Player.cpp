@@ -213,7 +213,8 @@ void _dump_items_model(QAbstractItemModel * model,
                       QXmlStreamWriter &xml,
                       const QModelIndex & parent,
                       const QString & view_path) {
-	for(int i = 0; i < model->rowCount(parent); i++) {
+
+    for(int i = 0; i < model->rowCount(parent); i++) {
         for(int j = 0; j < model->columnCount(parent); j++) {
 			QModelIndex index = model->index(i, j, parent);
 			xml.writeStartElement("Item");
@@ -546,6 +547,7 @@ void Player::processEvents()
         case Event::ItemSelect:
         case Event::ItemClick:
         case Event::ItemDClick:
+        case Event::ItemEdit:
         {
             ModelItemEvent* e = dynamic_cast<ModelItemEvent*>(event);
             if (e == NULL) {
@@ -566,6 +568,10 @@ void Player::processEvents()
 					view->scrollTo(index); // item visible
                     if (e->type() == Event::ItemSelect) {
                         view->setCurrentIndex(index);
+                    }
+                    else if (e->type() == Event::ItemEdit) {
+                        view->setCurrentIndex(index);
+                        view->edit(index);
                     }
                     else if (e->type() == Event::ItemClick) {
                         QRect visualRect = view->visualRect(index);
@@ -673,6 +679,16 @@ bool Player::handleElement()
     {
         m_eventQueue.enqueue(new ModelItemEvent(
 					Event::ItemDClick,
+					attributes().value("view_target").toString(),
+					attributes().value("item_path").toString(),
+					attributes().value("row").toString().toInt(),
+					attributes().value("column").toString().toInt()
+					));
+    }
+    else if(name() == "editItem")
+    {
+        m_eventQueue.enqueue(new ModelItemEvent(
+					Event::ItemEdit,
 					attributes().value("view_target").toString(),
 					attributes().value("item_path").toString(),
 					attributes().value("row").toString().toInt(),

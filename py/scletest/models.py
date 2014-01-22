@@ -203,32 +203,25 @@ class Item(ScleHooqClientModel):
             ScleHooqClientModel._attach_client(item, scle_hooq_client)
             items.extend(item.items)
 
-    def select(self):
+    def _item_action(self, action):
         client = self.client()
         data = client.send_command(client.COMMANDE_MODEL_ITEM
                      .format(view_target=self.view_path,
                              item_path=self.path or '',
                              row=self.row,
                              column=self.column,
-                             action='selectItem'))
+                             action=action))
+    def select(self):
+        self._item_action('selectItem')
     
     def click(self):
-        client = self.client()
-        data = client.send_command(client.COMMANDE_MODEL_ITEM
-                     .format(view_target=self.view_path,
-                             item_path=self.path or '',
-                             row=self.row,
-                             column=self.column,
-                             action='clickItem'))
+        self._item_action('clickItem')
     
     def dclick(self):
-        client = self.client()
-        data = client.send_command(client.COMMANDE_MODEL_ITEM
-                     .format(view_target=self.view_path,
-                             item_path=self.path or '',
-                             row=self.row,
-                             column=self.column,
-                             action='dClickItem'))
+        self._item_action('dClickItem')
+    
+    def edit(self):
+        self._item_action('editItem')
 
 class ModelItems(ScleHooqClientModel):
     name = fields.String(attrname="name")

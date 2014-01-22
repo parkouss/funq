@@ -57,7 +57,8 @@ public:
         ItemProperty,
         ItemSelect,
         ItemClick,
-        ItemDClick
+        ItemDClick,
+        ItemEdit
     };
 
     enum TargetType {
