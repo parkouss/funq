@@ -183,17 +183,11 @@ class ShortcutEvent: public Event, public ObjectPath
 {
 public:
     ShortcutEvent(const QString& objectPath,
-                  const QKeySequence &key,
-                  int id,
-                  bool ambiguous);
+                  const QKeySequence &key);
     virtual ~ShortcutEvent();
     const QKeySequence &key() const;
-    int id() const;
-    bool ambiguous() const;
 private:
     const QKeySequence m_key;
-    int m_id;
-    bool m_ambiguous;
 };
 
 

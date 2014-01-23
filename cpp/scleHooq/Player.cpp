@@ -345,32 +345,26 @@ void Player::processEvents()
                 m_error = true;
                 m_return = "SleepEvent cast failed";
             } else {
-                o = findObject(e->path());
-                if (o == NULL) {
+                QVariant propValue = e->propValue();
+                if (!propValue.isValid()) {
                     m_error = true;
-                    m_return = "Couldn't find receiver from path: " + e->path();
+                    m_return = "SetProperty: Type de property non geree";
                 } else {
-                    QVariant propValue = e->propValue();
-                    if (!propValue.isValid()) {
-                        m_error = true;
-                        m_return = "SetProperty: Type de property non geree";
-                    } else {
+                
+                    bool validProp = false;
+                    const QMetaObject * meta = o->metaObject();
+                    for (int i = 0; i<meta->propertyCount(); i++) {
+                        if (e->propName() == meta->property(i).name()) {
+                            validProp = true;
+                            break;
+                        }
+                    }
                     
-                        bool validProp = false;
-                        const QMetaObject * meta = o->metaObject();
-                        for (int i = 0; i<meta->propertyCount(); i++) {
-                            if (e->propName() == meta->property(i).name()) {
-                                validProp = true;
-                                break;
-                            }
-                        }
-                        
-                        if (!validProp) {
-                            m_error = true;
-                            m_return = "SetProperty: property inexistante: " + e->propName();
-                        } else {
-                            o->setProperty(e->propName().toStdString().c_str(), propValue);
-                        }
+                    if (!validProp) {
+                        m_error = true;
+                        m_return = "SetProperty: property inexistante: " + e->propName();
+                    } else {
+                        o->setProperty(e->propName().toStdString().c_str(), propValue);
                     }
                 }
             }
@@ -540,6 +534,38 @@ void Player::processEvents()
 				}
 			}
 			
+            delete event;
+            break;
+        }
+
+        case Event::Shortcut:
+        {
+            ShortcutEvent * e = dynamic_cast<ShortcutEvent*>(event);
+            if (e == NULL) {
+                m_error = true;
+                m_return = "ShortcutEvent cast failed";
+            } else {
+                o = findObject(e->path());
+                if (o != NULL) {
+                    w = qobject_cast<QWidget*>(o);
+                } else {
+                    w = qApp->activeWindow();
+                }
+                if (!w) {
+                    m_error = true;
+                    m_return = "An error occured while looking for a widget - no shortcut send";
+                } else {
+                    // taken from
+                    // http://stackoverflow.com/questions/14283764/how-can-i-simulate-emission-of-a-standard-key-sequence
+                    const QKeySequence & binding = e->key();
+                    for (uint i = 0; i < binding.count(); ++i) {
+                        uint key = binding[i];
+                        QTest::keyClick(w, Qt::Key(key & ~Qt::KeyboardModifierMask),
+                                        Qt::KeyboardModifiers(key & Qt::KeyboardModifierMask));
+                    }
+                }
+            }
+            
             delete event;
             break;
         }
@@ -765,9 +791,7 @@ bool Player::handleElement()
     else if(name() == "shortcut")
     {
         m_eventQueue.enqueue(new ShortcutEvent(attributes().value("target").toString(),
-                                               QKeySequence::fromString(attributes().value("string").toString()),
-                                               attributes().value("id").toString().toInt(),
-                                               attributes().value("ambiguous").toString() == "true"));
+                                               QKeySequence::fromString(attributes().value("keySequence").toString())));
     } else {
         return false;
     }

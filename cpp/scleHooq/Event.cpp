@@ -168,14 +168,10 @@ ushort KeyEvent::count() const {
 
 
 ShortcutEvent::ShortcutEvent(const QString& objectPath,
-                             const QKeySequence &key,
-                             int id,
-                             bool ambiguous):
-    Event(Event::Shortcut, Event::Widget),
+                             const QKeySequence &key):
+    Event(Event::Shortcut, Event::NoTarget), // Event::NoTarget as the widget path is not required.
     ObjectPath(objectPath),
-    m_key(key),
-    m_id(id),
-    m_ambiguous(ambiguous)
+    m_key(key)
 {
 }
 
@@ -185,14 +181,6 @@ ShortcutEvent::~ShortcutEvent()
 
 const QKeySequence &ShortcutEvent::key() const {
     return m_key;
-}
-
-int ShortcutEvent::id() const {
-    return m_id;
-}
-
-bool ShortcutEvent::ambiguous() const {
-    return m_ambiguous;
 }
 
 MouseEvent::MouseEvent(const QString& objectPath,

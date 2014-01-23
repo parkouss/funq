@@ -69,6 +69,8 @@ class ScleHooqClient(object):
                             ' propType="{propType}"'
                             ' propValue="{propValue}"'
                             ' propName="{propName}"/>')
+    COMMANDE_SHORTCUT = ('<shortcut target="{target}"'
+                            ' keySequence="{keySequence}"/>')
     
     def __init__(self, addr=None, port=None, aliases=None):
         self.addr = addr or self.DEFAUT_HOOQ_ADDR
@@ -143,6 +145,15 @@ class ScleHooqClient(object):
         Basiquement utilisé pour tester la communication serveur.
         """
         self.send_command(self.COMMANDE_NO_OP)
+
+    def shortcut(self, sequence):
+        """
+        Envoie une QKeySequence sur la fenêtre ayant le focus.
+        Voir la documentation de QKeySequence::fromString pour
+        savoir quoi passer pour l'argument `sequence`.
+        """
+        self.send_command(self.COMMANDE_SHORTCUT.format(target='',
+                                             keySequence=sequence))
 
     def widgets_tree(self):
         """

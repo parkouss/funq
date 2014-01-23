@@ -188,6 +188,17 @@ class Widget(ScleHooqClientModel):
         client = self.client()
         return client.send_command(client.COMMANDE_CLICK_WIDGET
                                                     .format(self.path))
+    
+    def shortcut(self, sequence):
+        """
+        Envoie une QKeySequence sur le widget.
+        Voir la documentation de QKeySequence::fromString pour
+        savoir quoi passer pour l'argument `sequence`.
+        """
+        client = self.client()
+        client.send_command(client.COMMANDE_SHORTCUT.format(
+                                            target=self.path,
+                                            keySequence=sequence))
 
 class AbstractItemView(Widget):
     """
