@@ -265,6 +265,7 @@ class ApplicationConfig(object):
     def from_conf(cls, conf, section, basedir=None):
         """
         Génère une instance de :class:`ApplicationConfig` à partir
+        d'un fichier de configuration lu par ConfigParser.
         """
         executable = conf.get(section, 'executable')
         if basedir and not os.path.isabs(executable):
