@@ -10,6 +10,7 @@ from collections import defaultdict
 import shlex
 from scletest.aliases import HooqAliases
 from scletest.models import Widget, WidgetsTree 
+from xml.dom import minidom
 
 import logging
 
@@ -140,15 +141,20 @@ class ScleHooqClient(object):
 
     def widgets_tree(self):
         """
-        Renvoie une instance de :class:`WidgetsTree` demandée au
-        serveur.
+        Renvoie une instance de :class:`scletest.models.WidgetsTree`
+        demandée au serveur.
         """
         dump = self.send_command(self.COMMANDE_DUMP_WIDGETS)
         return WidgetsTree.parse_and_attach(self, dump)
     
     def widget(self, alias=None, path=None):
         """
-        Renvoie une instance de :class:`Widget` identifiée par **path**.
+        Renvoie une instance de :class:`scletest.models.Widget`
+        identifiée par un alias ou un chemin complet.
+        
+        :param alias: alias de chemin de widget défini dans le fichier
+                      d'alias.
+        :param path: le chemin complet vers un widget.
         """
         if not (alias or path):
             raise TypeError("alias or path must be defined")
@@ -158,6 +164,24 @@ class ScleHooqClient(object):
         
         dump = self.send_command(self.COMMANDE_GET_WIDGET.format(path))
         return Widget.parse_and_attach(self, dump)
+    
+    def dump_widgets_tree(self, stream, pretty=True):
+        """
+        Ecrit dans l'objet file-like un dump xml des widgets. Si stream
+        est une chaine, un fichier est ouvert en écriture automatiquement.
+        
+        :param stream: objet file-like (disposant d'une methode write)
+                       ou un chemin vers un fichier.
+        :param pretty: booleen pour indiquer si le xml doit être
+                       indenté pour plus de lisibilité
+        """
+        if isinstance(stream, basestring):
+            stream = open(stream, 'w')
+        xml = self.widgets_tree().render()
+        if pretty:
+            xml = minidom.parseString(xml).toprettyxml()
+        stream.write(xml)
+        
 
 class ApplicationContext(object):
     """
@@ -239,6 +263,9 @@ class ApplicationConfig(object):
     
     @classmethod
     def from_conf(cls, conf, section, basedir=None):
+        """
+        Génère une instance de :class:`ApplicationConfig` à partir
+        """
         executable = conf.get(section, 'executable')
         if basedir and not os.path.isabs(executable):
 			executable = os.path.join(basedir, executable)
