@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Ce module définit principalement la classe :class:`ScleHooqClient`,
+qui est le point d'entrée de communication avec une application de test.
+"""
+
 import socket
 import subprocess
 import os
@@ -313,6 +318,11 @@ class ApplicationConfig(object):
         return wrapper
 
 class ApplicationRegistry(object):
+    """
+    Gère un ensemble de :class:`ApplicationConfig`. Une instance
+    globale est utilisée dans :mod:`sclehooq.noseplugin` pour stocker
+    les ApplicationConfig déclarées par le fichier de conf.
+    """
     def __init__(self):
         self.confs = defaultdict(dict)
     
@@ -329,17 +339,4 @@ class ApplicationRegistry(object):
         self.confs[name][mode] = conf
     
     def config(self, name, mode='default'):
-        return self.confs[name][mode]
-
-if __name__ == '__main__':
-    executable = '/home/jpages/dev/scletest/hooq/player_tester/player_tester'
-    ctx = ApplicationContext(executable)
-    
-    client = ctx.hooq
-    tree = client.widgets_tree()
-    print len(tree.widgets)
-    print tree.find_widget('fenPrincipale::widgetCentral::btnTest').click()
-    time.sleep(1)
-    tree = client.widgets_tree()
-    print tree.find_widget('fenPrincipale::QMessageBox-1::qt_msgbox_buttonbox::QPushButton-1').click()
-    
+        return self.confs[name][mode]    

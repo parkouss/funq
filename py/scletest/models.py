@@ -1,6 +1,13 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Ce module définit des classes qui seront instanciées à la suite de
+réception de données du serveur de l'application testée.
+
+Les classes de ce module définissent l'API d'utilisation de scletest.
+"""
+
 from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
 
@@ -14,6 +21,14 @@ def _render_value(self, val):
 fields.Value.render_value = _render_value
 
 class ScleHooqClientModel(Model):
+    """
+    Classe de base pour tous les modèles nécessitant une connexion
+    au serveur de l'application testée.
+    
+    Un objet :class:`ScleHooqClient` doit être défini par l'intermédiaire
+    de :meth:`parse_and_attach` et sera accessible via la méthode
+    :meth:`client`.
+    """
     @classmethod
     def parse_and_attach(cls, scle_hooq_client, data):
         obj = cls.parse(data)
@@ -119,6 +134,24 @@ class Widget(ScleHooqClientModel):
                 return w
 
     def set_property(self, name, value, type_=None):
+        """
+        Permet de définir une valeur pour une propriété (Q_PROPERTY)
+        du widget.
+        
+        .. note::
+          
+          Si type_ est None, le type sera déterminé automatiquement
+          selon le type python de l'objet value passé. Par exemple:
+          
+          - type(value) == str: 'QString'
+          - type(value) == int: 'int'
+          - type(value) == float: 'double'
+          - type(value) == bool: 'bool'
+        
+        :param name: nom de la propriété
+        :param value: valeur de la propriété
+        :param type_: chaine représentant le type QT de la propriété.
+        """
         if type_ is None:
             type_ = prop_pytype2qtName(type(value))
             value = prop_value2str(value)
