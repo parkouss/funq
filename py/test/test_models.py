@@ -97,3 +97,82 @@ class TestWidgetInheritance:
         xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QSomethingFirst,QMyWidget"/>'
         instance = models.Widget.parse(xml)
         assert_is_instance(instance, MyWidget)
+
+class TestModelItems:
+    def setup(self):
+        self.model_items = models.ModelItems(items=[
+            models.Item(view_path='path1',
+                        row='0',
+                        column='0',
+                        value='0-0',
+                        items=[
+                            models.Item(view_path='path1',
+                                        row='0',
+                                        column='0',
+                                        value='0-0',
+                                        path='0-0'),
+                            models.Item(view_path='path1',
+                                        row='0',
+                                        column='1',
+                                        value='0-1',
+                                        path='0-0'),
+                            models.Item(view_path='path1',
+                                        row='1',
+                                        column='0',
+                                        value='1-0',
+                                        path='0-0'),
+                            models.Item(view_path='path1',
+                                        row='1',
+                                        column='1',
+                                        value='1-1',
+                                        path='0-0'),
+                        ]),
+            models.Item(view_path='path1',
+                        row='0',
+                        column='1',
+                        value='0-1',
+                        items=[
+                            models.Item(view_path='path1',
+                                        row='0',
+                                        column='0',
+                                        value='0-0',
+                                        path='0-0'),
+                            models.Item(view_path='path1',
+                                        row='0',
+                                        column='1',
+                                        value='0-1',
+                                        path='0-0'),
+                        ]),
+        ])
+    
+    def test_row_by_named_path(self):
+        items = self.model_items.row_by_named_path(['0-0', '0-0'])
+        assert_equal(items, self.model_items.items[0].items[0:2])
+
+    def test_row_by_named_path_match_column(self):
+        items = self.model_items.row_by_named_path(['0-1', '0-1'], match_column=1)
+        assert_equal(items, self.model_items.items[1].items[0:2])
+    
+    def test_row_by_named_path_str_path(self):
+        items = self.model_items.row_by_named_path('0-0/0-0')
+        assert_equal(items, self.model_items.items[0].items[0:2])
+    
+    def test_row_by_named_path_str_custom_path(self):
+        items = self.model_items.row_by_named_path('0-0::0-0', sep='::')
+        assert_equal(items, self.model_items.items[0].items[0:2])
+    
+    def test_row_by_named_path_missing(self):
+        items = self.model_items.row_by_named_path('blah/bluh')
+        assert_equals(items, None)
+    
+    def test_item_by_named_path(self):
+        item = self.model_items.item_by_named_path(['0-0', '0-0'])
+        assert_equals(item, self.model_items.items[0].items[0])
+    
+    def test_item_by_named_path_column(self):
+        item = self.model_items.item_by_named_path(['0-0', '0-0'], column=1)
+        assert_equals(item, self.model_items.items[0].items[1])
+    
+    def test_item_by_named_path_missing(self):
+        item = self.model_items.item_by_named_path('blah/bluh')
+        assert_equals(item, None)
