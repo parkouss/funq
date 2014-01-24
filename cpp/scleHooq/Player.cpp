@@ -560,8 +560,10 @@ void Player::processEvents()
                     const QKeySequence & binding = e->key();
                     for (uint i = 0; i < binding.count(); ++i) {
                         uint key = binding[i];
-                        QTest::keyClick(w, Qt::Key(key & ~Qt::KeyboardModifierMask),
-                                        Qt::KeyboardModifiers(key & Qt::KeyboardModifierMask));
+                        QKeyEvent * key_e = new QKeyEvent(QKeyEvent::KeyPress, key & ~Qt::KeyboardModifierMask, key & Qt::KeyboardModifierMask);
+                        qApp->postEvent(w, key_e);
+                        key_e = new QKeyEvent(QKeyEvent::KeyRelease, key & ~Qt::KeyboardModifierMask, key & Qt::KeyboardModifierMask);
+                        qApp->postEvent(w, key_e);
                     }
                 }
             }
