@@ -297,6 +297,10 @@ class AbstractItemView(Widget):
         
         Les types d'éditeur gérés sont actuellement les suivants:
         'QLineEdit', 'QComboBox', 'QSpinBox' et 'QDoubleSpinBox'.
+        
+        :param editor_class_name: chaine représentant le type de
+                                  l'éditeur. Si None, tous les types
+                                  d'éditeurs sont testés.
         """
         # late import, because scletest.sclehooq also import this module
         from scletest.sclehooq import AckError
@@ -317,6 +321,11 @@ class AbstractItemView(Widget):
     def edit_item(self, item, value, editor_class_name=None):
         """
         Edite un item pour lui positionner la valeur value.
+        
+        :param item: l'instance de :class:`Item` qui doit être modifiée.
+        :param value: la nouvelle valeur de l'item. Doit être du type
+                      correspondant à l'éditeur (str pour LineEdit,
+                      int pour SpinBox, etc)
         """
         # mieux vaut effectuer un double click, comme c'est le moyen
         # le plus classique de passer en édition pour un utilisateur
