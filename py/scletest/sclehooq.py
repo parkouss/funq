@@ -14,7 +14,7 @@ from functools import wraps
 from collections import defaultdict
 import shlex
 from scletest.aliases import HooqAliases
-from scletest.models import Widget, WidgetsTree 
+from scletest.models import Widget, WidgetsTree
 from xml.dom import minidom
 
 import logging
@@ -199,7 +199,7 @@ class ScleHooqClient(object):
         stream.write(xml)
         
 
-class ApplicationContext(object):
+class ApplicationContext(object): # pylint: disable=R0903
     """
     Représente le contexte d'une application testée.
     
@@ -270,7 +270,7 @@ class ApplicationConfig(object):
                        cwd=None,
                        env=None,
                        sleep_before_connexion=1,
-                       aliases=None):
+                       aliases=None): # pylint: disable=R0913
         self.executable = executable
         self.args = args
         self.hooq_port = hooq_port
@@ -287,7 +287,7 @@ class ApplicationConfig(object):
         """
         executable = conf.get(section, 'executable')
         if basedir and not os.path.isabs(executable):
-			executable = os.path.join(basedir, executable)
+            executable = os.path.join(basedir, executable)
         
         kwargs = {}
         if conf.has_option(section, 'args'):
@@ -299,7 +299,7 @@ class ApplicationConfig(object):
         if conf.has_option(section, 'cwd'):
             kwargs['cwd'] = conf.get(section, 'cwd')
             if basedir and not os.path.isabs(kwargs['cwd']):
-				kwargs['cwd'] = os.path.join(basedir, kwargs['cwd'])
+                kwargs['cwd'] = os.path.join(basedir, kwargs['cwd'])
 
         if conf.has_option(section, 'sleep_before_connexion'):
             kwargs['sleep_before_connexion'] = conf.getint(section,
@@ -308,9 +308,9 @@ class ApplicationConfig(object):
         if conf.has_option(section, 'aliases'):
             kwargs['aliases'] = conf.get(section, 'aliases')
             if basedir and not os.path.isabs(kwargs['aliases']):
-				kwargs['aliases'] = os.path.join(basedir, kwargs['aliases'])
+                kwargs['aliases'] = os.path.join(basedir, kwargs['aliases'])
         
-        return cls(executable, **kwargs)
+        return cls(executable, **kwargs) # pylint: disable=W0142
 
     def create_context(self):
         """

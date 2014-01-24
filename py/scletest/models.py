@@ -169,7 +169,7 @@ class Widget(ScleHooqClientModel):
             type_ = prop_pytype2qtName(type(value))
             value = prop_value2str(value)
         client = self.client()
-        data = client.send_command(client.COMMANDE_SET_PROPERTY
+        client.send_command(client.COMMANDE_SET_PROPERTY
                                     .format(target=self.path,
                                             propName=name,
                                             propValue=value,
@@ -245,6 +245,9 @@ class ComboBox(Widget):
         self.set_property('currentIndex', index)
 
 class LineEdit(Widget):
+    """
+    Représentation d'une QLineEdit
+    """
     def set_text(self, text):
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
@@ -255,6 +258,9 @@ class LineEdit(Widget):
         return self.properties()['text']
 
 class SpinBox(Widget):
+    """
+    Représentation d'un QSpinBox
+    """
     def set_value(self, value):
         if not isinstance(value, int):
             raise TypeError('the text parameter must be an int'
@@ -265,6 +271,9 @@ class SpinBox(Widget):
         return self.properties()['value']
 
 class DoubleSpinBox(Widget):
+    """
+    Représentation d'un QDoubleSpinBox
+    """
     def set_value(self, value):
         if not isinstance(value, (float, int)):
             raise TypeError('the text parameter must be  a float or'
@@ -364,7 +373,7 @@ class WidgetsTree(ScleHooqClientModel):
     
     def _attach_client(self, scle_hooq_client):
         for w in self.widgets:
-            w._attach_client(scle_hooq_client)
+            w._attach_client(scle_hooq_client) # pylint: disable=W0212
     
     def iter_widgets(self):
         for w in self.widgets:
