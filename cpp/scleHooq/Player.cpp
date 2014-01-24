@@ -41,8 +41,6 @@
 #include <QMetaProperty>
 #include "unistd.h"
 
-#include <QTest>
-
 #ifdef Q_OS_WIN32
 
 #include <QDrag>
@@ -246,6 +244,35 @@ QModelIndex _get_model_item(QAbstractItemModel * model,
 	}
 	
 	return model->index(row, column, parent);
+}
+
+void mouse_click(QWidget * w, const QPoint & pos) {
+    QPoint global_pos = w->mapToGlobal(pos);
+    qApp->postEvent(w,
+        new QMouseEvent(QEvent::MouseButtonPress,
+                        pos,
+                        global_pos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+    qApp->postEvent(w,
+        new QMouseEvent(QEvent::MouseButtonRelease,
+                        pos,
+                        global_pos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+}
+
+void mouse_dclick(QWidget * w, const QPoint & pos) {
+    mouse_click(w, pos);
+    qApp->postEvent(w,
+        new QMouseEvent(QEvent::MouseButtonDblClick,
+                        pos,
+                        w->mapToGlobal(pos),
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
 }
 
 void Player::processEvents()
@@ -560,10 +587,11 @@ void Player::processEvents()
                     const QKeySequence & binding = e->key();
                     for (uint i = 0; i < binding.count(); ++i) {
                         uint key = binding[i];
-                        QKeyEvent * key_e = new QKeyEvent(QKeyEvent::KeyPress, key & ~Qt::KeyboardModifierMask, key & Qt::KeyboardModifierMask);
-                        qApp->postEvent(w, key_e);
-                        key_e = new QKeyEvent(QKeyEvent::KeyRelease, key & ~Qt::KeyboardModifierMask, key & Qt::KeyboardModifierMask);
-                        qApp->postEvent(w, key_e);
+                        Qt::KeyboardModifiers modifiers = static_cast<Qt::KeyboardModifiers>(key & Qt::KeyboardModifierMask);
+                        key = key & ~Qt::KeyboardModifierMask;
+                        
+                        qApp->postEvent(w, new QKeyEvent(QKeyEvent::KeyPress, key, modifiers));
+                        qApp->postEvent(w, new QKeyEvent(QKeyEvent::KeyRelease, key, modifiers));
                     }
                 }
             }
@@ -603,11 +631,11 @@ void Player::processEvents()
                     }
                     else if (e->type() == Event::ItemClick) {
                         QRect visualRect = view->visualRect(index);
-                        QTest::mouseClick(view->viewport(), Qt::LeftButton, 0, visualRect.center());
+                        mouse_click(view->viewport(), visualRect.center());
                     }
                     else if (e->type() == Event::ItemDClick) {
                         QRect visualRect = view->visualRect(index);
-                        QTest::mouseDClick(view->viewport(), Qt::LeftButton, 0, visualRect.center());
+                        mouse_dclick(view->viewport(), visualRect.center());
                     }
                 }
             }
