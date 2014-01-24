@@ -210,31 +210,11 @@ class ApplicationContext(object):
     A la destruction de cette instance, la méthode :meth:`terminate`
     est automatiquement appellée et ferme l'objet **hooq** ainsi que le
     processus testé.
-    
-    :param executable: chemin complet vers l'exécutable de test
-    :param args: arguments de l'exécutable
-    :param hooq_port: Spécifie un port pour la communication scleHooq
-    :param cwd: Répertoire d'exécution de l'exécutable. Si None,
-                l'exécutable sera lancé depuis son propre dossier
-    :param env: dict représentant les variables d'environnement à passer
-                lors de l'exécution de l'exécutable. Si None, os.environ
-                est utilisé
-    :param sleep_before_connexion: temps d'attente en seconde entre le
-                                   démarrage du process et la connexion
-                                   scleHooq
     """
-    def __init__(self, executable,
-                       args=(),
-                       hooq_port=None,
-                       cwd=None,
-                       env=None,
-                       sleep_before_connexion=1,
-                       aliases=None):
+    def __init__(self, appconfig):
         self._process, self.hooq = None, None
         
-        if cwd is None:
-            cwd = os.path.dirname(executable) or '.'
-        
+        env = appconfig.env
         if env is None:
             env = os.environ
         
@@ -242,14 +222,15 @@ class ApplicationContext(object):
         env = dict(env.items())
         
         env['SCLEHOOQ_ACTIVATION'] = '1'
+        hooq_port = appconfig.hooq_port
         if hooq_port:
             env['SCLEHOOQ_PORT'] = str(hooq_port)
         
-        cmd = [executable]
-        cmd.extend(args)
-        self._process = subprocess.Popen(cmd, cwd=cwd, env=env)
-        time.sleep(sleep_before_connexion)
-        self.hooq = ScleHooqClient(port=hooq_port, aliases=aliases)
+        cmd = [appconfig.executable]
+        cmd.extend(appconfig.args)
+        self._process = subprocess.Popen(cmd, cwd=appconfig.cwd, env=env)
+        time.sleep(appconfig.sleep_before_connexion)
+        self.hooq = ScleHooqClient(port=hooq_port, aliases=appconfig.aliases)
     
     def _kill_process(self):
         if self._process:
@@ -271,11 +252,32 @@ class ApplicationConfig(object):
     """
     Cet objet permet de créer des :class:`ApplicationContext`.
     
-    Les paramètres sont les mêmes que pour :class:`ApplicationContext`.
+    :param executable: chemin complet vers l'exécutable de test
+    :param args: arguments de l'exécutable
+    :param hooq_port: Spécifie un port pour la communication scleHooq
+    :param cwd: Répertoire d'exécution de l'exécutable. Si None,
+                l'exécutable sera lancé depuis son propre dossier
+    :param env: dict représentant les variables d'environnement à passer
+                lors de l'exécution de l'exécutable. Si None, os.environ
+                est utilisé
+    :param sleep_before_connexion: temps d'attente en seconde entre le
+                                   démarrage du process et la connexion
+                                   scleHooq.
     """
-    def __init__(self, *args, **kwargs):
+    def __init__(self, executable,
+                       args=(),
+                       hooq_port=None,
+                       cwd=None,
+                       env=None,
+                       sleep_before_connexion=1,
+                       aliases=None):
+        self.executable = executable
         self.args = args
-        self.kwargs = kwargs
+        self.hooq_port = hooq_port
+        self.cwd = cwd or os.path.dirname(executable) or os.getcwd()
+        self.env = env
+        self.sleep_before_connexion = sleep_before_connexion
+        self.aliases = aliases
     
     @classmethod
     def from_conf(cls, conf, section, basedir=None):
@@ -314,7 +316,7 @@ class ApplicationConfig(object):
         """
         Retourne une instance de :class:`ApplicationContext`.
         """
-        return ApplicationContext(*self.args, **self.kwargs)
+        return ApplicationContext(self)
     
     def with_hooq(self, meth):
         """
