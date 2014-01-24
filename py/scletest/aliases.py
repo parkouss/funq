@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+"""
+Ce module définit l'implémentation des alias pour permettre de donner
+des noms à un path de widget.
+"""
+
 class HooqAliasesInvalidLineError(Exception):
     """
     Exception levée lors d'erreur de parsing du fichier d'alias.
@@ -22,6 +27,7 @@ class HooqAliases(dict):
             raise HooqAliasesKeyError("L'alias `%s` existe deja."
                                        % name)
         try:
+            # pylint: disable=W0142
             value = value.format(**self)
         except KeyError, msg:
             raise HooqAliasesKeyError("Substitution impossible dans"
