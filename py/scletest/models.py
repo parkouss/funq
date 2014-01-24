@@ -14,7 +14,7 @@ from xml.dom import minidom
 # monkey patch pour permettre à la methode render()
 # de fonctionner avec des accents (au moins pour dexml version 0.4.2)
 
-def _render_value(self, val):
+def _render_value(self, val): # pylint: disable=C0111,W0613
     if isinstance(val, unicode):
         return val.encode('utf-8')
     return str(val)
@@ -31,8 +31,12 @@ class ScleHooqClientModel(Model):
     """
     @classmethod
     def parse_and_attach(cls, scle_hooq_client, data):
+        """
+        Appel de la méthode de classe parse et attache les clients
+        via un appel de :meth:`_attach_client`.
+        """
         obj = cls.parse(data)
-        obj._attach_client(scle_hooq_client)
+        obj._attach_client(scle_hooq_client) # pylint: disable=W0212
         return obj
     
     def __init__(self, *args, **kwargs):
@@ -40,9 +44,17 @@ class ScleHooqClientModel(Model):
         self._scle_hooq_client = None
     
     def client(self):
+        """
+        Retourne l'instance attachée du client
+        :class:`scletest.sclehooq.ScleHooqClient`
+        """
         return self._scle_hooq_client
     
     def _attach_client(self, scle_hooq_client):
+        """
+        Associe l'instance de :class:`scletest.sclehooq.ScleHooqClient`
+        passée en paramètre à cet objet.
+        """
         self._scle_hooq_client = scle_hooq_client
 
 def prop_pytype2qtName(type_):
@@ -65,14 +77,14 @@ class WidgetMetaClass(ModelMetaclass):
     Ce constructeur de classe force le tagname dexml a etre 'Widget' pour
     toute classe créée.
     """
-    def __new__(mcls, name, bases, attrs):
-        cls = super(WidgetMetaClass, mcls).__new__(mcls, name, bases, attrs)
+    def __new__(mcs, name, bases, attrs):
+        cls = super(WidgetMetaClass, mcs).__new__(mcs, name, bases, attrs)
         cls.meta.tagname = 'Widget'
         return cls
 
 class Widget(ScleHooqClientModel):
     """
-    Classe Widget 
+    Classe Widget
     Dérivé de la classe dexml.Model pour le parsing XML des dumps
     
     """
@@ -89,15 +101,16 @@ class Widget(ScleHooqClientModel):
         Cette méthode de classe permet de renvoyer une instance de sous-classe
         de Widget selon la valeur de l'attribut qt_class_types magiquement.
         
-        Remarque: le nom de la sous-classe doit être la valeur de l'attribut qt_class_types
-        mais sans le 'Q'.
+        Remarque: le nom de la sous-classe doit être la valeur de l'attribut
+        qt_class_types mais sans le 'Q'.
         
         Exemple:
           
           class ComboBox(Widget):
               pass
                 
-          xml = '<Widget name="name1" class_type="class1" path="path1" qt_class_types="QComboBox"/>'
+          xml = ('<Widget name="name1" class_type="class1" path="path1"'
+                 ' qt_class_types="QComboBox"/>')
           instance = Widget.parse(xml)
           assert_is_instance(instance, ComboBox)
         
