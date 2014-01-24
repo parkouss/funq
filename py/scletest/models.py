@@ -200,25 +200,6 @@ class Widget(ScleHooqClientModel):
                                             target=self.path,
                                             keySequence=sequence))
 
-class AbstractItemView(Widget):
-    """
-    Ajout de méthodes spécifiques à toutes les instances de QAbstractItemView.
-    """
-    def model_items(self):
-        client = self.client()
-        data = client.send_command(client.COMMANDE_DUMP_MODEL
-                                                    .format(self.path))
-        return ModelItems.parse_and_attach(client, data)
-
-    def model_item(self, row, column=0, path=''):
-        client = self.client()
-        data = client.send_command(client.COMMANDE_GET_ITEM
-                     .format(view_target=self.path,
-                             item_path=path,
-                             row=row,
-                             column=column))
-        return Item.parse_and_attach(client, data)
-
 class ComboBox(Widget):
     """
     Ajoute des méthodes spécifiques aux ComboBox.
@@ -236,6 +217,9 @@ class ComboBox(Widget):
         return model_items
     
     def set_current_text(self, text):
+        if not isinstance(text, basestring):
+            raise TypeError('the text parameter must be a string'
+                             ' - got %s' % type(text))
         model_items = self.model_items()
         column = self.properties()['modelColumn']
         index = -1
@@ -246,6 +230,107 @@ class ComboBox(Widget):
         assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
                              % (text, self.path))
         self.set_property('currentIndex', index)
+
+class LineEdit(Widget):
+    def set_text(self, text):
+        if not isinstance(text, basestring):
+            raise TypeError('the text parameter must be a string'
+                             ' - got %s' % type(text))
+        self.set_property('text', text)
+    
+    def text(self):
+        return self.properties()['text']
+
+class SpinBox(Widget):
+    def set_value(self, value):
+        if not isinstance(value, int):
+            raise TypeError('the text parameter must be an int'
+                             ' - got %s' % type(value))
+        self.set_property('value', value)
+    
+    def value(self):
+        return self.properties()['value']
+
+class DoubleSpinBox(Widget):
+    def set_value(self, value):
+        if not isinstance(value, (float, int)):
+            raise TypeError('the text parameter must be  a float or'
+                             ' an int - got %s' % type(value))
+        self.set_property('value', float(value))
+    
+    def value(self):
+        return self.properties()['value']
+
+class AbstractItemView(Widget):
+    """
+    Ajout de méthodes spécifiques à toutes les instances de QAbstractItemView.
+    """
+    editor_class_names = ('QLineEdit', 'QComboBox', 'QSpinBox',
+                                   'QDoubleSpinBox')
+    def model_items(self):
+        """
+        Retourne une instance de :class:`ModelItems` contenant tous les items
+        du modèle associé à la vue.
+        """
+        client = self.client()
+        data = client.send_command(client.COMMANDE_DUMP_MODEL
+                                                    .format(self.path))
+        return ModelItems.parse_and_attach(client, data)
+
+    def model_item(self, row, column=0, path=''):
+        """
+        Retourne une instance d'un :class:`Item`.
+        """
+        client = self.client()
+        data = client.send_command(client.COMMANDE_GET_ITEM
+                     .format(view_target=self.path,
+                             item_path=path,
+                             row=row,
+                             column=column))
+        return Item.parse_and_attach(client, data)
+    
+    def current_editor(self, editor_class_name=None):
+        """
+        Retourne l'éditeur d'item actuellement ouvert sur cette vue.
+        l'item doit être en mode édition, ce qui peut être fait par
+        l'appel de :meth:`Item.dclick` ou :meth:`Item.edit`.
+        
+        Les types d'éditeur gérés sont actuellement les suivants:
+        'QLineEdit', 'QComboBox', 'QSpinBox' et 'QDoubleSpinBox'.
+        """
+        # late import, because scletest.sclehooq also import this module
+        from scletest.sclehooq import AckError
+        client = self.client()
+        qt_path = '::qt_scrollarea_viewport::%s-1'
+        if editor_class_name:
+            return client.widget(path=self.path
+                                  + qt_path % editor_class_name)
+        for editor_class_name in self.editor_class_names:
+            try:
+                return client.widget(path=self.path
+                                      + qt_path % editor_class_name)
+            except AckError:
+                pass
+        raise AckError('Unable to find an editor. Possible editors:'
+                        ' %s' % repr(self.editor_class_names))
+    
+    def edit_item(self, item, value, editor_class_name=None):
+        """
+        Edite un item pour lui positionner la valeur value.
+        """
+        # mieux vaut effectuer un double click, comme c'est le moyen
+        # le plus classique de passer en édition pour un utilisateur
+        item.dclick()
+        editor = self.current_editor(editor_class_name)
+        if isinstance(editor, ComboBox):
+            editor.set_current_text(value)
+        elif isinstance(editor, LineEdit):
+            editor.set_text(value)
+        elif isinstance(editor, (SpinBox, DoubleSpinBox)):
+            editor.set_value(value)
+        else:
+            raise TypeError("Don't know how to edit an item with"
+                             " an editor of type %s." % type(editor))
 
 class WidgetsTree(ScleHooqClientModel):
     """
@@ -435,4 +520,3 @@ class ModelItems(ScleHooqClientModel):
                         next_item = item_
             item = next_item
         return None
-
