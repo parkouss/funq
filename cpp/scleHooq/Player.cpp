@@ -205,6 +205,18 @@ void _dump_item_model_attrs(QAbstractItemModel * model,
     xml.writeAttribute("row", QString::number(index.row()));
     xml.writeAttribute("column", QString::number(index.column()));
     xml.writeAttribute("value", model->data( index ).toString());
+    QVariant checkable = model->data(index, Qt::CheckStateRole);
+    if (checkable.isValid()) {
+        Qt::CheckState state = static_cast<Qt::CheckState>(
+                    checkable.toUInt());
+        QString stringState;
+        switch(state) {
+            case Qt::Unchecked: stringState = "unchecked"; break;
+            case Qt::PartiallyChecked: stringState = "partiallyChecked"; break;
+            case Qt::Checked: stringState = "checked"; break;
+        }
+        xml.writeAttribute("check_state", stringState);
+    }
 }
 
 void _dump_items_model(QAbstractItemModel * model,

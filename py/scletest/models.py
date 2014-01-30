@@ -349,6 +349,15 @@ class AbstractItemView(Widget):
                       correspondant à l'éditeur (str pour LineEdit,
                       int pour SpinBox, etc)
         """
+        if item.is_checkable():
+            # ok, on a a faire a une case a cocher.
+            # le probleme c'est qu'il n'y a pas vraiment d'editeur pour
+            # cela souvent
+            if not isinstance(value, bool):
+                raise TypeError("must be a bool")
+            if value != item.is_checked():
+                item.dclick()
+            return
         # mieux vaut effectuer un double click, comme c'est le moyen
         # le plus classique de passer en édition pour un utilisateur
         item.dclick()
@@ -433,6 +442,7 @@ class Item(ScleHooqClientModel):
     column = fields.String(attrname="column")
     value = fields.String(attrname="value")
     path = fields.String(attrname="path", required=False)
+    check_state = fields.String(attrname="check_state", required=False)
     items = fields.List("Item")
     
     def _attach_client(self, scle_hooq_client):
@@ -450,6 +460,12 @@ class Item(ScleHooqClientModel):
                              row=self.row,
                              column=self.column,
                              action=action))
+    def is_checkable(self):
+        return self.check_state is not None
+    
+    def is_checked(self):
+        return self.check_state == 'checked'
+    
     def select(self):
         """
         Sélectionne l'item.
