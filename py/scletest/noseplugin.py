@@ -5,6 +5,15 @@ from scletest.sclehooq import ApplicationRegistry
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
 import os
+import logging
+
+LOG = logging.getLogger('nose.plugins.scle')
+
+def log_with_sep(message):
+    sep = '-' * 70
+    LOG.info(sep)
+    LOG.info(message)
+    LOG.info(sep)
 
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
@@ -30,3 +39,8 @@ class SclePlugin(Plugin):
         conf.read([conf_file])
         _APP_REGISTRY.register_from_conf(conf, os.path.dirname(conf_file))
 
+    def beforeTest(self, test):
+        log_with_sep(u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8'))
+    
+    def afterTest(self, test):
+        log_with_sep(u"Fin de test `%s`" % unicode(test.id(), 'utf-8'))
