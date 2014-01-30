@@ -404,7 +404,7 @@ class Property(Model):
     value = fields.String(attrname="value")
     
     py_types = {
-        'QString': str,
+        'QString': unicode,
         'int': int,
         'bool': lambda v: v!='false',
     }
