@@ -228,7 +228,23 @@ class ApplicationContext(object): # pylint: disable=R0903
         
         cmd = [appconfig.executable]
         cmd.extend(appconfig.args)
-        self._process = subprocess.Popen(cmd, cwd=appconfig.cwd, env=env)
+        
+        stdout = appconfig.executable_stdout
+        stderr = appconfig.executable_stderr
+        
+        if stderr:
+            if stderr == stdout:
+                stderr = subprocess.STDOUT
+            else:
+                stderr = open(stderr, 'a')
+        if stdout:
+            stdout = open(stdout, 'a')
+        
+        self._process = subprocess.Popen(cmd,
+                                         cwd=appconfig.cwd,
+                                         stdout=stdout,
+                                         stderr=stderr,
+                                         env=env)
         time.sleep(appconfig.sleep_before_connexion)
         self.hooq = ScleHooqClient(port=hooq_port, aliases=appconfig.aliases)
     
@@ -270,7 +286,9 @@ class ApplicationConfig(object):
                        cwd=None,
                        env=None,
                        sleep_before_connexion=1,
-                       aliases=None): # pylint: disable=R0913
+                       aliases=None,
+                       executable_stdout=None,
+                       executable_stderr=None): # pylint: disable=R0913
         self.executable = executable
         self.args = args
         self.hooq_port = hooq_port
@@ -278,6 +296,8 @@ class ApplicationConfig(object):
         self.env = env
         self.sleep_before_connexion = sleep_before_connexion
         self.aliases = aliases
+        self.executable_stdout = executable_stdout
+        self.executable_stderr = executable_stderr
     
     @classmethod
     def from_conf(cls, conf, section, basedir=None):
@@ -296,19 +316,22 @@ class ApplicationConfig(object):
         if conf.has_option(section, 'hooq_port'):
             kwargs['hooq_port'] = conf.getint(section, 'hooq_port')
 
-        if conf.has_option(section, 'cwd'):
-            kwargs['cwd'] = conf.get(section, 'cwd')
-            if basedir and not os.path.isabs(kwargs['cwd']):
-                kwargs['cwd'] = os.path.join(basedir, kwargs['cwd'])
-
         if conf.has_option(section, 'sleep_before_connexion'):
             kwargs['sleep_before_connexion'] = conf.getint(section,
                                              'sleep_before_connexion')
         
-        if conf.has_option(section, 'aliases'):
-            kwargs['aliases'] = conf.get(section, 'aliases')
-            if basedir and not os.path.isabs(kwargs['aliases']):
-                kwargs['aliases'] = os.path.join(basedir, kwargs['aliases'])
+        for optname in ('cwd', 'aliases', 'executable_stdout',
+                         'executable_stderr'):
+            if conf.has_option(section, optname):
+                kwargs[optname] = conf.get(section, optname)
+                if basedir and not os.path.isabs(kwargs[optname]):
+                    kwargs[optname] = os.path.join(basedir, kwargs[optname])
+        
+        # devnull si NULL spécifié dans le fichier dans le fichier de conf
+        for optname in ('executable_stdout', 'executable_stderr'):
+            if conf.has_option(section, optname) and \
+                            conf.get(section, optname) == 'NULL':
+                kwargs[optname] = os.devnull
         
         return cls(executable, **kwargs) # pylint: disable=W0142
 
