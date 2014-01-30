@@ -10,6 +10,9 @@ Les classes de ce module définissent l'API d'utilisation de scletest.
 
 from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
+import logging
+
+LOG = logging.getLogger('scletest.models')
 
 # monkey patch pour permettre à la methode render()
 # de fonctionner avec des accents (au moins pour dexml version 0.4.2)
@@ -165,6 +168,7 @@ class Widget(ScleHooqClientModel):
         :param value: valeur de la propriété
         :param type_: chaine représentant le type QT de la propriété.
         """
+        LOG.info('set_property(%r, %r) sur %r' % (name, value, self.path))
         if type_ is None:
             type_ = prop_pytype2qtName(type(value))
             value = prop_value2str(value)
@@ -185,6 +189,7 @@ class Widget(ScleHooqClientModel):
                            type des valeurs changé si possible (voir
                            :meth:`Property.py_value`)
         """
+        LOG.info('properties() sur %r' % self.path)
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_PROPERTIES
                                                     .format(self.path))
@@ -198,6 +203,7 @@ class Widget(ScleHooqClientModel):
         """
         Click sur le widget
         """
+        LOG.info('click() sur %r' % self.path)
         client = self.client()
         return client.send_command(client.COMMANDE_CLICK_WIDGET
                                                     .format(self.path))
@@ -208,6 +214,7 @@ class Widget(ScleHooqClientModel):
         Voir la documentation de QKeySequence::fromString pour
         savoir quoi passer pour l'argument `sequence`.
         """
+        LOG.info('shortcut(%r) sur %r' % (sequence, self.path))
         client = self.client()
         client.send_command(client.COMMANDE_SHORTCUT.format(
                                             target=self.path,
@@ -294,6 +301,7 @@ class AbstractItemView(Widget):
         Retourne une instance de :class:`ModelItems` contenant tous les items
         du modèle associé à la vue.
         """
+        LOG.info('model_items() sur %r' % self.path)
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_MODEL
                                                     .format(self.path))
