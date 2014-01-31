@@ -834,6 +834,8 @@ bool Player::handleElement()
     {
         m_eventQueue.enqueue(new ShortcutEvent(attributes().value("target").toString(),
                                                QKeySequence::fromString(attributes().value("keySequence").toString())));
+    } else if(name() == "qAppQuitGently") {
+        qApp->quit();
     } else {
         return false;
     }

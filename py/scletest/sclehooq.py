@@ -250,16 +250,26 @@ class ApplicationContext(object): # pylint: disable=R0903
     
     def _kill_process(self):
         if self._process:
-            self._process.kill()
+            # attente de fermeture gentille
+            max_wait, intervall = 10, 0.05
+            while max_wait > 0 and self._process.poll() is None:
+                time.sleep(intervall)
+                max_wait -= intervall
+            if self._process.returncode is None:
+                # application bloquée ! pas le choix ...
+                self._process.terminate()
             self._process = None
     
     def terminate(self):
         """
         Tente de tuer le process de test et ferme l'objet **hooq**.
         """
-        self._kill_process()
         if self.hooq:
+            # demande de fermeture, gentiment (qApp->quit()).
+            self.hooq.socket.sendall('<qAppQuitGently/>')
             self.hooq.close()
+            self.hooq = None
+        self._kill_process()
     
     def __del__(self):
         self.terminate()
