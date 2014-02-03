@@ -7,6 +7,7 @@ qui est le point d'entrée de communication avec une application de test.
 """
 
 import socket
+import errno
 import subprocess
 import os
 import time
@@ -72,7 +73,7 @@ class ScleHooqClient(object):
     COMMANDE_SHORTCUT = ('<shortcut target="{target}"'
                             ' keySequence="{keySequence}"/>')
     
-    def __init__(self, addr=None, port=None, aliases=None):
+    def __init__(self, addr=None, port=None, aliases=None, timeout_connection=10):
         self.addr = addr or self.DEFAUT_HOOQ_ADDR
         self.port = port or self.DEFAUT_HOOQ_PORT
         
@@ -87,7 +88,23 @@ class ScleHooqClient(object):
         self.aliases = aliases
         
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect((self.addr, self.port))
+        
+        # tentative de connexion
+        time_elapsed = 0.0
+        while 1:
+            try:
+                self.socket.connect((self.addr, self.port))
+            except socket.error, e:
+                if e.errno == errno.ECONNREFUSED:
+                    if time_elapsed >= timeout_connection:
+                        raise
+                    time.sleep(0.2)
+                    time_elapsed += 0.2
+                else:
+                    raise
+            else:
+                break
+                
         
         # teste la connexion
         self.no_op()
@@ -245,8 +262,10 @@ class ApplicationContext(object): # pylint: disable=R0903
                                          stdout=stdout,
                                          stderr=stderr,
                                          env=env)
-        time.sleep(appconfig.sleep_before_connexion)
-        self.hooq = ScleHooqClient(port=hooq_port, aliases=appconfig.aliases)
+
+        self.hooq = ScleHooqClient(port=hooq_port,
+                                   aliases=appconfig.aliases,
+                                   timeout_connection=appconfig.timeout_connection)
     
     def _kill_process(self):
         if self._process:
@@ -286,16 +305,15 @@ class ApplicationConfig(object):
     :param env: dict représentant les variables d'environnement à passer
                 lors de l'exécution de l'exécutable. Si None, os.environ
                 est utilisé
-    :param sleep_before_connexion: temps d'attente en seconde entre le
-                                   démarrage du process et la connexion
-                                   scleHooq.
+    :param timeout_connection: temps d'attente maximum avant de déclarer
+                              forfait pour la connexion scleHooq.
     """
     def __init__(self, executable,
                        args=(),
                        hooq_port=None,
                        cwd=None,
                        env=None,
-                       sleep_before_connexion=1,
+                       timeout_connection=10,
                        aliases=None,
                        executable_stdout=None,
                        executable_stderr=None): # pylint: disable=R0913
@@ -304,7 +322,7 @@ class ApplicationConfig(object):
         self.hooq_port = hooq_port
         self.cwd = cwd or os.path.dirname(executable) or os.getcwd()
         self.env = env
-        self.sleep_before_connexion = sleep_before_connexion
+        self.timeout_connection = timeout_connection
         self.aliases = aliases
         self.executable_stdout = executable_stdout
         self.executable_stderr = executable_stderr
@@ -326,9 +344,9 @@ class ApplicationConfig(object):
         if conf.has_option(section, 'hooq_port'):
             kwargs['hooq_port'] = conf.getint(section, 'hooq_port')
 
-        if conf.has_option(section, 'sleep_before_connexion'):
-            kwargs['sleep_before_connexion'] = conf.getint(section,
-                                             'sleep_before_connexion')
+        if conf.has_option(section, 'timeout_connection'):
+            kwargs['timeout_connection'] = conf.getint(section,
+                                             'timeout_connection')
         
         for optname in ('cwd', 'aliases', 'executable_stdout',
                          'executable_stderr'):
