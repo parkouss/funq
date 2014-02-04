@@ -130,19 +130,19 @@ class ScleHooqClient(object):
         :param cmd: la commande à envoyer, sans le retour a la ligne final.
         :raises AckError: lors de réception d'erreur ACK
         """
-        LOG.debug("send_command: %s" % cmd)
+        LOG.debug("send_command: %s", cmd)
         self.socket.sendall(cmd + "\n")
         
-        buffer = ''
+        buffer_ = ''
         lines = []
         done = False
         while not done:
             more = self.socket.recv(4096)
             if not more:
                 raise Exception("Erreur de reception de la commande `%s`" % cmd)
-            buffer += more
-            while "\n" in buffer:
-                (line, buffer) = buffer.split("\n", 1)
+            buffer_ += more
+            while "\n" in buffer_:
+                (line, buffer_) = buffer_.split("\n", 1)
                 LOG.debug("reception: %s" % line)
                 if line == self.ACQUIT_OK:
                     done = True
@@ -309,7 +309,7 @@ class ApplicationContext(object): # pylint: disable=R0903
     def __del__(self):
         self.terminate()
 
-class ApplicationConfig(object):
+class ApplicationConfig(object): # pylint: disable=R0902
     """
     Cet objet permet de créer des :class:`ApplicationContext`.
     

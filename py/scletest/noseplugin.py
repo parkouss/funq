@@ -31,7 +31,7 @@ def _patch_nose_tools_assert_functions():
     def pep8(name):
         return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
     
-    class Dummy(unittest.TestCase):
+    class Dummy(unittest.TestCase): # pylint: disable=C0111,R0904
         longMessage = True # c'est ce qui change tout.
         
         def nop(self):
@@ -44,13 +44,15 @@ def _patch_nose_tools_assert_functions():
 
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
+
 config = _APP_REGISTRY.config
 multi_config = _APP_REGISTRY.multi_config
 
 class SclePlugin(Plugin):
     name = 'scle'
     
-    def options(self, parser, env=os.environ):
+    def options(self, parser, env=None):
+        env = env or os.environ
         super(SclePlugin, self).options(parser, env=env)
         parser.add_option('--scle-conf',
                           dest='scle_conf',
@@ -68,8 +70,8 @@ class SclePlugin(Plugin):
         conf.read([conf_file])
         _APP_REGISTRY.register_from_conf(conf, os.path.dirname(conf_file))
 
-    def beforeTest(self, test):
+    def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
         log_with_sep(u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8'))
     
-    def afterTest(self, test):
+    def afterTest(self, test): # pylint: disable=C0111,C0103,R0201
         log_with_sep(u"Fin de test `%s`" % unicode(test.id(), 'utf-8'))

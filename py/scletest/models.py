@@ -167,8 +167,8 @@ class Widget(ScleHooqClientModel):
         :param name: nom de la propriété
         :param value: valeur de la propriété
         :param type_: chaine représentant le type QT de la propriété.
-        """
-        LOG.info('set_property(%r, %r) sur %r' % (name, value, self.path))
+        """ # pylint: disable=W1401
+        LOG.info('set_property(%r, %r) sur %r', name, value, self.path)
         if type_ is None:
             type_ = prop_pytype2qtName(type(value))
             value = prop_value2str(value)
@@ -189,7 +189,7 @@ class Widget(ScleHooqClientModel):
                            type des valeurs changé si possible (voir
                            :meth:`Property.py_value`)
         """
-        LOG.info('properties() sur %r' % self.path)
+        LOG.info('properties() sur %r', self.path)
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_PROPERTIES
                                                     .format(self.path))
@@ -203,7 +203,7 @@ class Widget(ScleHooqClientModel):
         """
         Click sur le widget
         """
-        LOG.info('click() sur %r' % self.path)
+        LOG.info('click() sur %r', self.path)
         client = self.client()
         return client.send_command(client.COMMANDE_CLICK_WIDGET
                                                     .format(self.path))
@@ -214,7 +214,7 @@ class Widget(ScleHooqClientModel):
         Voir la documentation de QKeySequence::fromString pour
         savoir quoi passer pour l'argument `sequence`.
         """
-        LOG.info('shortcut(%r) sur %r' % (sequence, self.path))
+        LOG.info('shortcut(%r) sur %r', sequence, self.path)
         client = self.client()
         client.send_command(client.COMMANDE_SHORTCUT.format(
                                             target=self.path,
@@ -301,7 +301,7 @@ class AbstractItemView(Widget):
         Retourne une instance de :class:`ModelItems` contenant tous les items
         du modèle associé à la vue.
         """
-        LOG.info('model_items() sur %r' % self.path)
+        LOG.info('model_items() sur %r', self.path)
         client = self.client()
         data = client.send_command(client.COMMANDE_DUMP_MODEL
                                                     .format(self.path))
@@ -414,7 +414,7 @@ class Property(Model):
     py_types = {
         'QString': unicode,
         'int': int,
-        'bool': lambda v: v!='false',
+        'bool': lambda v: v != 'false',
     }
     
     def py_value(self):
@@ -422,8 +422,8 @@ class Property(Model):
         renvoie le type python de la valeur de la propriété
         si possible.
         
-        Actuellement, les types %s sont gérés.
-        """ % Property.py_types.keys()
+        Actuellement, les types QString, int, bool sont gérés.
+        """
         
         return self.py_types.get(self.property_type, str)(self.value)
 
@@ -462,7 +462,7 @@ class Item(ScleHooqClientModel):
 
     def _item_action(self, action):
         client = self.client()
-        data = client.send_command(client.COMMANDE_MODEL_ITEM
+        client.send_command(client.COMMANDE_MODEL_ITEM
                      .format(view_target=self.view_path,
                              item_path=self.path or '',
                              row=self.row,
@@ -506,7 +506,7 @@ class ModelItems(ScleHooqClientModel):
 
     def _attach_client(self, scle_hooq_client):
         for item in self.items:
-            item._attach_client(scle_hooq_client)
+            item._attach_client(scle_hooq_client) # pylint: disable=W0212
     
     def item_by_named_path(self, named_path, match_column=0, sep='/', column=0):
         """

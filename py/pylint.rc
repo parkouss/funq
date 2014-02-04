@@ -35,7 +35,8 @@ load-plugins=
 # it should appear only once).
 
 # diable trailing whitespaces warnings, as I don't think it really matters.
-disable=C0303
+# also disable no space allowed before/after brackets (wtf)
+disable=C0303,C0326
 
 
 [REPORTS]
