@@ -45,6 +45,7 @@ def _patch_nose_tools_assert_functions():
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
 config = _APP_REGISTRY.config
+multi_config = _APP_REGISTRY.multi_config
 
 class SclePlugin(Plugin):
     name = 'scle'

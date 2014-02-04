@@ -381,6 +381,26 @@ class ApplicationConfig(object):
             return meth(ctx.hooq)
         return wrapper
 
+class MultiApplicationConfig(tuple):
+    """
+    Permet de manipuler plusieurs applications de test en même temps.
+    """
+    def __init__(self, appconfigs):
+        tuple.__init__(appconfigs)
+    
+    def with_hooq(self, meth):
+        """
+        Décorateur simple de fonction permettant de créer les contextes
+        des :class:`ApplicationConfig` stockées qui seront
+        automatiquement détruits après exécution de la fonction.
+        """
+        @wraps(meth)
+        def wrapper():
+            ctxs = [ appconfig.create_context() for appconfig
+                     in self]
+            return meth(*[ctx.hooq for ctx in ctxs])
+        return wrapper
+
 class ApplicationRegistry(object):
     """
     Gère un ensemble de :class:`ApplicationConfig`. Une instance
@@ -403,4 +423,8 @@ class ApplicationRegistry(object):
         self.confs[name][mode] = conf
     
     def config(self, name, mode='default'):
-        return self.confs[name][mode]    
+        return self.confs[name][mode]
+    
+    def multi_config(self, names, mode='default'):
+        return MultiApplicationConfig(
+                    [ self.config(name, mode) for name in names ])
