@@ -372,7 +372,7 @@ class ApplicationConfig(object):
                 if basedir and not os.path.isabs(kwargs[optname]):
                     kwargs[optname] = os.path.join(basedir, kwargs[optname])
         
-        # devnull si NULL spécifié dans le fichier dans le fichier de conf
+        # devnull si NULL spécifié dans le fichier de conf
         for optname in ('executable_stdout', 'executable_stderr'):
             if conf.has_option(section, optname) and \
                             conf.get(section, optname) == 'NULL':

@@ -107,7 +107,7 @@ class Widget(ScleHooqClientModel):
         Remarque: le nom de la sous-classe doit être la valeur de l'attribut
         qt_class_types mais sans le 'Q'.
         
-        Exemple:
+        Exemple::
           
           class ComboBox(Widget):
               pass
@@ -156,7 +156,7 @@ class Widget(ScleHooqClientModel):
         
         .. note::
           
-          Si type_ est None, le type sera déterminé automatiquement
+          Si type\_ est None, le type sera déterminé automatiquement
           selon le type python de l'objet value passé. Par exemple:
           
           - type(value) == str: 'QString'
