@@ -15,6 +15,33 @@ def log_with_sep(message):
     LOG.info(message)
     LOG.info(sep)
 
+def _patch_nose_tools_assert_functions():
+    """
+    patche les fonctions assert_* de nose.tools pour inclure
+    des messages longs dans les message d'assertions.
+    
+    voir nose.tools.trivial.
+    """
+    from nose import tools
+    import unittest
+    import re
+    
+    caps = re.compile('([A-Z])')
+
+    def pep8(name):
+        return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
+    
+    class Dummy(unittest.TestCase):
+        longMessage = True # c'est ce qui change tout.
+        
+        def nop(self):
+            pass
+    _t = Dummy('nop')
+    for at in [ at for at in dir(_t)
+                if at.startswith('assert') and not '_' in at ]:
+        pepd = pep8(at)
+        setattr(tools, pepd, getattr(_t, at))
+
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
 config = _APP_REGISTRY.config
@@ -32,6 +59,7 @@ class SclePlugin(Plugin):
         Plugin.configure(self, options, config)
         if not self.enabled:
             return
+        _patch_nose_tools_assert_functions()
         conf_file = os.path.realpath(options.scle_conf)
         if not os.path.isfile(conf_file):
             raise Exception("Fichier de conf scle manquant: `%s`" % conf_file)
