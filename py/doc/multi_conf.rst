@@ -14,7 +14,7 @@ Pour cela, il faut déclarer plusieurs sections dans le fichier de conf
 
   [applitest2]
   executable = /path/to/my/program
-  hooq_port = 100001
+  hooq_port = 10001
 
 .. important::
   

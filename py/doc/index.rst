@@ -12,6 +12,7 @@ Plan de documentation
    scleHooq
    tutorial
    multi_conf
+   test_attachable
    scletest_conf
    api/api
 
