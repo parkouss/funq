@@ -220,17 +220,35 @@ class ApplicationContext(object): # pylint: disable=R0903
     """
     Représente le contexte d'une application testée.
     
-    L'instanciation de cette classe lance l'exécutable à tester avec
-    scleHooq puis se connecte via une instance de
+    L'instanciation de cette classe peut lancer l'exécutable à tester
+    avec scleHooq (si appconfig.executable ne commence pas par 
+    "socket://").
+    
+    Ensuite on tente de se connecter au serveur via une instance de
     :class:`ScleHooqClient` accessible par la variable membre **hooq**.
     
     A la destruction de cette instance, la méthode :meth:`terminate`
     est automatiquement appellée et ferme l'objet **hooq** ainsi que le
-    processus testé.
+    processus testé s'il a été créé.
     """
     def __init__(self, appconfig):
         self._process, self.hooq = None, None
         
+        if not appconfig.executable.startswith('socket://'):
+            self._start_test_process(appconfig)
+            addr = None # means localhost
+        else:
+            addr = appconfig.executable[9:]
+        
+        self.hooq = ScleHooqClient(addr=addr,
+                                   port=appconfig.hooq_port,
+                                   aliases=appconfig.aliases,
+                                   timeout_connection=appconfig.timeout_connection)
+    
+    def _start_test_process(self, appconfig):
+        """
+        Demarre le process de l'appli à tester.
+        """
         env = appconfig.env
         if env is None:
             env = os.environ
@@ -262,10 +280,6 @@ class ApplicationContext(object): # pylint: disable=R0903
                                          stdout=stdout,
                                          stderr=stderr,
                                          env=env)
-
-        self.hooq = ScleHooqClient(port=hooq_port,
-                                   aliases=appconfig.aliases,
-                                   timeout_connection=appconfig.timeout_connection)
     
     def _kill_process(self):
         if self._process:
@@ -284,8 +298,10 @@ class ApplicationContext(object): # pylint: disable=R0903
         Tente de tuer le process de test et ferme l'objet **hooq**.
         """
         if self.hooq:
-            # demande de fermeture, gentiment (qApp->quit()).
-            self.hooq.socket.sendall('<qAppQuitGently/>')
+            if self._process is not None:
+                # mode attache, on doit gerer la fin du process
+                # demande de fermeture, gentiment (qApp->quit()).
+                self.hooq.socket.sendall('<qAppQuitGently/>')
             self.hooq.close()
             self.hooq = None
         self._kill_process()
@@ -334,7 +350,8 @@ class ApplicationConfig(object):
         d'un fichier de configuration lu par ConfigParser.
         """
         executable = conf.get(section, 'executable')
-        if basedir and not os.path.isabs(executable):
+        if not executable.startswith('socket://') and (
+                        basedir and not os.path.isabs(executable)):
             executable = os.path.join(basedir, executable)
         
         kwargs = {}
