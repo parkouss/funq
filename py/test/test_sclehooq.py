@@ -1,12 +1,54 @@
 from nose.tools import *
 from scletest import sclehooq
 import os
+import weakref
 
 from ConfigParser import ConfigParser, NoOptionError
 
 class ApplicationConfig(sclehooq.ApplicationConfig):
     def create_context(self):
-        return self
+        class O: pass
+        class Ctx:
+            hooq = O()
+        ctx = Ctx()
+        
+        return ctx
+
+def test_ApplicationConfigWithHooqContextDeleted():
+    """
+    Teste que le contexte soit bien detruit avec with_hooq
+    """
+    appconfig = ApplicationConfig("toto")
+    
+    ref = []
+    @appconfig.with_hooq
+    def func(obj):
+        ref.append(weakref.ref(obj))
+    
+    func()
+    
+    assert_equals(len(ref), 1)
+    assert_equals(ref[0](), None) # objet detruit
+
+def test_MultiApplicationConfigWithHooqContextDeleted():
+    """
+    Teste que le contexte soit bien detruit avec with_hooq
+    """
+    appconfig = sclehooq.MultiApplicationConfig([
+        ApplicationConfig("toto"),
+        ApplicationConfig("titi")])
+    
+    ref = []
+    @appconfig.with_hooq
+    def func(obj1, obj2):
+        ref.append(weakref.ref(obj1))
+        ref.append(weakref.ref(obj2))
+    
+    func()
+    
+    assert_equals(len(ref), 2)
+    assert_equals(ref[0](), None) # objet detruit
+    assert_equals(ref[1](), None) # objet detruit
 
 class TestApplicationConfigFromConf:
     
@@ -69,3 +111,29 @@ class TestApplicationConfigFromConf:
         self.set_opt('executable_stdout', 'NULL')
         appconf = self.createApplicationConfig()
         assert_equals(appconf.executable_stdout, os.devnull)
+
+class TestApplicationRegistry:
+    def setup(self):
+        self.reg = sclehooq.ApplicationRegistry()
+    
+    def test_register_from_conf(self):
+        conf = ConfigParser()
+        conf.add_section('example')
+        exe = os.path.join(os.getcwd(), 'titi')
+        conf.set('example', 'executable', exe)
+        
+        self.reg.register_from_conf(conf, '.')
+        
+        assert_equals(len(self.reg.confs), 1)
+        
+        assert_equals(self.reg.config('example').executable, exe)
+
+    def test_multi_config(self):
+        c1, c2 =  ApplicationConfig('useless'),  ApplicationConfig('useless')
+        self.reg.register_config('c1', c1)
+        self.reg.register_config('c2', c2)
+        
+        multi = self.reg.multi_config(('c2', 'c1'))
+        
+        assert_is_instance(multi, sclehooq.MultiApplicationConfig)
+        assert_equals(multi, (c2, c1))
