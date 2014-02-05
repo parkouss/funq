@@ -11,6 +11,7 @@ Les classes de ce module définissent l'API d'utilisation de scletest.
 from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
 import logging
+import time
 
 LOG = logging.getLogger('scletest.models')
 
@@ -137,6 +138,19 @@ class Widget(ScleHooqClientModel):
             ScleHooqClientModel._attach_client(w, scle_hooq_client)
             widgets.extend(w.widgets)
 
+    def wait_for_property(self, propname, value,
+                          timeout=10, timeout_interval=0.1):
+        props = self.properties()
+        elapsed = 0.0
+        while 1:
+            if props[propname] == value:
+                return True
+            if elapsed >= timeout:
+                raise Exception("property %s != %r" % (propname, value))
+            time.sleep(timeout_interval)
+            elapsed += timeout_interval
+            props = self.properties()
+
     def iter_widgets(self):
         widgets = [self]
         while widgets:
@@ -199,21 +213,25 @@ class Widget(ScleHooqClientModel):
         else:
             return properties
 
-    def click(self):
+    def click(self, wait_for_enabled=10):
         """
         Click sur le widget
         """
+        if wait_for_enabled > 0:
+            self.wait_for_property('enabled', True, timeout=wait_for_enabled)
         LOG.info('click() sur %r', self.path)
         client = self.client()
         return client.send_command(client.COMMANDE_CLICK_WIDGET
                                                     .format(self.path))
     
-    def shortcut(self, sequence):
+    def shortcut(self, sequence, wait_for_enabled=10):
         """
         Envoie une QKeySequence sur le widget.
         Voir la documentation de QKeySequence::fromString pour
         savoir quoi passer pour l'argument `sequence`.
         """
+        if wait_for_enabled > 0:
+            self.wait_for_property('enabled', True, timeout=wait_for_enabled)
         LOG.info('shortcut(%r) sur %r', sequence, self.path)
         client = self.client()
         client.send_command(client.COMMANDE_SHORTCUT.format(
