@@ -122,7 +122,24 @@ class ScleHooqClient(object):
     def __del__(self):
         self.close()
     
-    def send_command(self, cmd):
+    def send_command(self, cmd, timeout=0.0, timeout_interval=0.1):
+        """
+        Envoi une commande au serveur scleHooq et retourne la réponse
+        au format texte.
+        """
+        elapsed_time = 0.0
+        while 1:
+            try:
+                return self._send_command(cmd)
+            except AckError:
+                if elapsed_time >= timeout:
+                    raise
+                time.sleep(timeout_interval)
+                elapsed_time += timeout_interval
+            else:
+                break
+    
+    def _send_command(self, cmd):
         """
         Envoi une commande au serveur scleHooq et retourne la réponse
         au format texte.
@@ -180,7 +197,7 @@ class ScleHooqClient(object):
         dump = self.send_command(self.COMMANDE_DUMP_WIDGETS)
         return WidgetsTree.parse_and_attach(self, dump)
     
-    def widget(self, alias=None, path=None):
+    def widget(self, alias=None, path=None, timeout=10, timeout_interval=0.1):
         """
         Renvoie une instance de :class:`scletest.models.Widget`
         identifiée par un alias ou un chemin complet.
@@ -195,7 +212,9 @@ class ScleHooqClient(object):
         if alias:
             path = self.aliases[alias]
         
-        dump = self.send_command(self.COMMANDE_GET_WIDGET.format(path))
+        dump = self.send_command(self.COMMANDE_GET_WIDGET.format(path),
+                                 timeout=timeout,
+                                 timeout_interval=timeout_interval)
         return Widget.parse_and_attach(self, dump)
     
     def dump_widgets_tree(self, stream, pretty=True):
