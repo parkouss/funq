@@ -63,6 +63,7 @@ class ScleHooqClientModel(Model):
         self._scle_hooq_client = scle_hooq_client
 
 def prop_pytype2qtName(type_):
+    """type python -> type qt"""
     if issubclass(type_, basestring):
         return 'QString'
     elif issubclass(type_, int):
@@ -73,6 +74,7 @@ def prop_pytype2qtName(type_):
         return 'bool'
 
 def prop_value2str(value):
+    """valeur python -> str pour qt"""
     if isinstance(value, bool):
         return 'true' if value else 'false'
     return str(value)
@@ -94,11 +96,22 @@ class Widget(ScleHooqClientModel):
     
     """
     __metaclass__ = WidgetMetaClass
+    
     name = fields.String(attrname="name")
+    """Nom du widget"""
+    
     class_type = fields.String(attrname="class_type")
+    """Nom de la classe du widget"""
+    
     qt_class_types = fields.String(attrname="qt_class_types")
+    """Noms des classes Qt parentes. Utile pour le framework en interne."""
+    
     path = fields.String(attrname="path")
+    """Chemin complet du widget"""
+    
     widgets = fields.List("Widget")
+    """Liste des sous widgets. Seulement positionné par récupération d'un
+       :class:`WidgetsTree`"""
 
     @classmethod
     def parse(cls, xml):
@@ -245,6 +258,9 @@ class ComboBox(Widget):
     Ajoute des méthodes spécifiques aux ComboBox.
     """
     def model_items(self):
+        """
+        Renvoie le model item (:class:`ModelItems`) associé à cette combobox
+        """
         client = self.client()
         # création et affichage de QComboBoxListView
         self.click()
@@ -257,6 +273,10 @@ class ComboBox(Widget):
         return model_items
     
     def set_current_text(self, text):
+        """
+        Définit le texte de la combobox en assurant que c'est une valeur
+        possible.
+        """
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
                              ' - got %s' % type(text))
@@ -276,12 +296,14 @@ class LineEdit(Widget):
     Représentation d'une QLineEdit
     """
     def set_text(self, text):
+        """Définit le texte de QLineEdit"""
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
                              ' - got %s' % type(text))
         self.set_property('text', text)
     
     def text(self):
+        """Renvoie la valeur de QLineEdit"""
         return self.properties()['text']
 
 class SpinBox(Widget):
@@ -289,12 +311,14 @@ class SpinBox(Widget):
     Représentation d'un QSpinBox
     """
     def set_value(self, value):
+        """Définit la valeur de la spinbox"""
         if not isinstance(value, int):
             raise TypeError('the text parameter must be an int'
                              ' - got %s' % type(value))
         self.set_property('value', value)
     
     def value(self):
+        """Renvoie la valeur de la spinbox"""
         return self.properties()['value']
 
 class DoubleSpinBox(Widget):
@@ -302,12 +326,14 @@ class DoubleSpinBox(Widget):
     Représentation d'un QDoubleSpinBox
     """
     def set_value(self, value):
+        """Définit la valeur de la spinbox"""
         if not isinstance(value, (float, int)):
             raise TypeError('the text parameter must be  a float or'
                              ' an int - got %s' % type(value))
         self.set_property('value', float(value))
     
     def value(self):
+        """Renvoie la valeur de la spinbox"""
         return self.properties()['value']
 
 class AbstractItemView(Widget):
@@ -406,7 +432,9 @@ class WidgetsTree(ScleHooqClientModel):
     Utilisée pour parser le dump XML de l'arborescence des widgets
     Dérivé de la classe dexml.Model
     """
+    
     widgets = fields.List(Widget)
+    """Liste des widgets"""
     
     def _attach_client(self, scle_hooq_client):
         for w in self.widgets:
@@ -427,9 +455,15 @@ class Property(Model):
     Classe Property 
     Stockage d'une proprieté associé à un widget
     """
+    
     name = fields.String(attrname="name")
+    """Nom de la propriété"""
+    
     property_type = fields.String(attrname="type")
+    """type de la propriété"""
+    
     value = fields.String(attrname="value")
+    """Valeur de la propriété sous forme de chaîne"""
     
     py_types = {
         'QString': unicode,
@@ -444,7 +478,6 @@ class Property(Model):
         
         Actuellement, les types QString, int, bool sont gérés.
         """
-        
         return self.py_types.get(self.property_type, str)(self.value)
 
 class Properties(Model):
@@ -453,9 +486,12 @@ class Properties(Model):
     Utilisée pour parser le dump XML des propriétés d'un widget
     Dérivé de la classe dexml.Model
     """
+    
     properties = fields.List(Property)
+    """Liste de propriétés :class:`Property`"""
     
     def as_py_dict(self):
+        """Transforme la liste des propriétés en un dictionnaire python"""
         d = {}
         for prop in self.properties:
             d[prop.name] = prop.py_value()
@@ -465,13 +501,27 @@ class Item(ScleHooqClientModel):
     """
     Représente un model item de QT contenu dans un modele QT.
     """
+    
     view_path = fields.String(attrname="view_path")
+    """Chemin complet de la vue ayant permis de récupérer cet item"""
+    
     row = fields.String(attrname="row")
+    """index de la ligne du modèle de cet item"""
+    
     column = fields.String(attrname="column")
+    """index de la colonne du modèle de cet item"""
+    
     value = fields.String(attrname="value")
+    """valeur string de cet item"""
+    
     path = fields.String(attrname="path", required=False)
+    """Chemin de l'item au sein du modèle"""
+    
     check_state = fields.String(attrname="check_state", required=False)
+    """chaîne indiquant l'état de la propriété checkable de l'item"""
+    
     items = fields.List("Item")
+    """List des sous items"""
     
     def _attach_client(self, scle_hooq_client):
         items = [self]
@@ -489,9 +539,11 @@ class Item(ScleHooqClientModel):
                              column=self.column,
                              action=action))
     def is_checkable(self):
+        """Renvoie True si l'item est checkable"""
         return self.check_state is not None
     
     def is_checked(self):
+        """Renvoie True si l'item est checké"""
         return self.check_state == 'checked'
     
     def select(self):
@@ -519,10 +571,23 @@ class Item(ScleHooqClientModel):
         self._item_action('editItem')
 
 class ModelItems(ScleHooqClientModel):
+    """
+    Permet de manipuler un modèle QT.
+    """
+    
     name = fields.String(attrname="name")
+    """Nom de l'objet QAbstractItemView ayant permis de récupérer ce modèle"""
+    
     class_type = fields.String(attrname="class_type")
+    """Nom de la classe de l'objet héritant de QAbstractItemView ayant
+       permis de récupérer ce modèle"""
+    
     path = fields.String(attrname="path")
+    """Chemin de l'objet QAbstractItemView ayant permis de récupérer ce
+       modèle"""
+    
     items = fields.List("Item")
+    """Liste de :class:`Item` contenu dans le modèle"""
 
     def _attach_client(self, scle_hooq_client):
         for item in self.items:
