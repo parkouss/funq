@@ -235,6 +235,12 @@ class ScleHooqClient(object):
         stream.write(xml)
     
     def take_screenshot(self, fname):
+        """
+        Prends une impression écran du desktop actif.
+        
+        :param fname: nom du fichier où sauvegarder l'image sans l'extension.
+                      extension par défaut: png.
+        """
         data = self.send_command('<screenShot/>')
         screenshot = Screenshot.parse(data)
         screenshot.write_file(fname)

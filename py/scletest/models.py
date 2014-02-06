@@ -141,6 +141,15 @@ class Widget(ScleHooqClientModel):
 
     def wait_for_property(self, propname, value,
                           timeout=10, timeout_interval=0.1):
+        """
+        Attends qu'une propriété passe à la valeur donnée.
+        
+        :param propname: nom de la propriété
+        :param value: valeur attendue de la propriété
+        :param timeout: temps d'attente maximal
+        :param timeout_interval: temps d'attente entre chaque demande
+                                 au serveur.
+        """
         props = self.properties()
         elapsed = 0.0
         while 1:
@@ -216,7 +225,12 @@ class Widget(ScleHooqClientModel):
 
     def click(self, wait_for_enabled=10):
         """
-        Click sur le widget
+        Click sur le widget.
+        
+        :param wait_for_enabled: si > 0, on attends la propriété `enabled`
+                                 du widget (autrement le click n'aura pas
+                                 l'effet escompté) voir
+                                 :meth:`wait_for_property`.
         """
         if wait_for_enabled > 0:
             self.wait_for_property('enabled', True, timeout=wait_for_enabled)
