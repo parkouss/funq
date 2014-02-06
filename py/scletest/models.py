@@ -8,6 +8,7 @@ réception de données du serveur de l'application testée.
 Les classes de ce module définissent l'API d'utilisation de scletest.
 """
 
+from scletest.tools import wait_for
 from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
 import logging
@@ -139,27 +140,14 @@ class Widget(ScleHooqClientModel):
             ScleHooqClientModel._attach_client(w, scle_hooq_client)
             widgets.extend(w.widgets)
 
-    def wait_for_property(self, propname, value,
-                          timeout=10, timeout_interval=0.1):
-        """
-        Attends qu'une propriété passe à la valeur donnée.
-        
-        :param propname: nom de la propriété
-        :param value: valeur attendue de la propriété
-        :param timeout: temps d'attente maximal
-        :param timeout_interval: temps d'attente entre chaque demande
-                                 au serveur.
-        """
-        props = self.properties()
-        elapsed = 0.0
-        while 1:
-            if props[propname] == value:
-                return True
-            if elapsed >= timeout:
-                raise Exception("property %s != %r" % (propname, value))
-            time.sleep(timeout_interval)
-            elapsed += timeout_interval
-            props = self.properties()
+    def wait_for_properties(self, props, timeout=10, timeout_interval=0.1):
+        def check_props():
+            properties = self.properties()
+            for k, v in props.iteritems():
+                if properties.get(k) != v:
+                    return False
+            return True
+        return wait_for(check_props, timeout, timeout_interval)
 
     def iter_widgets(self):
         widgets = [self]
@@ -227,26 +215,25 @@ class Widget(ScleHooqClientModel):
         """
         Click sur le widget.
         
-        :param wait_for_enabled: si > 0, on attends la propriété `enabled`
-                                 du widget (autrement le click n'aura pas
-                                 l'effet escompté) voir
+        :param wait_for_enabled: si > 0, on attends les propriétés `enabled`
+                                 et `visible` du widget (autrement le click
+                                 n'aura pas l'effet escompté) voir
                                  :meth:`wait_for_property`.
         """
-        if wait_for_enabled > 0:
-            self.wait_for_property('enabled', True, timeout=wait_for_enabled)
         LOG.info('click() sur %r', self.path)
+        if wait_for_enabled > 0:
+            self.wait_for_properties({'enabled': True, 'visible': True},
+                                     timeout=wait_for_enabled)
         client = self.client()
         return client.send_command(client.COMMANDE_CLICK_WIDGET
                                                     .format(self.path))
     
-    def shortcut(self, sequence, wait_for_enabled=10):
+    def shortcut(self, sequence):
         """
         Envoie une QKeySequence sur le widget.
         Voir la documentation de QKeySequence::fromString pour
         savoir quoi passer pour l'argument `sequence`.
         """
-        if wait_for_enabled > 0:
-            self.wait_for_property('enabled', True, timeout=wait_for_enabled)
         LOG.info('shortcut(%r) sur %r', sequence, self.path)
         client = self.client()
         client.send_command(client.COMMANDE_SHORTCUT.format(

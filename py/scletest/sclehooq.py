@@ -16,6 +16,7 @@ from collections import defaultdict
 import shlex
 from scletest.aliases import HooqAliases
 from scletest.models import Widget, WidgetsTree, Screenshot
+from scletest.tools import wait_for
 from xml.dom import minidom
 
 import logging
@@ -90,21 +91,16 @@ class ScleHooqClient(object):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         # tentative de connexion
-        time_elapsed = 0.0
-        while 1:
+        def connect():
             try:
                 self.socket.connect((self.addr, self.port))
+                return True
             except socket.error, e:
-                if e.errno == errno.ECONNREFUSED:
-                    if time_elapsed >= timeout_connection:
-                        raise
-                    time.sleep(0.2)
-                    time_elapsed += 0.2
-                else:
+                if e.errno != errno.ECONNREFUSED:
                     raise
-            else:
-                break
-                
+                return e
+        
+        wait_for(connect, timeout_connection, 0.2)
         
         # teste la connexion
         self.no_op()
@@ -127,17 +123,16 @@ class ScleHooqClient(object):
         Envoi une commande au serveur scleHooq et retourne la réponse
         au format texte.
         """
-        elapsed_time = 0.0
-        while 1:
+        res = [None]
+        def no_ack_error():
             try:
-                return self._send_command(cmd)
-            except AckError:
-                if elapsed_time >= timeout:
-                    raise
-                time.sleep(timeout_interval)
-                elapsed_time += timeout_interval
-            else:
-                break
+                res[0] = self._send_command(cmd)
+                return True
+            except AckError, e:
+                return e
+        
+        wait_for(no_ack_error, timeout, timeout_interval)
+        return res[0]
     
     def _send_command(self, cmd):
         """
