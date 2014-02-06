@@ -15,7 +15,7 @@ from functools import wraps
 from collections import defaultdict
 import shlex
 from scletest.aliases import HooqAliases
-from scletest.models import Widget, WidgetsTree
+from scletest.models import Widget, WidgetsTree, Screenshot
 from xml.dom import minidom
 
 import logging
@@ -233,7 +233,11 @@ class ScleHooqClient(object):
         if pretty:
             xml = minidom.parseString(xml).toprettyxml()
         stream.write(xml)
-        
+    
+    def take_screenshot(self, fname):
+        data = self.send_command('<screenShot/>')
+        screenshot = Screenshot.parse(data)
+        screenshot.write_file(fname)
 
 class ApplicationContext(object): # pylint: disable=R0903
     """

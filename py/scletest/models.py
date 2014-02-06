@@ -12,6 +12,7 @@ from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
 import logging
 import time
+import base64
 
 LOG = logging.getLogger('scletest.models')
 
@@ -593,3 +594,12 @@ class ModelItems(ScleHooqClientModel):
                         next_item = item_
             item = next_item
         return None
+
+class Screenshot(Model):
+    format = fields.String(attrname="format")
+    data = fields.String(attrname="data")
+    
+    def write_file(self, fname):
+        fname = fname + '.' + self.format.lower()
+        with open(fname, 'wb') as f:
+            f.write(base64.standard_b64decode(self.data))

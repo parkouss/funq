@@ -39,6 +39,9 @@
 #include <QAbstractItemView>
 #include <QAbstractItemModel>
 #include <QMetaProperty>
+#include <QBuffer>
+#include <QPixmap>
+#include <QDesktopWidget>
 #include "unistd.h"
 
 #ifdef Q_OS_WIN32
@@ -654,6 +657,23 @@ void Player::processEvents()
             delete event;
             break;
         }
+        case Event::ScreenShot: {
+            QPixmap window = QPixmap::grabWindow(QApplication::desktop()->winId());
+            QBuffer buffer;
+            window.save(&buffer, "PNG");
+
+            QXmlStreamWriter xml(device());
+            // xml.setAutoFormatting(true);
+            xml.writeStartDocument();
+            xml.writeStartElement("Screenshot");
+            xml.writeAttribute("format", "PNG");
+            xml.writeAttribute("data", buffer.data().toBase64());
+            xml.writeEndElement(); // Item
+            xml.writeEndDocument();
+
+            delete event;
+            break;
+        }
         }
 
     }
@@ -836,6 +856,8 @@ bool Player::handleElement()
                                                QKeySequence::fromString(attributes().value("keySequence").toString())));
     } else if(name() == "qAppQuitGently") {
         qApp->quit();
+    } else if (name() == "screenShot") {
+        m_eventQueue.enqueue(new Event(Event::ScreenShot));
     } else {
         return false;
     }
