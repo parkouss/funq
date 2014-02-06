@@ -261,7 +261,7 @@ class ApplicationContext(object): # pylint: disable=R0903
         
         self.hooq = ScleHooqClient(addr=addr,
                                    port=appconfig.hooq_port,
-                                   aliases=appconfig.aliases,
+                                   aliases=appconfig.create_aliases(),
                                    timeout_connection=appconfig.timeout_connection)
     
     def _start_test_process(self, appconfig):
@@ -351,7 +351,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        timeout_connection=10,
                        aliases=None,
                        executable_stdout=None,
-                       executable_stderr=None): # pylint: disable=R0913
+                       executable_stderr=None,
+                       nose_options=None): # pylint: disable=R0913
         self.executable = executable
         self.args = args
         self.hooq_port = hooq_port
@@ -361,19 +362,28 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.aliases = aliases
         self.executable_stdout = executable_stdout
         self.executable_stderr = executable_stderr
+        self.nose_options = nose_options
+    
+    def create_aliases(self):
+        return HooqAliases.from_file(self.aliases,
+                    self.nose_options.scle_gkit_file,
+                    self.nose_options.scle_gkit)
     
     @classmethod
-    def from_conf(cls, conf, section, basedir=None):
+    def from_conf(cls, conf, section, nose_options):
         """
         Génère une instance de :class:`ApplicationConfig` à partir
         d'un fichier de configuration lu par ConfigParser.
         """
+        
+        basedir = os.path.dirname(nose_options.scle_conf)
+        
         executable = conf.get(section, 'executable')
         if not executable.startswith('socket://') and (
                         basedir and not os.path.isabs(executable)):
             executable = os.path.join(basedir, executable)
         
-        kwargs = {}
+        kwargs = {'nose_options': nose_options}
         if conf.has_option(section, 'args'):
             kwargs['args'] = shlex.split(conf.get(section, 'args'))
 
@@ -446,13 +456,13 @@ class ApplicationRegistry(object):
     def __init__(self):
         self.confs = defaultdict(dict)
     
-    def register_from_conf(self, conf, basedir):
+    def register_from_conf(self, conf, nose_options):
         for section in conf.sections():
             if ':' in section:
                 app, mode = section.split(':', 1)
             else:
                 app, mode = section, 'default'
-            appconf = ApplicationConfig.from_conf(conf, section, basedir)
+            appconf = ApplicationConfig.from_conf(conf, section, nose_options)
             self.register_config(app, appconf, mode)
     
     def register_config(self, name, conf, mode='default'):

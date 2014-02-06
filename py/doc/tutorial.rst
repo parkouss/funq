@@ -117,6 +117,11 @@ Fichier **applitest.aliases**:
   Le fichier supporte la substitution de variables par l'utilisation des
   accolades, ce qui permet d'éviter le copié/collé...
 
+.. note::
+  
+  Il existe des alias prédéfinis dont la valeur change selon le
+  gestionnaire de fenêtre utilisé. Voir :ref:`gkit-aliases`.
+
 Il reste à modifier le fichier de configuration **scletest.conf** pour
 indiquer l'emplacement du fichier d'alias. Rajouter la ligne suivante
 dans la section **applitest**::

@@ -56,19 +56,35 @@ class SclePlugin(Plugin):
         super(SclePlugin, self).options(parser, env=env)
         parser.add_option('--scle-conf',
                           dest='scle_conf',
-                          default=env.get('NOSE_SCLE_CONF') or 'scletest.conf')
+                          default=env.get('NOSE_SCLE_CONF') or 'scletest.conf',
+                          help="Fichier de configuration scletest, defaut"
+                               " `scletest.conf`.")
+        parser.add_option('--scle-gkit',
+                          dest='scle_gkit',
+                          default=env.get('NOSE_SCLE_GKIT') or 'default',
+                          help="Specifie le toolkit graphique utilise."
+                               " Permet de definir des alias par defaut"
+                               " differents. Defaut: `default`")
+        gkit_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                                 'aliases-gkits.conf')
+        parser.add_option('--scle-gkit-file',
+                          dest='scle_gkit_file',
+                          default=gkit_file,
+                          help="Specifie le fichier de description du"
+                               " toolkit graphique a utiliser. Defaut:"
+                               " `%s`" % gkit_file)
     
     def configure(self, options, conf):
         Plugin.configure(self, options, config)
         if not self.enabled:
             return
         _patch_nose_tools_assert_functions()
-        conf_file = os.path.realpath(options.scle_conf)
+        conf_file = options.scle_conf = os.path.realpath(options.scle_conf)
         if not os.path.isfile(conf_file):
             raise Exception("Fichier de conf scle manquant: `%s`" % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
-        _APP_REGISTRY.register_from_conf(conf, os.path.dirname(conf_file))
+        _APP_REGISTRY.register_from_conf(conf, options)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
         log_with_sep(u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8'))

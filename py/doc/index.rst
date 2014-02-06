@@ -14,6 +14,7 @@ Plan de documentation
    multi_conf
    test_attachable
    scletest_conf
+   gkit_aliases
    api/api
 
 

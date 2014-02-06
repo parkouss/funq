@@ -16,6 +16,7 @@ setup(
 	name="scletest",
 	version=version,
 	packages=find_packages(),
+    zip_safe=False,
 	install_requires=install_requires,
 	entry_points = {
         'nose.plugins.0.10': [

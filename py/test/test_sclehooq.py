@@ -14,6 +14,11 @@ class ApplicationConfig(sclehooq.ApplicationConfig):
         
         return ctx
 
+class NoseOptions(object):
+    def __init__(self, **kwds):
+        for k, v in kwds.iteritems():
+            setattr(self, k, v)
+
 def test_ApplicationConfigWithHooqContextDeleted():
     """
     Teste que le contexte soit bien detruit avec with_hooq
@@ -60,7 +65,8 @@ class TestApplicationConfigFromConf:
         self.conf.set('my', name, value)
     
     def createApplicationConfig(self):
-        return ApplicationConfig.from_conf(self.conf, 'my', os.getcwd())
+        return ApplicationConfig.from_conf(self.conf, 'my',
+                NoseOptions(scle_conf=os.path.join(os.getcwd(), 'my.conf')))
     
     @raises(NoOptionError)
     def test_require_executable(self):
@@ -122,7 +128,7 @@ class TestApplicationRegistry:
         exe = os.path.join(os.getcwd(), 'titi')
         conf.set('example', 'executable', exe)
         
-        self.reg.register_from_conf(conf, '.')
+        self.reg.register_from_conf(conf, NoseOptions(scle_conf='.'))
         
         assert_equals(len(self.reg.confs), 1)
         
