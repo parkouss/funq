@@ -413,7 +413,7 @@ void Player::processEvents()
         case Event::DumpWidgetsTree:
         {
             QXmlStreamWriter xml(device());
-            xml.setAutoFormatting(true);
+            // xml.setAutoFormatting(true);
             xml.writeStartDocument();
             xml.writeStartElement("WidgetsTree");
             dumpWidgetsTree(xml);
@@ -425,7 +425,7 @@ void Player::processEvents()
         case Event::DumpModel:
         {
             QXmlStreamWriter xml(device());
-            xml.setAutoFormatting(true);
+            // xml.setAutoFormatting(true);
             xml.writeStartDocument();
             xml.writeStartElement("ModelItems");
             dumpWidget(xml, view);
@@ -440,7 +440,7 @@ void Player::processEvents()
         case Event::GetWidget:
         {
             QXmlStreamWriter xml(device());
-            xml.setAutoFormatting(true);
+            // xml.setAutoFormatting(true);
             xml.writeStartDocument();
             xml.writeStartElement("Widget");
             dumpWidget(xml, w);
@@ -563,7 +563,7 @@ void Player::processEvents()
 								.arg(e->path());
 				} else {
 					QXmlStreamWriter xml(device());
-					xml.setAutoFormatting(true);
+					// xml.setAutoFormatting(true);
 					xml.writeStartDocument();
 					QString view_path = ObjectHookName::objectPath(view);
 					xml.writeStartElement("Item");
@@ -939,7 +939,7 @@ void Player::dumpWidgetsTree(QXmlStreamWriter & streamWriter, QWidget* root)
 void Player::dumpProperties(QWidget* widget)
 {
     QXmlStreamWriter xml(device());
-    xml.setAutoFormatting(true);
+    // xml.setAutoFormatting(true);
     xml.writeStartDocument();
     xml.writeStartElement("Properties");
     dumpWidget(xml, widget);
