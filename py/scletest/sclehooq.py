@@ -155,7 +155,7 @@ class ScleHooqClient(object):
             buffer_ += more
             while "\n" in buffer_:
                 (line, buffer_) = buffer_.split("\n", 1)
-                LOG.debug("reception: %s" % line)
+                LOG.debug("reception: %s", line)
                 if line == self.ACQUIT_OK:
                     done = True
                     break
@@ -348,7 +348,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
     :param timeout_connection: temps d'attente maximum avant de déclarer
                               forfait pour la connexion scleHooq.
     """
-    def __init__(self, executable,
+    def __init__(self, executable, # pylint: disable=R0913
                        args=(),
                        hooq_port=None,
                        cwd=None,
@@ -357,7 +357,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        aliases=None,
                        executable_stdout=None,
                        executable_stderr=None,
-                       nose_options=None): # pylint: disable=R0913
+                       nose_options=None):
         self.executable = executable
         self.args = args
         self.hooq_port = hooq_port

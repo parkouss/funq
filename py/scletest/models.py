@@ -12,7 +12,6 @@ from scletest.tools import wait_for
 from dexml import fields, Model, ModelMetaclass
 from xml.dom import minidom
 import logging
-import time
 import base64
 
 LOG = logging.getLogger('scletest.models')
@@ -168,8 +167,9 @@ class Widget(ScleHooqClientModel):
         
         .. note::
           
-          Si type\_ est None, le type sera déterminé automatiquement
-          selon le type python de l'objet value passé. Par exemple:
+          Si le paramètre type est None, le type sera déterminé
+          automatiquement selon le type python de l'objet value passé.
+          Par exemple:
           
           - type(value) == str: 'QString'
           - type(value) == int: 'int'
@@ -179,7 +179,7 @@ class Widget(ScleHooqClientModel):
         :param name: nom de la propriété
         :param value: valeur de la propriété
         :param type_: chaine représentant le type QT de la propriété.
-        """ # pylint: disable=W1401
+        """
         LOG.info('set_property(%r, %r) sur %r', name, value, self.path)
         if type_ is None:
             type_ = prop_pytype2qtName(type(value))
@@ -579,7 +579,6 @@ class ModelItems(ScleHooqClientModel):
         else:
             parts = named_path.split(sep)
         item = self
-        result = []
         while item and parts:
             next_item = None
             part = parts.pop(0)
