@@ -370,6 +370,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.nose_options = nose_options
     
     def create_aliases(self):
+        if not self.aliases:
+            return None
         return HooqAliases.from_file(self.aliases,
                     self.nose_options.scle_gkit_file,
                     self.nose_options.scle_gkit)
