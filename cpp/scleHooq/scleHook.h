@@ -9,7 +9,7 @@ class ScleHooq : public QObject {
 	Q_OBJECT
 	
 	public:
-	static void activation();
+    static void activation(bool check_env=true);
 	
 	ScleHooq();
 	~ScleHooq();

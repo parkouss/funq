@@ -62,10 +62,13 @@ void active_hook_player() {
 }
 
 /* static */
-void ScleHooq::activation() {
-	const char * env_activation = getenv("SCLEHOOQ_ACTIVATION");
-	bool active = env_activation && strcmp(env_activation, "1") == 0;
-	if (active) {
+void ScleHooq::activation(bool check_env) {
+    bool active = true;
+    if (check_env) {
+        const char * env_activation = getenv("SCLEHOOQ_ACTIVATION");
+        active = env_activation && strcmp(env_activation, "1") == 0;
+    }
+    if (active) {
 		active_hook_player();
 	}
 }

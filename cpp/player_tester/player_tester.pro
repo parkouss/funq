@@ -24,10 +24,8 @@ HEADERS  += \
 FORMS    += \
     fenPrincipale.ui
 
-include(../scleHooq/hooq.pri)
-
 win32 {
-        SOURCES += WinDll.cpp
+        #SOURCES += WinDll.cpp
         target.path = $${OUT_PWD}/../hooq-release
         CONFIG(debug, debug|release) {
                 target.path = $${OUT_PWD}/../hooq-debug

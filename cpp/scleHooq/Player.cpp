@@ -369,7 +369,7 @@ void Player::processEvents()
                 m_error = true;
                 m_return = "SleepEvent cast failed";
             } else {
-                sleep(e->msec());
+                //sleep(e->msec());
             }
             delete event;
             break;
