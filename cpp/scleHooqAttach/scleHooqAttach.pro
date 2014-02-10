@@ -10,6 +10,10 @@ QT       -= gui
 
 DESTDIR     = ../bin
 
+isEmpty(PREFIX) { PREFIX = /usr/local }
+target.path = $$PREFIX/bin/
+INSTALLS += target
+
 TARGET = scleHooqAttach
 CONFIG   += console
 CONFIG   -= app_bundle
