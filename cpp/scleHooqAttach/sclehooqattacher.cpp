@@ -9,8 +9,8 @@
 #include <windows.h>
 #endif
 
-ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args, int port, QObject *parent) :
-    QObject(parent), m_exe(exe), m_args(args)
+ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args, int port, bool pickMode, QObject *parent) :
+    QObject(parent), m_exe(exe), m_args(args), m_wellStarted(false)
 {
     m_process.setProcessChannelMode(QProcess::ForwardedChannels);
     m_process.setWorkingDirectory(QFileInfo(exe).absolutePath());
@@ -28,13 +28,17 @@ ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args
     if (port >=0) {
         env.insert("SCLEHOOQ_PORT", QString::number(port));
     }
+    if (pickMode) {
+        env.insert("SCLEHOOQ_MODE_PICK", "1");
+    }
     m_process.setProcessEnvironment(env);
 }
 
 void ScleHooqAttacher::start() {
     m_process.start(m_exe, m_args);
+    m_wellStarted = m_process.waitForStarted();
     #ifdef Q_WS_WIN
-    if (m_process.waitForStarted()) {
+    if (m_wellStarted) {
         QDir appPath(QCoreApplication::applicationDirPath());
         QString libraryPath = appPath.absoluteFilePath("scleHooq.dll");
         wchar_t path[_MAX_PATH];
@@ -57,4 +61,15 @@ void ScleHooqAttacher::start() {
         (*installer)(library, m_process.pid()->dwThreadId);
     }
 #endif
+    if (!m_wellStarted) {
+        qDebug() << QString("Impossible de lancer %1").arg(m_exe);
+        qApp->quit();
+    }
+}
+
+int ScleHooqAttacher::returnCode() {
+    if (! m_wellStarted) {
+        return 127;
+    }
+    return m_process.exitCode();
 }

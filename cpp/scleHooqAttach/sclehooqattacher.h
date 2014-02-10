@@ -8,9 +8,11 @@ class ScleHooqAttacher : public QObject
 {
     Q_OBJECT
 public:
-    explicit ScleHooqAttacher(const QString & exe, const QStringList & args=QStringList(), int port=0, QObject *parent = 0);
+    explicit ScleHooqAttacher(const QString & exe, const QStringList & args=QStringList(), int port=0, bool pickMode=false, QObject *parent = 0);
     
     QProcess & process() { return m_process; }
+
+    int returnCode();
 
 signals:
     
@@ -20,6 +22,7 @@ private:
     QString m_exe;
     QStringList m_args;
     QProcess m_process;
+    bool m_wellStarted;
 };
 
 #endif // SCLEHOOQATTACHER_H

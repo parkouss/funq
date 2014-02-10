@@ -10,6 +10,7 @@ Plan de documentation
    :maxdepth: 2
    
    tutorial
+   localise_widget
    scletest_conf
    multi_conf
    test_attachable

@@ -104,34 +104,8 @@ bool Player::hook(void** data)
 
 bool Player::eventFilter(QObject* receiver, QEvent* event)
 {
-    if(dynamic_cast<QDropEvent*>(event))
-    {
-        qDebug() << "IS A DROP EVENT";
-        qDebug() << "Receiver:" << receiver;
-        qDebug() << "Event type:" << event->type();
-    }
-    if(m_mode == Pick)
-    {
-        if(event->type() == QEvent::MouseButtonPress)
-        {
-            return true;
-        }
-        if(event->type() == QEvent::MouseButtonRelease)
-        {
-            Q_ASSERT(device()->isWritable());
-            device()->write("PICKED\n");
-            QWidget* widget = qobject_cast<QWidget*>(receiver);
-            if(widget && widget->focusProxy())
-            {
-                dumpProperties(widget->focusProxy());
-            }
-            else
-            {
-                qDebug() << "Dump des propriétés sur un object non supporté";
-            }
-            endPick();
-            return true;
-        }
+    if(event->type() == QEvent::MouseButtonPress) {
+        qDebug() << event << receiver;
     }
     return false;
 }
