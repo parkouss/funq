@@ -9,7 +9,7 @@
 #include <windows.h>
 #endif
 
-ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args, QObject *parent) :
+ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args, int port, QObject *parent) :
     QObject(parent), m_exe(exe), m_args(args)
 {
     m_process.setProcessChannelMode(QProcess::ForwardedChannels);
@@ -25,6 +25,9 @@ ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args
     ld_preload += appPath.absoluteFilePath("libscleHooq.so");
     env.insert("LD_PRELOAD", ld_preload);
     #endif
+    if (port >=0) {
+        env.insert("SCLEHOOQ_PORT", QString::number(port));
+    }
     m_process.setProcessEnvironment(env);
 }
 
