@@ -55,29 +55,11 @@
 namespace Hooq
 {
 
-
-QPointer<Player> Player::m_instance;
-
-Player* Player::instance(QIODevice* device)
-{
-    m_instance = QPointer<Player>(new Player(device));
-    return m_instance.data();
-}
-
-Player* Player::instance()
-{
-    return m_instance.data();
-}
-
 Player::Player(QIODevice* device)
     : QObject()
     , m_processingEvent(false)
-    , m_pickWidget(NULL)
-    , m_mode(Playback)
     , m_error(false)
 {
-    disconnect(device, 0, 0, 0);
-
     setDevice(device);
     connect(
                 device,
@@ -85,29 +67,10 @@ Player::Player(QIODevice* device)
                 SLOT(readNext())
                 );
 
-    // Start listening for events
-    QInternal::registerCallback(QInternal::EventNotifyCallback, hook);
 }
 
 Player::~Player()
 {
-    // Remove our hook
-    QInternal::unregisterCallback(QInternal::EventNotifyCallback, hook);
-}
-
-bool Player::hook(void** data)
-{
-    QObject* receiver = reinterpret_cast<QObject*>(data[0]);
-    QEvent* event = reinterpret_cast<QEvent*>(data[1]);
-    return instance()->eventFilter(receiver, event);
-}
-
-bool Player::eventFilter(QObject* receiver, QEvent* event)
-{
-    if(event->type() == QEvent::MouseButtonPress) {
-        qDebug() << event << receiver;
-    }
-    return false;
 }
 
 void Player::readNext()
@@ -509,7 +472,6 @@ void Player::processEvents()
             break;
         }
         case Event::Pick:
-            startPick();
             delete event;
             return;
 
@@ -858,28 +820,6 @@ void Player::postMouseEvent(QEvent::Type type)
                                         static_cast<Qt::MouseButton>(attributes().value("button").toString().toInt()),
                                         static_cast<Qt::MouseButtons>(attributes().value("buttons").toString().toInt()),
                                         static_cast<Qt::KeyboardModifiers>(attributes().value("modifiers").toString().toInt())));
-}
-
-void Player::startPick()
-{
-    m_mode = Pick;
-    m_pickWidget = new QLabel(tr("Click on a widget to retrieve its properties."));
-    m_pickWidget->show();
-    m_pickWidget->raise();
-    // Crosshair
-    QApplication::setOverrideCursor(QCursor(Qt::CrossCursor));
-}
-
-void Player::endPick()
-{
-    m_mode = Playback;
-    delete m_pickWidget;
-    m_pickWidget = NULL;
-
-    // Remove our crosshair
-    QApplication::restoreOverrideCursor();
-    // Continue with our queue
-    m_processingEvent = false;
 }
 
 void Player::dumpWidget(QXmlStreamWriter & streamWriter, QWidget* widget) {

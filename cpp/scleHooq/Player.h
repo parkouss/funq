@@ -53,29 +53,15 @@ class Player: public QObject, private QXmlStreamReader
     Q_OBJECT
 
 	public:
-		static Player* instance(QIODevice*);
+        Player(QIODevice* device);
 		~Player();
 	private slots:
 		void readNext();
 	private:
-		enum Mode
-		{
-			Playback,
-			Pick
-		};
+
         void dumpWidget(QXmlStreamWriter & streamWriter, QWidget* widget);
         void dumpWidgetsTree(QXmlStreamWriter & streamWriter, QWidget* root = 0);
         void dumpProperties(QWidget *widget);
-		static Player* instance();
-		Player(QIODevice* device);
-		static QPointer<Player> m_instance;
-
-		void startPick();
-		void endPick();
-
-		/// The main hook.
-		static bool hook(void** data);
-		bool eventFilter(QObject* receiver, QEvent* event);
 
         bool handleElement();
         void processEvents();
@@ -94,8 +80,6 @@ class Player: public QObject, private QXmlStreamReader
 
         QQueue<Event*> m_eventQueue;
 
-		QWidget* m_pickWidget;
-		Mode m_mode;
         bool m_error;
         QString m_return;
 };

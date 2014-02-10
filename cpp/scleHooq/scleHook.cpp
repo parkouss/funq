@@ -48,7 +48,9 @@ bool ScleHooq::listen(quint16 port) {
 }
 
 void ScleHooq::acceptConnection() {
-	Player::instance(m_server->nextPendingConnection());
+    QIODevice * socket = m_server->nextPendingConnection();
+    Player * player = new Player(socket);
+    connect(socket, SIGNAL(destroyed()), player, SLOT(deleteLater()));
 }
 
 void ScleHooq::active_hook_player(ScleHooq::MODE mode) {
