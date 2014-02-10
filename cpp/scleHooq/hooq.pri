@@ -10,7 +10,6 @@ SOURCES += $${PWD}/ObjectHookName.cpp \
         $${PWD}/scleHook.cpp
 
 HEADERS  += \
-        $${PWD}/Communication.h \
         $${PWD}/ObjectHookName.h \
         $${PWD}/Player.h \
         $${PWD}/Event.h \

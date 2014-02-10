@@ -1,6 +1,5 @@
 #include "scleHook.h"
 #include "ObjectHookName.h"
-#include "Communication.h"
 #include "Player.h"
 #include <QTcpSocket>
 #include <QTcpServer>

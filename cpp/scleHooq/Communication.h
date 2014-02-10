@@ -1,6 +1,0 @@
-#ifndef COMMUNICATION_H
-#define COMMUNICATION_H
-
-#define HOOQ_PORT   (9999)
-
-#endif // COMMUNICATION_H

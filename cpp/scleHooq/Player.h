@@ -27,20 +27,6 @@
 #include <QXmlStreamReader>
 #include <QEvent>
 
-// Compatibility with Qt 4.4 is currently desirable (lenny, hardy)
-// We don't actually want a boost dependency on Windows though, where
-// whoever's using Hooq is likely to have full control of the Qt version
-// used.
-#if QT_VERSION >= 0x040500
-# include <QSharedPointer>
-# define INJECTEDHOOQ_WITH_QSHAREDPOINTER
-  typedef QSharedPointer<QTextStream> TextStreamPointer;
-#else
-# include <boost/shared_ptr.hpp>
-# define INJECTEDHOOQ_WITH_BOOST_SHARED_PTR
-  typedef boost::shared_ptr<QTextStream> TextStreamPointer;
-#endif
-
 class QWidget;
 
 namespace Hooq
