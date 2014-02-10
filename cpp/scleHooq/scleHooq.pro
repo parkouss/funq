@@ -13,4 +13,9 @@ HEADERS += \
 SOURCES += \
     windowsInjector.cpp
 
+} else {
+
+SOURCES += \
+    ldPreloadInjector.cpp
+
 }

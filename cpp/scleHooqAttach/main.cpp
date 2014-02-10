@@ -16,8 +16,6 @@ int main(int argc, char *argv[])
     QString exePath = argv[1];
 
     ScleHooqAttacher attacher(exePath);
-    attacher.process().setWorkingDirectory(QFileInfo(exePath).absolutePath());
-    qDebug() << QFileInfo(exePath).absolutePath();
 
     QObject::connect(&attacher.process(), SIGNAL(finished(int)), &a, SLOT(quit()));
     QTimer::singleShot(0, &attacher, SLOT(start()));
