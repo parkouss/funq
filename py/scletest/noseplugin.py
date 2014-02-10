@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from scletest.sclehooq import ApplicationRegistry
+from scletest.tools import which
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
 import os
@@ -42,6 +43,10 @@ def _patch_nose_tools_assert_functions():
         pepd = pep8(at)
         setattr(tools, pepd, getattr(_t, at))
 
+def locate_scle_hooq_attach():
+    """Tente de localiser l'executable scleHooqAttach"""
+    return which('scleHooqAttach')
+
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
 
@@ -58,21 +63,26 @@ class SclePlugin(Plugin):
                           dest='scle_conf',
                           default=env.get('NOSE_SCLE_CONF') or 'scletest.conf',
                           help="Fichier de configuration scletest, defaut"
-                               " `scletest.conf`.")
+                               " `scletest.conf` [NOSE_SCLE_CONF].")
         parser.add_option('--scle-gkit',
                           dest='scle_gkit',
                           default=env.get('NOSE_SCLE_GKIT') or 'default',
                           help="Specifie le toolkit graphique utilise."
                                " Permet de definir des alias par defaut"
-                               " differents. Defaut: `default`")
+                               " differents. Defaut: `default [NOSE_SCLE_GKIT]`")
         gkit_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                  'aliases-gkits.conf')
         parser.add_option('--scle-gkit-file',
                           dest='scle_gkit_file',
-                          default=gkit_file,
+                          default=env.get('NOSE_SCLE_GKIT_FILE') or gkit_file,
                           help="Specifie le fichier de description du"
                                " toolkit graphique a utiliser. Defaut:"
-                               " `%s`" % gkit_file)
+                               " `%s` [NOSE_SCLE_GKIT_FILE]" % gkit_file)
+        parser.add_option('--scle-attach-exe',
+                          dest='scle_attach_exe',
+                          default=env.get('NOSE_SCLE_ATTACH_EXE') or locate_scle_hooq_attach(),
+                          help="Chemin complet ver l'executable scleHooqAttach."
+                               " [NOSE_SCLE_ATTACH_EXE]")
     
     def configure(self, options, conf):
         Plugin.configure(self, options, config)

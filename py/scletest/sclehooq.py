@@ -273,20 +273,10 @@ class ApplicationContext(object): # pylint: disable=R0903
         """
         Demarre le process de l'appli à tester.
         """
+        
         env = appconfig.env
-        if env is None:
-            env = os.environ
-        
-        # copy env
-        env = dict(env.items())
-        
-        env['SCLEHOOQ_ACTIVATION'] = '1'
+        cmd = []
         hooq_port = appconfig.hooq_port
-        if hooq_port:
-            env['SCLEHOOQ_PORT'] = str(hooq_port)
-        
-        cmd = [appconfig.executable]
-        cmd.extend(appconfig.args)
         
         stdout = appconfig.executable_stdout
         stderr = appconfig.executable_stderr
@@ -299,6 +289,35 @@ class ApplicationContext(object): # pylint: disable=R0903
         if stdout:
             stdout = open(stdout, 'a')
         
+        if not appconfig.scle_attach:
+            # le process integre scleHooq dans le code compilé.
+            if env is None:
+                env = os.environ
+            
+            # copy env
+            env = dict(env.items())
+            
+            env['SCLEHOOQ_ACTIVATION'] = '1'
+            if hooq_port:
+                env['SCLEHOOQ_PORT'] = str(hooq_port)
+            
+            cmd = [appconfig.executable]
+            cmd.extend(appconfig.args)
+            
+        else:
+            # injection de dll par l'utilisation de scleHooqAttach
+            if not appconfig.nose_options.scle_attach_exe:
+                raise RuntimeError("Pour utiliser scleHooqAttach, il faut"
+                                    " specifier l'option --scle-attach-exe de"
+                                    " nose ou positionner scleHooqAttach dans"
+                                    " le PATH.")
+            cmd = [appconfig.nose_options.scle_attach_exe]
+            if hooq_port:
+                cmd.append('--port')
+                cmd.append(str(hooq_port))
+            cmd.append(appconfig.executable)
+            cmd.extend(appconfig.args)
+            
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,
@@ -357,6 +376,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        aliases=None,
                        executable_stdout=None,
                        executable_stderr=None,
+                       scle_attach=True,
                        nose_options=None):
         self.executable = executable
         self.args = args
@@ -367,6 +387,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.aliases = aliases
         self.executable_stdout = executable_stdout
         self.executable_stderr = executable_stderr
+        self.scle_attach = scle_attach
         self.nose_options = nose_options
     
     def create_aliases(self):
@@ -400,6 +421,9 @@ class ApplicationConfig(object): # pylint: disable=R0902
         if conf.has_option(section, 'timeout_connection'):
             kwargs['timeout_connection'] = conf.getint(section,
                                              'timeout_connection')
+        
+        if conf.has_option(section, 'scle_attach'):
+            kwargs["scle_attach"] = conf.getboolean(section, 'scle_attach')
         
         for optname in ('cwd', 'aliases', 'executable_stdout',
                          'executable_stderr'):
