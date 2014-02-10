@@ -20,10 +20,12 @@ ne sera pas fermée dans ce cas à la fin des tests. (mode détaché)
 
 Voici la liste des options falcutatives disponibles:
 
- - args: arguments de l'executable de test
- - hooq_port: port de communication hooq utilisé (défaut: 9999)
- - cwd: chemin indiquant le dossier d'exécution de l'executable.
+ - **args**: arguments de l'executable de test
+ - **hooq_port**: port de communication hooq utilisé (défaut: 9999)
+ - **cwd**: chemin indiquant le dossier d'exécution de l'executable.
         Par défaut, c'est le répertoire de l'exécutable
- - aliases: chemin indiquent un fichier d'alias
- - timeout_connection: temps d'attente maximal en seconde pour tenter
+ - **aliases**: chemin indiquent un fichier d'alias
+ - **timeout_connection**: temps d'attente maximal en seconde pour tenter
    de se connecter à la socket scleHooq. Défaut 10 secondes.
+ - **scle_attach**: positionner à "no" ou "0" pour désactiver l'utilisation
+   de scleHooqAttach. Voir :ref:`disable-attach`.

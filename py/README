@@ -2,7 +2,7 @@ Le projet *scletest*
 --------------------
 
 **scletest** est un outil développé en interne chez INEO-SCLE permettant
-de tester des applications graphiques écrites en QT/C++ depuis python.
+de tester des applications graphiques écrites en QT depuis python.
 
 L'outil se veut minimaliste pour tester certaines fonctionnalités propres
 aux application INEO-SCLE. Le but n'est pas de couvrir l'ensemble du
@@ -13,11 +13,11 @@ Fonctionnement de *scletest*
 
 **scletest** est divisé en deux parties:
 
-- **scleHooq** est un ensemble de fichiers c++ à intégrer lors de la
-  compilation de l'application à tester. Le code permet de lancer un
-  serveur TCP dans l'application, pour permettre le contrôle depuis
-  des requêtes. **scleHooq** est basé sur un fork minimaliste de la
-  librairie **hooq**.
+- **scleHooq** est la partie c++ du projet, composé d'un executable
+  **scleHooqAttach** et d'une librairie dynamique. scleHooqAttach permet de
+  lancer une application QT existante et d'y intégrer dynamiquement
+  un serveur TCP pour en permettre le contrôle avec des requêtes.
+  **scleHooq** est basé sur un fork minimaliste de la librairie **hooq**.
 
 - **scletest** est un package python offrant une API pour la
   communication avec le serveur TCP de l'application testée. Il utilise
@@ -26,29 +26,11 @@ Fonctionnement de *scletest*
 Installation de *scletest*
 --------------------------
 
-La partie **scleHooq** est à compiler avec son programme. En utilisant
-*qmake*, il faut depuis son fichier de compilation .pro ajouter une
-ligne du genre::
+La partie **scleHooq** est à compiler. En utilisant
+*qmake*::
   
-  include(../scleHooq/hooq.pri)
-
-Ensuite, dans le main() du programme:
-
-.. code-block:: cpp
-  
-  #include "scleHook.h"
-  #include <QApplication>
-  
-  int main(int argc, char *argv[]) {
-      QApplication a(argc, argv);
-      
-      // activation de scleHooq
-      ScleHooq::activation();
-      
-      /* ... */
-      
-      return a.exec();
-  }
+  qmake scleHooq.pro
+  make
 
 Le package **scletest** en python s'installe de manière conventionnelle
 pour les outils python. Ainsi, il suffit de récupérer les sources et

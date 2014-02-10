@@ -9,12 +9,12 @@ Plan de documentation
 .. toctree::
    :maxdepth: 2
    
-   scleHooq
    tutorial
+   scletest_conf
    multi_conf
    test_attachable
-   scletest_conf
    gkit_aliases
+   scleHooq
    api/api
 
 
