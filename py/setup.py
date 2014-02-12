@@ -18,6 +18,7 @@ setup(
 	packages=find_packages(),
     zip_safe=False,
 	install_requires=install_requires,
+    package_data={'scletest': ['aliases-gkits.conf']},
 	entry_points = {
         'nose.plugins.0.10': [
             'scle = scletest.noseplugin:SclePlugin'
