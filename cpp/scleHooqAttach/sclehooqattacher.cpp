@@ -13,7 +13,6 @@ ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args
     QObject(parent), m_exe(exe), m_args(args), m_wellStarted(false)
 {
     m_process.setProcessChannelMode(QProcess::ForwardedChannels);
-    m_process.setWorkingDirectory(QFileInfo(exe).absolutePath());
 
     QProcessEnvironment env(QProcessEnvironment::systemEnvironment());
     #ifndef Q_WS_WIN
