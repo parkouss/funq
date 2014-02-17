@@ -73,6 +73,7 @@ class ScleHooqClient(object):
                             ' propName="{propName}"/>')
     COMMANDE_SHORTCUT = ('<shortcut target="{target}"'
                             ' keySequence="{keySequence}"/>')
+    COMMANDE_KEY_CLICK = ('<keyClick target="{target}" text="{text}"/>')
     
     def __init__(self, addr=None, port=None, aliases=None, timeout_connection=10):
         self.addr = addr or self.DEFAUT_HOOQ_ADDR
@@ -183,6 +184,13 @@ class ScleHooqClient(object):
         """
         self.send_command(self.COMMANDE_SHORTCUT.format(target='',
                                              keySequence=sequence))
+
+    def key_click(self, text):
+        """
+        Simule l'envoi au clavier du texte passé en paramètre.
+        """
+        self.send_command(self.COMMANDE_KEY_CLICK.format(target='',
+                                             text=text))
 
     def widgets_tree(self):
         """

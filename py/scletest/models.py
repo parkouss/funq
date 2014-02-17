@@ -253,6 +253,15 @@ class Widget(ScleHooqClientModel):
                                             target=self.path,
                                             keySequence=sequence))
 
+    def key_click(self, text):
+        """
+        Simule l'envoi au clavier du texte passé en paramètre.
+        """
+        LOG.info('key_click(%r) sur %r', text, self.path)
+        client = self.client()
+        client.send_command(client.COMMANDE_KEY_CLICK.format(target=self.path,
+                                             text=text))
+
 class ComboBox(Widget):
     """
     Ajoute des méthodes spécifiques aux ComboBox.

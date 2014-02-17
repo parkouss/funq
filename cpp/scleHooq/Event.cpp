@@ -183,6 +183,14 @@ const QKeySequence &ShortcutEvent::key() const {
     return m_key;
 }
 
+KeyClickEvent::KeyClickEvent(const QString &objectPath, const QString &text) :
+    Event(Event::KeyClick, Event::NoTarget), // Event::NoTarget as the widget path is not required.
+    ObjectPath(objectPath),
+    m_text(text) {
+}
+
+KeyClickEvent::~KeyClickEvent() {}
+
 MouseEvent::MouseEvent(const QString& objectPath,
                        QEvent::Type mouseEventType,
                        Qt::MouseButton button,

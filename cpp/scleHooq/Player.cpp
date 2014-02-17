@@ -551,6 +551,39 @@ void Player::processEvents()
             break;
         }
 
+        case Event::KeyClick:
+        {
+            KeyClickEvent * e = dynamic_cast<KeyClickEvent*>(event);
+            if (e == NULL) {
+                m_error = true;
+                m_return = "ShortcutEvent cast failed";
+            } else {
+                o = findObject(e->path());
+                if (o != NULL) {
+                    w = qobject_cast<QWidget*>(o);
+                } else {
+                    w = qApp->activeWindow();
+                }
+                if (!w) {
+                    m_error = true;
+                    m_return = "An error occured while looking for a widget - no keyevent send";
+                } else {
+                    // taken from
+                    // http://stackoverflow.com/questions/14283764/how-can-i-simulate-emission-of-a-standard-key-sequence
+                    const QString & text = e->text();
+                    for (int i=0; i<text.count(); i++) {
+                        QChar ch = text[i];
+                        int key = (int) ch.toAscii();
+                        qApp->postEvent(w, new QKeyEvent(QKeyEvent::KeyPress, key, Qt::NoModifier, ch));
+                        qApp->postEvent(w, new QKeyEvent(QKeyEvent::KeyRelease, key, Qt::NoModifier, ch));
+                    }
+                }
+            }
+
+            delete event;
+            break;
+        }
+
         case Event::ItemSelect:
         case Event::ItemClick:
         case Event::ItemDClick:
@@ -794,6 +827,9 @@ bool Player::handleElement()
         qApp->quit();
     } else if (name() == "screenShot") {
         m_eventQueue.enqueue(new Event(Event::ScreenShot));
+    } else if (name() == "keyClick") {
+        m_eventQueue.enqueue(new KeyClickEvent(attributes().value("target").toString(),
+                                           attributes().value("text").toString()));
     } else {
         return false;
     }

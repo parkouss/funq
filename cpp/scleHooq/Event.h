@@ -59,7 +59,8 @@ public:
         ItemClick,
         ItemDClick,
         ItemEdit,
-        ScreenShot
+        ScreenShot,
+        KeyClick
     };
 
     enum TargetType {
@@ -191,6 +192,16 @@ private:
     const QKeySequence m_key;
 };
 
+class KeyClickEvent: public Event, public ObjectPath
+{
+public:
+    KeyClickEvent(const QString& objectPath,
+                  const QString &text);
+    virtual ~KeyClickEvent();
+    const QString &text() const { return m_text; }
+private:
+    const QString m_text;
+};
 
 class MouseEvent: public Event, public ObjectPath
 {
