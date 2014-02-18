@@ -3,11 +3,28 @@
 #include <QTimer>
 #include <QFileInfo>
 #include <QDebug>
+#include <QtGlobal>
+
+#ifndef Q_WS_WIN
+#include <signal.h>
+
+void set_sigterm_handler() {
+    struct sigaction term;
+    term.sa_handler = ScleHooqAttacher::termSignalHandler;
+
+    sigemptyset(&term.sa_mask);
+    term.sa_flags |= SA_RESTART;
+
+    sigaction(SIGTERM, &term, 0);
+}
+#endif
 
 int main(int argc, char *argv[])
-{
+{   
     QCoreApplication a(argc, argv);
-    
+#ifndef Q_WS_WIN
+    set_sigterm_handler();
+#endif
     int argc_app_pos = 1;
     int port = 0;
     bool pickMode = false;

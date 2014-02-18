@@ -342,6 +342,7 @@ class ApplicationContext(object): # pylint: disable=R0903
             if self._process.returncode is None:
                 # application bloquée ! pas le choix ...
                 self._process.terminate()
+                self._process.wait()
             self._process = None
     
     def terminate(self):
