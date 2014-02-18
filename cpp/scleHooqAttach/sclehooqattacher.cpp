@@ -9,6 +9,7 @@
 #include <windows.h>
 #else
 #include <sys/socket.h>
+#include <unistd.h>
 #endif
 
 int ScleHooqAttacher::m_sigtermFd[2] = {0,0};
