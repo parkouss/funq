@@ -32,43 +32,55 @@ QString ObjectHookName::objectName(QObject* object)
 	return name;
 }
 
+/**
+  * Renvoie le nom de l'objet, possiblement en doublon par rapport aux siblings
+  */
+inline QString _rawObjectName(QObject* object) {
+    QString rawName = object->objectName();
+
+    if (rawName.isEmpty()) {
+        rawName = object->metaObject()->className();
+    }
+    return rawName;
+}
+
+/**
+  * Renvoie le nom de l'objet, unique par rapport aux siblings
+  */
 QString ObjectHookName::rawObjectName(QObject* object)
 {
-	// Grab the object name
-	if(!object->objectName().isEmpty())
-	{
-        return object->objectName()/* + "(" + object->metaObject()->className() + ")"*/;
-	}
+    QString rawName = _rawObjectName(object);
 
-	// If it's got no parent, classname:0
-	if(!object->parent())
-	{
-		return QString("%1-0").arg(object->metaObject()->className());
-	}
+    if(!object->parent())
+    {
+        return rawName;
+    }
 
 	// It does - classname:Index
 	const QList<QObject*> siblings = object->parent()->children();
-	Q_ASSERT(siblings.contains(object));
 
-	int index = 1;
+    int index = 0;
 	Q_FOREACH(QObject* sibling, siblings)
 	{
-		if(sibling == object)
+        if(sibling == object)
 		{
 			break;
 		}
-		if(sibling->metaObject() == object->metaObject())
+        QString siblingName = _rawObjectName(sibling);
+        if(siblingName == rawName)
 		{
 			++index;
 		}
 	}
-
+    if (index == 0) {
+        return rawName;
+    }
 	return QString(
 		"%1-%2"
 	).arg(
-		object->metaObject()->className()
+        rawName
 	).arg(
-		index
+        index
 	);
 }
 
