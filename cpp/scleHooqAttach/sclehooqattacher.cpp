@@ -59,7 +59,7 @@ void ScleHooqAttacher::start() {
             m_process.kill();
             return;
         }
-        FARPROC hook = ::GetProcAddress(library, "_Z11installHooqP11HINSTANCE__m");
+        FARPROC hook = ::GetProcAddress(library, "installHooq");
         if (!hook) {
             qDebug() << "Impossible de trouver la fonction installHooq";
             m_process.kill();
