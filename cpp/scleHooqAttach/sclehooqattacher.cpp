@@ -10,9 +10,10 @@
 #else
 #include <sys/socket.h>
 #include <unistd.h>
-#endif
 
 int ScleHooqAttacher::m_sigtermFd[2] = {0,0};
+
+#endif
 
 ScleHooqAttacher::ScleHooqAttacher(const QString & exe, const QStringList & args, int port, bool pickMode, QObject *parent) :
     QObject(parent), m_exe(exe), m_args(args), m_wellStarted(false)

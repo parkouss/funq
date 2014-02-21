@@ -1,4 +1,4 @@
-#include "WinDll.h"
+#include "windowsInjector.h"
 #include <scleHook.h>
 #include <QDebug>
 
