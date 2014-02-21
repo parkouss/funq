@@ -13,6 +13,8 @@
 using namespace std;
 using namespace Hooq;
 
+extern Q_GUI_EXPORT bool qt_use_native_dialogs;
+
 #define DEFAUT_HOOQ_PORT 9999;
 
 /*static*/
@@ -54,7 +56,7 @@ void ScleHooq::acceptConnection() {
 
 void ScleHooq::active_hook_player(ScleHooq::MODE mode) {
 	Q_ASSERT(QCoreApplication::instance());
-	
+	qt_use_native_dialogs = false;
 	int port = DEFAUT_HOOQ_PORT;
 	const char * env_port = getenv("SCLEHOOQ_PORT");
 	if (env_port) {
@@ -124,7 +126,7 @@ bool ScleHooq::eventFilter(QObject* receiver, QEvent* event)
 {
     if(event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *evt = static_cast<QMouseEvent *>(event);
-        if (evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier) {
+        if (1/*evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier*/) {
             QString path = QString("WIDGET: `%1` (pos: %2, %3)")
                     .arg(ObjectHookName::objectPath(receiver))
                     .arg(evt->pos().x())
