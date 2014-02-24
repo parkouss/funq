@@ -162,14 +162,17 @@ void _dump_item_model_attrs(QAbstractItemModel * model,
 void _dump_items_model(QAbstractItemModel * model,
                       QXmlStreamWriter &xml,
                       const QModelIndex & parent,
-                      const QString & view_path) {
+                      const QString & view_path,
+                      bool recursive = true) {
 
     for(int i = 0; i < model->rowCount(parent); i++) {
         for(int j = 0; j < model->columnCount(parent); j++) {
 			QModelIndex index = model->index(i, j, parent);
 			xml.writeStartElement("Item");
 			_dump_item_model_attrs(model, xml, index, view_path);
-            _dump_items_model(model, xml, index, view_path);
+            if (recursive && model->hasChildren(index)) {
+                _dump_items_model(model, xml, index, view_path);
+            }
             xml.writeEndElement(); // Item
         }
     }
@@ -370,7 +373,9 @@ void Player::processEvents()
             xml.writeStartElement("ModelItems");
             dumpWidget(xml, view);
             QString view_path = ObjectHookName::objectPath(view);
-            _dump_items_model(model, xml, QModelIndex(), view_path);
+            // pas de recursion sur les model items si l'on a une table
+            bool recursive = ! (model->inherits("QAbstractTableModel") || view->inherits("QTableView"));
+            _dump_items_model(model, xml, QModelIndex(), view_path, recursive);
             xml.writeEndElement(); // ModelItems
             xml.writeEndDocument();
             delete event;
