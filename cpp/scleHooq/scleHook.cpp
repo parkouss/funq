@@ -13,7 +13,9 @@
 using namespace std;
 using namespace Hooq;
 
+#ifdef Q_WS_WIN
 extern Q_GUI_EXPORT bool qt_use_native_dialogs;
+#endif
 
 #define DEFAUT_HOOQ_PORT 9999;
 
@@ -56,7 +58,9 @@ void ScleHooq::acceptConnection() {
 
 void ScleHooq::active_hook_player(ScleHooq::MODE mode) {
 	Q_ASSERT(QCoreApplication::instance());
+#ifdef Q_WS_WIN
 	qt_use_native_dialogs = false;
+#endif
 	int port = DEFAUT_HOOQ_PORT;
 	const char * env_port = getenv("SCLEHOOQ_PORT");
 	if (env_port) {
