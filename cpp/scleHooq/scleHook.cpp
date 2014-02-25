@@ -130,11 +130,12 @@ bool ScleHooq::eventFilter(QObject* receiver, QEvent* event)
 {
     if(event->type() == QEvent::MouseButtonPress) {
         QMouseEvent *evt = static_cast<QMouseEvent *>(event);
-        if (1/*evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier*/) {
-            QString path = QString("WIDGET: `%1` (pos: %2, %3)")
+        if (evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier) {
+            QString path = QString("WIDGET: `%1` (pos: %2, %3; class: %4)")
                     .arg(ObjectHookName::objectPath(receiver))
                     .arg(evt->pos().x())
-                    .arg(evt->pos().y());
+                    .arg(evt->pos().y())
+                    .arg(receiver->metaObject()->className());
             printf("%s\n", path.toStdString().c_str());
             for(int i = 0; i < receiver->metaObject()->propertyCount(); ++i)
             {

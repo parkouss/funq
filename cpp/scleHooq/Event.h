@@ -60,7 +60,8 @@ public:
         ItemDClick,
         ItemEdit,
         ScreenShot,
-        KeyClick
+        KeyClick,
+        DumpGraphicsItems
     };
 
     enum TargetType {

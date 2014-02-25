@@ -22,6 +22,7 @@
 #include <QString>
 
 class QObject;
+class QGraphicsItem;
 
 namespace Hooq
 {
@@ -30,6 +31,9 @@ namespace Hooq
 		public:
 			static QString objectPath(QObject* object);
 			static QString objectName(QObject* object);
+
+            static QString graphicsItemPath(QGraphicsItem * item);
+            static int graphicsItemPos(QGraphicsItem * item);
 		private:
 			static QString rawObjectName(QObject* object);
 	};

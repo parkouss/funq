@@ -42,6 +42,8 @@
 #include <QBuffer>
 #include <QPixmap>
 #include <QDesktopWidget>
+#include <QGraphicsItem>
+#include <QGraphicsView>
 #include "unistd.h"
 
 #ifdef Q_OS_WIN32
@@ -176,6 +178,27 @@ void _dump_items_model(QAbstractItemModel * model,
             xml.writeEndElement(); // Item
         }
     }
+}
+
+void _dump_graphics_item(QGraphicsItem * item, QXmlStreamWriter &xml) {
+    xml.writeStartElement("GItem");
+    xml.writeAttribute("stackPath", ObjectHookName::graphicsItemPath(item));
+    QObject * itemObject = dynamic_cast<QObject *>(item);
+    if (item) {
+        const QMetaObject * mo = itemObject->metaObject();
+        QStringList classes;
+        while (mo) {
+            classes << mo->className();
+            mo = mo->superClass();
+        }
+        xml.writeAttribute("classes", classes.join(","));
+        xml.writeAttribute("objectName", itemObject->objectName());
+    }
+    foreach (QGraphicsItem * child, item->children()) {
+        _dump_graphics_item(child, xml);
+    }
+
+    xml.writeEndElement();
 }
 
 QModelIndex _get_model_item(QAbstractItemModel * model,
@@ -378,6 +401,32 @@ void Player::processEvents()
             _dump_items_model(model, xml, QModelIndex(), view_path, recursive);
             xml.writeEndElement(); // ModelItems
             xml.writeEndDocument();
+            delete event;
+            break;
+        }
+
+        case Event::DumpGraphicsItems:
+        {
+            QGraphicsView * gview = dynamic_cast<QGraphicsView *>(view);
+            if (!gview) {
+                m_error = true;
+                m_return = "Not a QGraphicsView";
+            }
+            else {
+                QXmlStreamWriter xml(device());
+                xml.writeStartDocument();
+                xml.writeStartElement("GView");
+                dumpWidget(xml, view);
+                foreach (QGraphicsItem * item, gview->items()) {
+                    if (!item->parentItem()) {
+                        // top level item
+                        _dump_graphics_item(item, xml);
+                    }
+                }
+
+                xml.writeEndElement();
+                xml.writeEndDocument();
+            }
             delete event;
             break;
         }
@@ -694,6 +743,9 @@ bool Player::handleElement()
     else if(name() == "dumpModel")
     {
         m_eventQueue.enqueue(new GenericObjectEvent(Event::DumpModel, Event::Model, attributes().value("target").toString()));
+    }
+    else if (name() == "dumpGItems") {
+        m_eventQueue.enqueue(new GenericObjectEvent(Event::DumpGraphicsItems, Event::Widget, attributes().value("target").toString()));
     }
     else if(name() == "pick")
     {

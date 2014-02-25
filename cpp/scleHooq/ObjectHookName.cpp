@@ -21,6 +21,8 @@
 
 #include <QObject>
 #include <QStringList>
+#include <QGraphicsItem>
+#include <QGraphicsView>
 
 namespace Hooq
 {
@@ -94,6 +96,32 @@ QString ObjectHookName::objectPath(QObject* object)
 		current = current->parent();
 	}
 	return components.join("::");
+}
+
+int ObjectHookName::graphicsItemPos(QGraphicsItem *item) {
+    if (item->parentItem()) {
+        return item->parentItem()->children().indexOf(item);
+    }
+    QGraphicsScene * scene = item->scene();
+    int pos = 0;
+    foreach (QGraphicsItem * item_, scene->items()) {
+        if (!item_->parentItem()) {
+            if (item == item_) {
+                return pos;
+            }
+            pos++;
+        }
+    }
+    return -1;
+}
+
+QString ObjectHookName::graphicsItemPath(QGraphicsItem *item) {
+    QStringList path;
+    while (item) {
+        path.prepend(QString::number(graphicsItemPos(item)));
+        item = item->parentItem();
+    }
+    return path.join("/");
 }
 
 } // namespace
