@@ -677,3 +677,31 @@ class Screenshot(Model):
         fname = fname + '.' + self.format.lower()
         with open(fname, 'wb') as f:
             f.write(base64.standard_b64decode(self.data))
+
+class TabBar(Widget):
+    """
+    Widget de type QTabBar.
+    """
+    def tabnames(self):
+        """
+        renvoie la liste des textes dans le tabbar.
+        """
+        client = self.client()
+        data = client.send_command('<listTabs target="%s"/>' % self.path)
+        root = minidom.parseString(data).documentElement
+        tabsnode = sorted(root.getElementsByTagName('Tab'), key=lambda t: t.attributes['index'].value)
+        return [ t.attributes['text'].value for t in tabsnode ]
+    
+    def set_current_tab(self, tab_index_or_name):
+        """
+        Définit l'index courant en fonction du texte ou de l'index.
+        """
+        tabnames = self.tabnames()
+        if isinstance(tab_index_or_name, int):
+            index = tab_index_or_name
+            if index < 0 or index >= len(tabnames):
+                raise ValueError("Index de tab %d invalide" % index)
+        else:
+            index = tabnames.index(tab_index_or_name)
+        self.set_property('currentIndex', index)
+            

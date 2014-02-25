@@ -444,6 +444,29 @@ void Player::processEvents()
             break;
         }
 
+        case Event::TabBarListTabs:
+        {
+            QTabBar * tabBar = dynamic_cast<QTabBar *>(o);
+            if (!tabBar) {
+                m_error = true;
+                m_return = "Not a QTabBar";
+            } else {
+                QXmlStreamWriter xml(device());
+                xml.writeStartDocument();
+                xml.writeStartElement("Tabs");
+                for (int i=0; i< tabBar->count(); i++) {
+                    xml.writeStartElement("Tab");
+                    xml.writeAttribute("index", QString::number(i));
+                    xml.writeAttribute("text", tabBar->tabText(i));
+                    xml.writeEndElement();
+                }
+                xml.writeEndElement();
+                xml.writeEndDocument();
+            }
+            delete event;
+            break;
+        }
+
         case Event::Flush:
         {
             qDebug() << "Calling processEvents";
@@ -887,6 +910,8 @@ bool Player::handleElement()
     } else if (name() == "keyClick") {
         m_eventQueue.enqueue(new KeyClickEvent(attributes().value("target").toString(),
                                            attributes().value("text").toString()));
+    } else if (name() == "listTabs") {
+        m_eventQueue.enqueue(new GenericObjectEvent(Event::TabBarListTabs, Event::Widget, attributes().value("target").toString()));
     } else {
         return false;
     }

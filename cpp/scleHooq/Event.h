@@ -61,7 +61,8 @@ public:
         ItemEdit,
         ScreenShot,
         KeyClick,
-        DumpGraphicsItems
+        DumpGraphicsItems,
+        TabBarListTabs
     };
 
     enum TargetType {
