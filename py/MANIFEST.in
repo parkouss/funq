@@ -1,4 +1,0 @@
-recursive-include doc *
-prune doc/_build
-
-include scletest/aliases-gkits.conf
