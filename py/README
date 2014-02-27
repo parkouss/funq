@@ -1,0 +1,39 @@
+Le projet *funq*
+----------------
+
+**funq** est un outil développé en interne chez INEO-SCLE permettant
+de tester des applications graphiques écrites en QT depuis python.
+
+L'outil se veut minimaliste pour tester certaines fonctionnalités propres
+aux application INEO-SCLE. Le but n'est pas de couvrir l'ensemble du
+toolkit QT.
+
+Fonctionnement de *funq*
+------------------------
+
+**funq** est divisé en deux parties:
+
+- **funq** est la partie c++ du projet, composé d'un executable
+  **funq** et d'une librairie dynamique. funq permet de
+  lancer une application QT existante et d'y intégrer dynamiquement
+  un serveur TCP pour en permettre le contrôle avec des requêtes.
+  **libFunq** est basé sur un fork minimaliste de la librairie **hooq**.
+
+- **funq** est aussi un package python offrant une API pour la
+  communication avec le serveur TCP de l'application testée. Il utilise
+  **nosetests** comme framework efficace de tests.
+
+Installation de *funq*
+----------------------
+
+La partie c++ est à compiler. En utilisant
+*qmake*::
+  
+  qmake funq.pro
+  make
+
+Le package **funq** en python s'installe de manière conventionnelle
+pour les outils python. Ainsi, il suffit de récupérer les sources et
+de lancer la commande suivante::
+  
+  python setup.py install
