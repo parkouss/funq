@@ -195,6 +195,13 @@ class Widget(object):
 class ModelItem(TreeItem):
     """
     Représente un modelitem présent dans un QAbstractModelItem ou dérivé.
+    
+    :var viewid: identifiant de la vue rattaché au modèle contenant cet item
+                 [type: long]
+    :var row: numéro de ligne de l'item [type: int]
+    :var column: numéro de colonne de l'item [type: int]
+    :var value: valeur textuelle de l'item [type: unicode]
+    :var items: liste de :class:`ModelItem` sous-items de cet item
     """
     
     viewid = None
@@ -236,6 +243,8 @@ class ModelItem(TreeItem):
 class ModelItems(TreeItems):
     """
     Représente des modelitems présents dans un QAbstractModelItem ou dérivé.
+    
+    :var items: liste de :class:`ModelItem`
     """
     
     ITEM_CLASS = ModelItem
