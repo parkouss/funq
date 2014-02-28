@@ -1,5 +1,5 @@
-Widgets et autres classes du framework
-======================================
+Widgets et autres classes pour manipuler les composants graphiques
+==================================================================
 
 .. currentmodule:: funq.models
 
