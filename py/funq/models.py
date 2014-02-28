@@ -74,9 +74,10 @@ class Widget(object):
     """
     Permet de manipuler un QWidget ou dérivé.
     
-    :var oid: l'indentifiant de l'instance c++ managée. [type: long]
     :var client: le client pour la communication avec le serveur libFunq
                  [type: :class:`funq.client.FunqClient`]
+    :var oid: l'indentifiant de l'instance c++ managée. [type: long]
+    :var path: le chemin complet vers le widget [type: str]
     :var classes: liste des noms de classes de l'instance c++ managée,
                   dans l'ordre d'héritage (ie 'QObject' en dernier)
                   [type : list(str)]
@@ -109,12 +110,16 @@ class Widget(object):
         """
         Retourne un dictionnaire de propriétés accessibles pour ce widget
         avec leur valeurs courantes.
+        Exemple::
+          
+          enabled = widget.properties()["enabled"]
         """
         return self.client.send_command('object_properties', oid=self.oid)
 
     def set_properties(self, **properties):
         """
-        Permet de définir des propriétés sur un widget. Exemple::
+        Permet de définir des propriétés sur un widget.
+        Exemple::
           
           widget.set_properties(text="Mon beau texte")
         """
@@ -124,7 +129,8 @@ class Widget(object):
     
     def set_property(self, name, value):
         """
-        Permet de définir une propriété pour ce widget. Exemple::
+        Permet de définir une propriété pour ce widget.
+        Exemple::
           
           widget.set_property('text', "Mon beau texte")
         """
@@ -132,7 +138,8 @@ class Widget(object):
 
     def wait_for_properties(self, props, timeout=10.0, timeout_interval=0.1):
         """
-        Attends que les propriétés prennent les valeurs désirées. Exemple::
+        Attends que les propriétés prennent les valeurs désirées.
+        Exemple::
           
           self.wait_for_properties({'enabled': True, 'visible': True})
         """

@@ -14,3 +14,19 @@ Exemple::
 
 .. autoclass:: Widget
   
+  .. automethod:: Widget.properties
+  
+  .. automethod:: Widget.set_properties
+  
+  .. automethod:: Widget.set_property
+  
+  .. automethod:: Widget.wait_for_properties
+  
+  .. automethod:: Widget.click
+  
+  .. automethod:: Widget.dclick
+  
+  .. automethod:: Widget.keyclick
+  
+  .. automethod:: Widget.shortcut
+  
