@@ -6,3 +6,4 @@ API pour les utilisateurs du framework funq
    
    user_api/nose_integration
    user_api/funqclient
+   user_api/widgets_models

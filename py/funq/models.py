@@ -73,6 +73,13 @@ class WidgetMetaClass(type):
 class Widget(object):
     """
     Permet de manipuler un QWidget ou dérivé.
+    
+    :var oid: l'indentifiant de l'instance c++ managée. [type: long]
+    :var client: le client pour la communication avec le serveur libFunq
+                 [type: :class:`funq.client.FunqClient`]
+    :var classes: liste des noms de classes de l'instance c++ managée,
+                  dans l'ordre d'héritage (ie 'QObject' en dernier)
+                  [type : list(str)]
     """
     __metaclass__ = WidgetMetaClass
     
