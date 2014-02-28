@@ -43,10 +43,10 @@ def which(program):
     """
     import os
     def is_exe(fpath):
+        """Renvoie True si fpath est un fichier exécutable"""
         return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
-    fpath, fname = os.path.split(program)
-    if fpath:
+    if os.path.dirname(program):
         if is_exe(program):
             return program
     else:

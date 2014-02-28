@@ -1,5 +1,7 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
+"""
+Module pour l'intégration avec le framework nosetests.
+"""
 
 from funq.client import ApplicationRegistry
 from funq.tools import which
@@ -11,12 +13,13 @@ import logging
 LOG = logging.getLogger('nose.plugins.funq')
 
 def log_with_sep(message):
+    """Loggue un message avec un séparateur."""
     sep = '-' * 70
     LOG.info(sep)
     LOG.info(message)
     LOG.info(sep)
 
-def _patch_nose_tools_assert_functions():
+def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
     """
     patche les fonctions assert_* de nose.tools pour inclure
     des messages longs dans les message d'assertions.
@@ -29,7 +32,7 @@ def _patch_nose_tools_assert_functions():
     
     caps = re.compile('([A-Z])')
 
-    def pep8(name):
+    def pep8(name): # pylint: disable=C0111
         return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
     
     class Dummy(unittest.TestCase): # pylint: disable=C0111,R0904
@@ -37,11 +40,11 @@ def _patch_nose_tools_assert_functions():
         
         def nop(self):
             pass
-    _t = Dummy('nop')
-    for at in [ at for at in dir(_t)
-                if at.startswith('assert') and not '_' in at ]:
-        pepd = pep8(at)
-        setattr(tools, pepd, getattr(_t, at))
+    dummy = Dummy('nop')
+    for name in [ name for name in dir(dummy)
+                if name.startswith('assert') and not '_' in name ]:
+        pepd = pep8(name)
+        setattr(tools, pepd, getattr(dummy, name))
 
 def locate_funq():
     """Tente de localiser l'executable scleHooqAttach"""
@@ -50,10 +53,13 @@ def locate_funq():
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
 
-config = _APP_REGISTRY.config
-multi_config = _APP_REGISTRY.multi_config
+config = _APP_REGISTRY.config # pylint: disable=C0103
+multi_config = _APP_REGISTRY.multi_config # pylint: disable=C0103
 
 class FunqPlugin(Plugin):
+    """
+    Plugin d'intégration avec nosetests.
+    """
     name = 'funq'
     
     def options(self, parser, env=None):
@@ -69,7 +75,8 @@ class FunqPlugin(Plugin):
                           default=env.get('NOSE_FUNQ_GKIT') or 'default',
                           help="Specifie le toolkit graphique utilise."
                                " Permet de definir des alias par defaut"
-                               " differents. Defaut: `default [NOSE_FUNQ_GKIT]`")
+                               " differents. Defaut: `default"
+                               " [NOSE_FUNQ_GKIT]`")
         gkit_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                  'aliases-gkits.conf')
         parser.add_option('--funq-gkit-file',
@@ -80,7 +87,8 @@ class FunqPlugin(Plugin):
                                " `%s` [NOSE_FUNQ_GKIT_FILE]" % gkit_file)
         parser.add_option('--funq-attach-exe',
                           dest='funq_attach_exe',
-                          default=env.get('NOSE_FUNQ_ATTACH_EXE') or locate_funq(),
+                          default=env.get('NOSE_FUNQ_ATTACH_EXE')
+                                                            or locate_funq(),
                           help="Chemin complet ver l'executable funq."
                                " [NOSE_FUNQ_ATTACH_EXE]")
     

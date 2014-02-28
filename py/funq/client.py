@@ -1,4 +1,8 @@
 # -*- coding: utf-8 -*-
+"""
+Ce module permet l'intégration avec un serveur libFunq via :class:`FunqClient`.
+"""
+
 import socket, json, errno, os, shlex, time, subprocess, base64
 from functools import wraps
 from collections import defaultdict
@@ -15,7 +19,8 @@ class FunqClient(object):
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 9999
     
-    def __init__(self, host=None, port=None, aliases=None, timeout_connection=10):
+    def __init__(self, host=None, port=None, aliases=None,
+                       timeout_connection=10):
         if host is None:
             host = self.DEFAULT_HOST
         if port is None:
@@ -31,12 +36,12 @@ class FunqClient(object):
         
         self.aliases = aliases
         
-        self._s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
-        # tentative de connexion
         def connect():
+            """ tentative de connexion """
             try:
-                self._s.connect((host, port))
+                self._socket.connect((host, port))
                 return True
             except socket.error, e:
                 if e.errno != errno.ECONNREFUSED:
@@ -44,7 +49,7 @@ class FunqClient(object):
                 return e
         
         wait_for(connect, timeout_connection, 0.2)
-        self._f = self._s.makefile() 
+        self._fsocket = self._socket.makefile() 
 
     def close(self):
         """
@@ -53,7 +58,7 @@ class FunqClient(object):
         L'objet devient inutilisable après appel de cette méthode.
         Cette méthode est appelée automatiquement sur destruction de l'objet.
         """
-        self._s.close()
+        self._socket.close()
     
     def __del__(self):
         self.close()
@@ -65,7 +70,7 @@ class FunqClient(object):
         kwargs['action'] = action
         rawdata = json.dumps(kwargs)
         message = '%s\n%s' % (len(rawdata), rawdata)
-        f = self._f
+        f = self._fsocket
         f.write(message)
         f.flush()
 
@@ -76,7 +81,7 @@ class FunqClient(object):
         :raises: :class:`funq.errors.FunqError`
         """
         self._raw_send(action, kwargs)
-        f = self._f
+        f = self._fsocket
         header = f.readline()
         to_read = int(header)
         response = json.loads(f.read(to_read))
@@ -103,6 +108,7 @@ class FunqClient(object):
         
         wdata = [None]
         def get_widget():
+            """ Tente de récupérer un widget """
             try:
                 wdata[0] = self.send_command('widget_by_path', path=path)
                 return True
@@ -132,11 +138,11 @@ class FunqClient(object):
         json.dump(self.widgets_list(with_properties=with_properties),
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
 
-    def take_screenshot(self, stream='screenshot.png', format='PNG'):
+    def take_screenshot(self, stream='screenshot.png', format_='PNG'):
         """
         Prends un screenshot du desktop actif.
         """
-        data = self.send_command('desktop_screenshot', format=format)
+        data = self.send_command('desktop_screenshot', format=format_)
         if isinstance(stream, basestring):
             stream = open(stream, 'wb')
         raw = base64.standard_b64decode(data['data'])
@@ -241,6 +247,9 @@ class ApplicationContext(object): # pylint: disable=R0903
                                          env=env)
     
     def _kill_process(self):
+        """
+        Tue le process de l'application de test
+        """
         if self._process:
             # attente de fermeture gentille
             max_wait, intervall = 10, 0.05
@@ -308,6 +317,9 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.global_options = global_options
     
     def create_aliases(self):
+        """
+        Crée et renvoie un objet :class:`HooqAliases` selon la config
+        """
         if not self.aliases:
             return None
         return HooqAliases.from_file(self.aliases,
@@ -371,6 +383,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
         """
         @wraps(meth)
         def wrapper():
+            """ Implémentation du décorateur"""
             ctx = self.create_context()
             return meth(ctx.funq)
         return wrapper
@@ -390,6 +403,7 @@ class MultiApplicationConfig(tuple):
         """
         @wraps(meth)
         def wrapper():
+            """ Implémentation du décorateur"""
             ctxs = [ appconfig.create_context() for appconfig
                      in self]
             return meth(*[ctx.funq for ctx in ctxs])
@@ -405,6 +419,9 @@ class ApplicationRegistry(object):
         self.confs = defaultdict(dict)
     
     def register_from_conf(self, conf, global_options):
+        """
+        Enregistre des configs depuis un fichier de conf.
+        """
         for section in conf.sections():
             if ':' in section:
                 app, mode = section.split(':', 1)
@@ -414,11 +431,14 @@ class ApplicationRegistry(object):
             self.register_config(app, appconf, mode)
     
     def register_config(self, name, conf, mode='default'):
+        """ Enregistre la config *name* """
         self.confs[name][mode] = conf
     
     def config(self, name, mode='default'):
+        """ Retourne la config *name* """
         return self.confs[name][mode]
     
     def multi_config(self, names, mode='default'):
+        """ Retourne la liste de configs *names* """
         return MultiApplicationConfig(
                     [ self.config(name, mode) for name in names ])

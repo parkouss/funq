@@ -5,10 +5,11 @@ Déclaration des modèles manipulables avec le framework de test.
 from funq.tools import wait_for
 import json
 
-class TreeItem(object):
+class TreeItem(object): # pylint: disable=R0903
     """
     Représente un item abstrait, contenant d'autre items.
     """
+    client = None
     
     @classmethod
     def create(cls, client, data):
@@ -29,6 +30,10 @@ class TreeItems(object):
     classe abstraite pour manipuler des données contenant des :class:`TreeItem`.
     Utilisé pour les modelitem et les graphicsitems.
     """
+    
+    client = None
+    items = None
+    
     ITEM_CLASS = TreeItem
     
     @classmethod
@@ -116,7 +121,7 @@ class Widget(object):
           
           widget.set_property('text', "Mon beau texte")
         """
-        self.set_properties(**{name: value})
+        self.set_properties(**{name: value}) # pylint:disable=W0142
 
     def wait_for_properties(self, props, timeout=10.0, timeout_interval=0.1):
         """
@@ -125,6 +130,7 @@ class Widget(object):
           self.wait_for_properties({'enabled': True, 'visible': True})
         """
         def check_props():
+            """checke la valeur des propriétés"""
             properties = self.properties()
             for k, v in props.iteritems():
                 if properties.get(k) != v:
@@ -182,6 +188,7 @@ class ModelItem(TreeItem):
     column = None
     
     def _action(self, itemaction):
+        """ Envoi de commande 'model_item_action' """
         self.client.send_command('model_item_action',
                                  oid=self.viewid,
                                  itemaction=itemaction,
@@ -336,9 +343,13 @@ class GItem(TreeItem):
     classes = None
     
     def is_qobject(self):
+        """ Renvoie True si l'item hérite de QObject """
         return self.objectname != None
     
     def properties(self):
+        """
+        Renvoie les propriétés de l'item. L'item doit hériter de QObject.
+        """
         return self.client.send_command('gitem_properties',
                                          oid=self.viewid,
                                          stackpath=self.stackpath)
@@ -350,9 +361,16 @@ class GItems(TreeItems):
     ITEM_CLASS = GItem
 
 class GraphicsView(Widget):
+    """
+    Représente une instance de QGraphicsView.
+    """
     CPP_CLASS = 'QGraphicsView'
     
     def gitems(self):
+        """
+        Renvoie une instance de :class:`GItems`, contenant tous les GItems
+        de la QGraphicsView.
+        """
         data = self.client.send_command('graphicsitems', oid=self.oid)
         return GItems.create(self.client, data)
     
