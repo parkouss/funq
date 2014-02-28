@@ -201,12 +201,15 @@ class ModelItem(TreeItem):
     :var row: numéro de ligne de l'item [type: int]
     :var column: numéro de colonne de l'item [type: int]
     :var value: valeur textuelle de l'item [type: unicode]
+    :var itempath: identifiant interne pour l'arborescence parente de l'item
+                   [type: str ou None]
     :var items: liste de :class:`ModelItem` sous-items de cet item
     """
     
     viewid = None
     row = None
     column = None
+    itempath = None
     
     def _action(self, itemaction):
         """ Envoi de commande 'model_item_action' """
@@ -214,7 +217,7 @@ class ModelItem(TreeItem):
                                  oid=self.viewid,
                                  itemaction=itemaction,
                                  row=self.row, column=self.column,
-                                 itempath=getattr(self, 'itempath', ''))
+                                 itempath=self.itempath)
     
     def select(self):
         """
@@ -359,6 +362,16 @@ class TabBar(Widget):
 class GItem(TreeItem):
     """
     Représente un QGraphicsItem.
+    
+    :var viewid: identifiant de la vue rattaché au modèle contenant cet item
+                 [type: long]
+    :var stackpath: identifiant de l'item, basé sur le stackIndex et
+                    l'arborescence de l'item [type: str]
+    :var objectname: valeur de la propriété "objectName" de l'item s'il hérite
+                     de QObject. [type: unicode ou None]
+    :var classes: liste des classes QT dont l'item hérite s'il hérite de
+                  QObject. [type: list(str) ou None]
+    :var items: liste de :class:`GItem` sous-items de cet item
     """
     viewid = None
     stackpath = None
@@ -380,6 +393,9 @@ class GItem(TreeItem):
 class GItems(TreeItems):
     """
     Représente un ensemble de QGraphicsItems
+    
+    :var items: liste de :class:`GItem` directement sur la scene (qui ne sont
+                pas des sous item)
     """
     ITEM_CLASS = GItem
 

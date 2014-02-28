@@ -36,7 +36,7 @@ Manipulation des données du framework Model/View de QT
 Pour manipuler des item provenants de QAbstractTableModel, il faut récupérer
 la vue adéquate (QAbstractItemView). L'instance retournée héritera de
 :class:`AbstractItemView` et les données du modèle rattaché seront accessibles
-via la méthode :meth:`AbstractItemView.model_items`
+via la méthode :meth:`AbstractItemView.model_items`.
 
 Exemple::
   
@@ -72,3 +72,41 @@ Exemple::
   .. automethod:: ModelItem.click
   
   .. automethod:: ModelItem.dclick
+
+Manipulation des données du framework Graphics View de QT
+---------------------------------------------------------
+
+La manipulation des QGraphicsItem depuis le framework de test est assez
+similiaire à la manipulation des données du framework Model/View de QT.
+
+Il faut récupérer la vue adéquate, héritant de QGraphicsView. L'instance
+python retournée sera une instance de :class:`GraphicsView` et les items
+graphiques seront accessibles via la méthode :meth:`GraphicsView.gitems`.
+
+Exemple::
+  
+  gview = hooq.widget('ma_gview')
+  
+  gitems = gview.gitems()
+  
+  for item in gitems.iter():
+      # faire quelque chose sur les items
+
+
+.. inheritance-diagram:: GraphicsView
+
+.. autoclass:: GraphicsView
+  
+  .. automethod:: GraphicsView.gitems
+  
+  .. automethod:: GraphicsView.dump_gitems
+
+
+.. autoclass:: GItems
+
+
+.. autoclass:: GItem
+  
+  .. automethod:: GItem.is_qobject
+  
+  .. automethod:: GItem.properties
