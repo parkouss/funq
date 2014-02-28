@@ -99,6 +99,17 @@ class FunqClient(object):
         """
         Retourne un widget de type :class:`funq.models.Widget` ou dérivé
         identifié par un alias ou le path complet.
+        
+        Exemple::
+          
+          widget = client.widget('mon_alias')
+        
+        :param alias: alias défini dans le fichier d'alias
+        :param path: path complet identifiant le widget
+        :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
+                        la valeur de timeout
+        :param timeout_interval: temps d'attente entre chque demande de
+                                 récupération de widget
         """
         if not (alias or path):
             raise TypeError("alias or path must be defined")
@@ -159,6 +170,11 @@ class FunqClient(object):
         """
         Envoi un raccourci clavier, féfini par une séquence de texte. Le
         format de la séquence est défini par QKeySequence::fromString.
+        
+        Exemple::
+          
+          client.shortcut('F2')
+        
         """
         self.send_command('shortcut', keysequence=key_sequence)
 
@@ -280,7 +296,9 @@ class ApplicationContext(object): # pylint: disable=R0903
 
 class ApplicationConfig(object): # pylint: disable=R0902
     """
-    Cet objet permet de créer des :class:`ApplicationContext`.
+    Cet objet permet de créer des :class:`ApplicationContext`. Chaque
+    paramètre est accessible sur l'instance, ce qui permet par exemple de
+    récupérer le chemin de l'exécutable testé via *config.executable*.
     
     :param executable: chemin complet vers l'exécutable de test
     :param args: arguments de l'exécutable
@@ -380,6 +398,9 @@ class ApplicationConfig(object): # pylint: disable=R0902
         Décorateur simple de fonction permettant de créer un contexte
         qui sera passé en argument et automatiquement détruit après
         exécution de cette fonction.
+        
+        La fonction décorée prendra un argument, généralement nommé *hooq*
+        de type :class:`FunqClient`.
         """
         @wraps(meth)
         def wrapper():
@@ -391,6 +412,10 @@ class ApplicationConfig(object): # pylint: disable=R0902
 class MultiApplicationConfig(tuple):
     """
     Permet de manipuler plusieurs applications de test en même temps.
+    
+    Cette classe agit comme un tuple de :class:`ApplicationConfig`,
+    donc chaque ApplicationConfig peut être récupérée par l'utilisation
+    de l'opérateur [] basé sur l'index de la configuration voulue.
     """
     def __init__(self, appconfigs):
         tuple.__init__(appconfigs)
@@ -400,6 +425,10 @@ class MultiApplicationConfig(tuple):
         Décorateur simple de fonction permettant de créer les contextes
         des :class:`ApplicationConfig` stockées qui seront
         automatiquement détruits après exécution de la fonction.
+        
+        La fonction décorée prendra autant d'arguments que l'instance de
+        MultiApplicationConfig contient d'ApplicationConfig,
+        de type :class:`FunqClient`.
         """
         @wraps(meth)
         def wrapper():
@@ -435,10 +464,21 @@ class ApplicationRegistry(object):
         self.confs[name][mode] = conf
     
     def config(self, name, mode='default'):
-        """ Retourne la config *name* """
+        """
+        Retourne la configuration *name* de type :class:`ApplicationConfig`.
+        
+        :param name: nom de la configuration
+        :param mode: actuellement non utilisé
+        """
         return self.confs[name][mode]
     
     def multi_config(self, names, mode='default'):
-        """ Retourne la liste de configs *names* """
+        """
+        Retourne la liste de configurations *names* sous la forme d'une instance
+        de :class:`MultiApplicationConfig`.
+        
+        :param names: liste ordonnée des noms de configuration
+        :param mode: actuellement non utilisé
+        """
         return MultiApplicationConfig(
                     [ self.config(name, mode) for name in names ])

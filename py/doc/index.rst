@@ -16,6 +16,7 @@ Plan de documentation
    test_attachable
    gkit_aliases
    libFunq
+   user_api
 
 
 Indices et références
