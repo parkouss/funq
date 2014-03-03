@@ -239,8 +239,6 @@ class ApplicationContext(object): # pylint: disable=R0903
             if funq_port:
                 env['FUNQ_PORT'] = str(funq_port)
             
-            cmd = [appconfig.executable]
-            
         else:
             # injection de dll par l'utilisation de funq
             if not appconfig.global_options.funq_attach_exe:
@@ -252,12 +250,16 @@ class ApplicationContext(object): # pylint: disable=R0903
             if funq_port:
                 cmd.append('--port')
                 cmd.append(str(funq_port))
-            cmd.append(appconfig.executable)
+        
+        if appconfig.with_valgrind:
+            cmd.append('valgrind')
+            cmd.extend(appconfig.valgrind_args)
+        cmd.append(appconfig.executable)
         
         if appconfig.with_valgrind:
             cmd = ['valgrind'] + list(appconfig.valgrind_args) + cmd
         cmd.extend(appconfig.args)
-            
+        
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,

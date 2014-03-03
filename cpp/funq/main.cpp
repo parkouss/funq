@@ -13,7 +13,7 @@ void set_sigterm_handler() {
     term.sa_handler = Attacher::termSignalHandler;
 
     sigemptyset(&term.sa_mask);
-    term.sa_flags |= SA_RESTART;
+    term.sa_flags = SA_RESTART;
 
     sigaction(SIGTERM, &term, 0);
 }
