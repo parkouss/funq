@@ -240,7 +240,6 @@ class ApplicationContext(object): # pylint: disable=R0903
                 env['FUNQ_PORT'] = str(funq_port)
             
             cmd = [appconfig.executable]
-            cmd.extend(appconfig.args)
             
         else:
             # injection de dll par l'utilisation de funq
@@ -254,7 +253,10 @@ class ApplicationContext(object): # pylint: disable=R0903
                 cmd.append('--port')
                 cmd.append(str(funq_port))
             cmd.append(appconfig.executable)
-            cmd.extend(appconfig.args)
+        
+        if appconfig.with_valgrind:
+            cmd = ['valgrind'] + list(appconfig.valgrind_args) + cmd
+        cmd.extend(appconfig.args)
             
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
@@ -321,6 +323,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        executable_stdout=None,
                        executable_stderr=None,
                        attach=True,
+                       with_valgrind=False,
+                       valgrind_args=('--leak-check=full', '--show-reachable=yes'),
                        global_options=None):
         self.executable = executable
         self.args = args
@@ -332,6 +336,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.executable_stdout = executable_stdout
         self.executable_stderr = executable_stderr
         self.attach = attach
+        self.with_valgrind = with_valgrind
+        self.valgrind_args = valgrind_args
         self.global_options = global_options
     
     def create_aliases(self):
@@ -384,6 +390,13 @@ class ApplicationConfig(object): # pylint: disable=R0902
             if conf.has_option(section, optname) and \
                             conf.get(section, optname) == 'NULL':
                 kwargs[optname] = os.devnull
+        
+        if conf.has_option(section, 'with_valgrind'):
+            kwargs["with_valgrind"] = conf.getboolean(section, 'with_valgrind')
+        
+        if conf.has_option(section, 'valgrind_args'):
+            kwargs['valgrind_args'] = shlex.split(
+                                            conf.get(section, 'valgrind_args'))
         
         return cls(executable, **kwargs) # pylint: disable=W0142
 

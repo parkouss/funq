@@ -29,3 +29,6 @@ Voici la liste des options falcutatives disponibles:
    de se connecter à la socket libFunq. Défaut 10 secondes.
  - **attach**: positionner à "no" ou "0" pour désactiver l'utilisation
    de funq. Voir :ref:`disable-attach`.
+ - **with_valgrind**: positionner à "1" ou "yes" pour activer valgrind
+ - **valgrind_args**: arguments pour valgrind. par défaut,
+   "--leak-check=full --show-reachable=yes".
