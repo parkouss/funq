@@ -110,3 +110,14 @@ Exemple::
   .. automethod:: GItem.is_qobject
   
   .. automethod:: GItem.properties
+
+Autres widgets
+--------------
+
+.. inheritance-diagram:: TabBar
+
+.. autoclass:: TabBar
+  
+  .. automethod:: TabBar.tab_texts
+  
+  .. automethod:: TabBar.set_current_tab
