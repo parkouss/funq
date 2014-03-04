@@ -11,6 +11,7 @@ class TreeItem(object): # pylint: disable=R0903
     Représente un item abstrait, contenant d'autre items.
     """
     client = None
+    items = None
     
     @classmethod
     def create(cls, client, data):

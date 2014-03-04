@@ -39,6 +39,7 @@ def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
         longMessage = True # c'est ce qui change tout.
         
         def nop(self):
+            """useless"""
             pass
     dummy = Dummy('nop')
     for name in [ name for name in dir(dummy)

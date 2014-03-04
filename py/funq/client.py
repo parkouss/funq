@@ -326,7 +326,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        executable_stderr=None,
                        attach=True,
                        with_valgrind=False,
-                       valgrind_args=('--leak-check=full', '--show-reachable=yes'),
+                       valgrind_args=('--leak-check=full',
+                                      '--show-reachable=yes'),
                        global_options=None):
         self.executable = executable
         self.args = args
