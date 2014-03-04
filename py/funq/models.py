@@ -3,6 +3,7 @@
 Déclaration des modèles manipulables avec le framework de test.
 """
 from funq.tools import wait_for
+from funq.errors import FunqError
 import json
 
 class TreeItem(object): # pylint: disable=R0903
@@ -86,6 +87,7 @@ class Widget(object):
     
     oid = None
     client = None
+    path = None
     
     @classmethod
     def create(cls, client, data):
@@ -324,6 +326,8 @@ class AbstractItemView(Widget):
     Représente une classe dérivée de QAbstractItemView.
     """
     CPP_CLASS = 'QAbstractItemView'
+    editor_class_names = ('QLineEdit', 'QComboBox', 'QSpinBox',
+                          'QDoubleSpinBox')
 
     def model_items(self):
         """
@@ -332,6 +336,32 @@ class AbstractItemView(Widget):
         """
         data = self.client.send_command('model_items', oid=self.oid)
         return ModelItems.create(self.client, data)
+    
+    def current_editor(self, editor_class_name=None):
+        """
+        Retourne l'éditeur d'item actuellement ouvert sur cette vue.
+        l'item doit être en mode édition, ce qui peut être fait par
+        l'appel de :meth:`ModelItem.dclick` ou :meth:`ModelItem.edit`.
+        
+        Les types d'éditeur gérés sont actuellement les suivants:
+        'QLineEdit', 'QComboBox', 'QSpinBox' et 'QDoubleSpinBox'.
+        
+        :param editor_class_name: chaine représentant le type de
+                                  l'éditeur. Si None, tous les types
+                                  d'éditeurs sont testés.
+        """
+        qt_path = '::qt_scrollarea_viewport::%s'
+        if editor_class_name:
+            return self.client.widget(path=self.path
+                                  + qt_path % editor_class_name)
+        for editor_class_name in self.editor_class_names:
+            try:
+                return self.client.widget(path=self.path
+                                      + qt_path % editor_class_name)
+            except FunqError:
+                pass
+        raise FunqError('Unable to find an editor. Possible editors:'
+                        ' %s' % repr(self.editor_class_names))
 
 class TabBar(Widget):
     """
@@ -422,3 +452,42 @@ class GraphicsView(Widget):
             stream = open(stream, 'w')
         json.dump(data,
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
+
+class ComboBox(Widget):
+    """
+    Ajoute des méthodes spécifiques aux QComboBox.
+    """
+    CPP_CLASS = 'QComboBox'
+    
+    def model_items(self):
+        """
+        Renvoie le model item (:class:`ModelItems`) associé à cette combobox
+        """
+        # création et affichage de QComboBoxListView
+        self.click()
+        # recuperation de ce widget QComboBoxListView
+        internal_qt_name = '::QComboBoxPrivateContainer::QComboBoxListView'
+        combo_edit_view = self.client.widget(path=self.path + internal_qt_name)
+        model_items = combo_edit_view.model_items()
+        # on cache la QComboBoxListView
+        combo_edit_view.set_property('visible', False)
+        return model_items
+    
+    def set_current_text(self, text):
+        """
+        Définit le texte de la combobox en assurant que c'est une valeur
+        possible.
+        """
+        if not isinstance(text, basestring):
+            raise TypeError('the text parameter must be a string'
+                             ' - got %s' % type(text))
+        model_items = self.model_items()
+        column = self.properties()['modelColumn']
+        index = -1
+        for item in model_items.items:
+            if column == int(item.column) and item.value == text:
+                index = int(item.row)
+                break
+        assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
+                             % (text, self.path))
+        self.set_property('currentIndex', index)

@@ -54,6 +54,8 @@ Exemple::
 .. autoclass:: AbstractItemView
   
   .. automethod:: AbstractItemView.model_items
+  
+  .. automethod:: AbstractItemView.current_editor
 
 
 .. autoclass:: ModelItems
@@ -121,3 +123,12 @@ Autres widgets
   .. automethod:: TabBar.tab_texts
   
   .. automethod:: TabBar.set_current_tab
+
+
+.. inheritance-diagram:: ComboBox
+
+.. autoclass:: ComboBox
+  
+  .. automethod:: ComboBox.model_items
+  
+  .. automethod:: ComboBox.set_current_text
