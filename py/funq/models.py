@@ -203,6 +203,7 @@ class ModelItem(TreeItem):
     :var row: numéro de ligne de l'item [type: int]
     :var column: numéro de colonne de l'item [type: int]
     :var value: valeur textuelle de l'item [type: unicode]
+    :var check_state: valeur textuelle de l'etat check de l'item, ou None
     :var itempath: identifiant interne pour l'arborescence parente de l'item
                    [type: str ou None]
     :var items: liste de :class:`ModelItem` sous-items de cet item
@@ -212,6 +213,7 @@ class ModelItem(TreeItem):
     row = None
     column = None
     itempath = None
+    check_state = None
     
     def _action(self, itemaction):
         """ Envoi de commande 'model_item_action' """
@@ -220,6 +222,14 @@ class ModelItem(TreeItem):
                                  itemaction=itemaction,
                                  row=self.row, column=self.column,
                                  itempath=self.itempath)
+    
+    def is_checkable(self):
+        """Renvoie True si l'item est checkable"""
+        return self.check_state is not None
+    
+    def is_checked(self):
+        """Renvoie True si l'item est checké"""
+        return self.check_state == 'checked'
     
     def select(self):
         """

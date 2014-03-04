@@ -74,6 +74,10 @@ Exemple::
   .. automethod:: ModelItem.click
   
   .. automethod:: ModelItem.dclick
+  
+  .. automethod:: ModelItem.is_checkable
+  
+  .. automethod:: ModelItem.is_checked
 
 Manipulation des données du framework Graphics View de QT
 ---------------------------------------------------------
