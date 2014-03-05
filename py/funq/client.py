@@ -98,7 +98,8 @@ class FunqClient(object):
         """
         self._raw_send('quit', {})
     
-    def widget(self, alias=None, path=None, timeout=10.0, timeout_interval=0.1):
+    def widget(self, alias=None, path=None,
+                     timeout=10.0, timeout_interval=0.1, wait_active=True):
         """
         Retourne un widget de type :class:`funq.models.Widget` ou dérivé
         identifié par un alias ou le path complet.
@@ -113,6 +114,8 @@ class FunqClient(object):
                         la valeur de timeout
         :param timeout_interval: temps d'attente entre chque demande de
                                  récupération de widget
+        :param wait_active: Si True, on attends que le widget soit visible
+                            et enabled.
         """
         if not (alias or path):
             raise TypeError("alias or path must be defined")
@@ -132,7 +135,10 @@ class FunqClient(object):
                 return err
         wait_for(get_widget, timeout, timeout_interval)
         
-        return Widget.create(self, wdata[0])
+        widget = Widget.create(self, wdata[0])
+        if wait_active:
+            widget.wait_for_properties({'enabled': True, 'visible': True})
+        return widget
     
     def widgets_list(self, with_properties=False):
         """
