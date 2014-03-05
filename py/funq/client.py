@@ -6,11 +6,14 @@ Ce module permet l'intégration avec un serveur libFunq via :class:`FunqClient`.
 import socket, json, errno, os, shlex, time, subprocess, base64
 from functools import wraps
 from collections import defaultdict
+import logging
 
 from funq.aliases import HooqAliases
 from funq.tools import wait_for
 from funq.models import Widget
 from funq.errors import FunqError
+
+LOG = logging.getLogger('funq.client')
 
 class FunqClient(object):
     """
@@ -260,11 +263,14 @@ class ApplicationContext(object): # pylint: disable=R0903
             cmd = ['valgrind'] + list(appconfig.valgrind_args) + cmd
         cmd.extend(appconfig.args)
         
+        LOG.info("L'application testée va être démarrée dans le répertoire %r"
+                 " avec la commande %r", appconfig.cwd, cmd)
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,
                                          stderr=stderr,
                                          env=env)
+        LOG.info("Démarrage de l'application testée [%s].", self._process.pid)
     
     def _kill_process(self):
         """
@@ -278,6 +284,8 @@ class ApplicationContext(object): # pylint: disable=R0903
                 max_wait -= intervall
             if self._process.returncode is None:
                 # application bloquée ! pas le choix ...
+                LOG.warn("L'application testée [%s] ne veut pas se terminer"
+                         " gentiment, on force son arrêt.", self._process.pid)
                 self._process.terminate()
                 self._process.wait()
             self._process = None
@@ -288,9 +296,25 @@ class ApplicationContext(object): # pylint: disable=R0903
         """
         if self.funq:
             if self._process is not None:
-                # mode attache, on doit gerer la fin du process
-                # demande de fermeture, gentiment (qApp->quit()).
-                self.funq.quit()
+                # le process peut être mort, et ne pas nous l'avoir signalé
+                max_wait, wait = 0.05, 0.0
+                while wait < max_wait:
+                    if self._process.poll() is not None:
+                        break
+                    time.sleep(0.01)
+                    wait += 0.01
+                if self._process.returncode is not None:
+                    # process fini de manière innatendue (-11: SegFault)
+                    LOG.critical("L'application testée [%s] s'est terminée de"
+                                 " manière innatendue (code retour: %s)",
+                                 self._process.pid, self._process.returncode)
+                    self._process = None
+                else:
+                    # mode attache, on doit gerer la fin du process
+                    # demande de fermeture, gentiment (qApp->quit()).
+                    LOG.info("Fermeture de l'application testée [%s].",
+                             self._process.pid)
+                    self.funq.quit()
             self.funq.close()
             self.funq = None
         self._kill_process()
