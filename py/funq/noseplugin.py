@@ -7,17 +7,14 @@ from funq.client import ApplicationRegistry
 from funq.tools import which
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
-import os
-import logging
+import os, codecs, logging
 
 LOG = logging.getLogger('nose.plugins.funq')
 
-def log_with_sep(message):
-    """Loggue un message avec un séparateur."""
+def message_with_sep(message):
+    """retourne un message avec un séparateur."""
     sep = '-' * 70
-    LOG.info(sep)
-    LOG.info(message)
-    LOG.info(sep)
+    return (sep, message, sep)
 
 def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
     """
@@ -92,6 +89,19 @@ class FunqPlugin(Plugin):
                                                             or locate_funq(),
                           help="Chemin complet ver l'executable funq."
                                " [NOSE_FUNQ_ATTACH_EXE]")
+        parser.add_option('--funq-trace-tests',
+                          dest='funq_trace_tests',
+                          default=env.get('NOSE_FUNQ_TRACE_TESTS'),
+                          help="Un fichier dans lequel les traces de debut"
+                               " et fin de chaque test seront ajoutees."
+                               " [NOSE_FUNQ_TRACE_TESTS]")
+        parser.add_option('--funq-trace-tests-encoding',
+                          dest='funq_trace_tests_encoding',
+                          default=env.get('NOSE_FUNQ_TRACE_TESTS_ENCODING')
+                                    or 'utf-8',
+                          help="encodage pour le fichier de l'option"
+                               "--funq-trace-tests."
+                               " [NOSE_FUNQ_TRACE_TESTS_ENCODING]")
     
     def configure(self, options, conf):
         Plugin.configure(self, options, config)
@@ -104,9 +114,28 @@ class FunqPlugin(Plugin):
         conf = ConfigParser()
         conf.read([conf_file])
         _APP_REGISTRY.register_from_conf(conf, options)
+        self.trace_tests = options.funq_trace_tests
+        self.trace_tests_encoding = options.funq_trace_tests_encoding
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
-        log_with_sep(u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8'))
+        message = u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8')
+        lines = message_with_sep(message)
+        for line in lines:
+            LOG.info(line)
+        if self.trace_tests:
+            with codecs.open(self.trace_tests, 'a',
+                                            self.trace_tests_encoding) as f:
+                f.write('\n'.join(lines))
+                f.write('\n')
+            
     
     def afterTest(self, test): # pylint: disable=C0111,C0103,R0201
-        log_with_sep(u"Fin de test `%s`" % unicode(test.id(), 'utf-8'))
+        message = u"Fin de test `%s`" % unicode(test.id(), 'utf-8')
+        lines = message_with_sep(message)
+        for line in lines:
+            LOG.info(line)
+        if self.trace_tests:
+            with codecs.open(self.trace_tests, 'a',
+                                            self.trace_tests_encoding) as f:
+                f.write('\n'.join(lines))
+                f.write('\n')
