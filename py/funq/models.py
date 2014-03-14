@@ -371,8 +371,8 @@ class AbstractItemView(Widget):
                                       + qt_path % editor_class_name)
             except FunqError:
                 pass
-        raise FunqError('Unable to find an editor. Possible editors:'
-                        ' %s' % repr(self.editor_class_names))
+        raise FunqError("MissingEditor", 'Unable to find an editor.'
+                    ' Possible editors: %s' % repr(self.editor_class_names))
 
 class TabBar(Widget):
     """
