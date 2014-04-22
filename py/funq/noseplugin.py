@@ -56,7 +56,7 @@ multi_config = _APP_REGISTRY.multi_config # pylint: disable=C0103
 
 class FunqPlugin(Plugin):
     """
-    Plugin d'intégration avec nosetests.
+    Plugin d'integration avec nosetests.
     """
     name = 'funq'
     
