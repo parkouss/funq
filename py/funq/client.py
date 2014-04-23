@@ -202,7 +202,7 @@ class ApplicationContext(object): # pylint: disable=R0903
     est automatiquement appellée et ferme l'objet **funq** ainsi que le
     processus testé s'il a été créé.
     """
-    def __init__(self, appconfig):
+    def __init__(self, appconfig, client_class=FunqClient):
         self._process, self.funq = None, None
         
         if not appconfig.executable.startswith('socket://'):
@@ -211,7 +211,7 @@ class ApplicationContext(object): # pylint: disable=R0903
         else:
             host = appconfig.executable[9:]
         
-        self.funq = FunqClient(host=host,
+        self.funq = client_class(host=host,
                                port=appconfig.funq_port,
                                aliases=appconfig.create_aliases(),
                                timeout_connection=appconfig.timeout_connection)
@@ -265,8 +265,6 @@ class ApplicationContext(object): # pylint: disable=R0903
             cmd.extend(appconfig.valgrind_args)
         cmd.append(appconfig.executable)
         
-        if appconfig.with_valgrind:
-            cmd = ['valgrind'] + list(appconfig.valgrind_args) + cmd
         cmd.extend(appconfig.args)
         
         LOG.info("L'application testée va être démarrée dans le répertoire %r"

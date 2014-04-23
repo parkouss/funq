@@ -1,6 +1,6 @@
 from nose.tools import *
 from funq import client
-import os
+import os, subprocess
 import weakref
 
 from ConfigParser import ConfigParser, NoOptionError
@@ -143,3 +143,54 @@ class TestApplicationRegistry:
         
         assert_is_instance(multi, client.MultiApplicationConfig)
         assert_equals(multi, (c2, c1))
+
+class FakePopen(object):
+    @classmethod
+    def patch_subprocess_popen(cls, func):
+        def patched_subprocess_ctx(*a, **kwa):
+            oldpopen = subprocess.Popen
+            subprocess.Popen = FakePopen
+            try:
+                res = func(*a, **kwa)
+            finally:
+                subprocess.Popen = oldpopen
+            
+        patched_subprocess_ctx.__name__ = func.__name__
+        patched_subprocess_ctx.__doc__ = func.__doc__
+        return patched_subprocess_ctx
+
+    def __init__(self, command, **kwargs):
+        self.command = command
+        self.kwargs = kwargs
+        self.pid = -1
+        self.returncode = 0
+    
+    def poll(self):
+        return self.returncode
+
+class TestApplicationContext:
+    @FakePopen.patch_subprocess_popen
+    def test_start(self):
+        class O:
+            funq_attach_exe = 'funq'
+        appconf = client.ApplicationConfig(
+            executable='command',
+            global_options=O(),
+        )
+        
+        ctx = client.ApplicationContext(appconf, client_class=lambda *a, **kwa: None)
+        assert_equals(ctx._process.command, ['funq', 'command'])
+    
+    @FakePopen.patch_subprocess_popen
+    def test_start_with_valgrind(self):
+        class O:
+            funq_attach_exe = 'funq'
+        appconf = client.ApplicationConfig(
+            executable='command',
+            with_valgrind=True,
+            valgrind_args=[],
+            global_options=O(),
+        )
+        
+        ctx = client.ApplicationContext(appconf, client_class=lambda *a, **kwa: None)
+        assert_equals(ctx._process.command, ['funq', 'valgrind', 'command'])
