@@ -312,7 +312,7 @@ class ModelItems(TreeItems):
                     chaine.
         """
         if isinstance(named_path, (list, tuple)):
-            parts = named_path[:]
+            parts = list(named_path)
         else:
             parts = named_path.split(sep)
         item = self
