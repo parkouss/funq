@@ -86,6 +86,10 @@ class FunqClient(object):
         self._raw_send(action, kwargs)
         f = self._fsocket
         header = f.readline()
+        if not header:
+            raise FunqError("NoResponseFromApplication",
+                            u"Pas de réponse de l'application testée -"
+                            u" probablement un crash.")
         to_read = int(header)
         response = json.loads(f.read(to_read))
         if response.get('success') == False:
