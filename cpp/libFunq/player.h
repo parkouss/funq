@@ -24,6 +24,7 @@ public slots:
     QtJson::JsonObject widget_click(const QtJson::JsonObject & command);
     QtJson::JsonObject model_items(const QtJson::JsonObject & command);
     QtJson::JsonObject model_item_action(const QtJson::JsonObject & command);
+    QtJson::JsonObject model_gitem_action(const QtJson::JsonObject & command);
     QtJson::JsonObject desktop_screenshot(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_keyclick(const QtJson::JsonObject & command);
     QtJson::JsonObject shortcut(const QtJson::JsonObject & command);

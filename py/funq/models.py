@@ -431,6 +431,25 @@ class GItem(TreeItem):
                                          oid=self.viewid,
                                          stackpath=self.stackpath)
 
+    def _action(self, itemaction):
+        """ Envoi de commande 'model_gitem_action' """
+        self.client.send_command('model_gitem_action',
+                                 oid=self.viewid,
+                                 itemaction=itemaction,
+                                 stackpath=self.stackpath)
+
+    def click(self):
+        """
+        Click sur le gitem.
+        """
+        self._action("click")
+
+    def dclick(self):
+        """
+        Double click sur le gitem.
+        """
+        self._action("doubleclick")
+
 class GItems(TreeItems):
     """
     Représente un ensemble de QGraphicsItems

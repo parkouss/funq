@@ -116,6 +116,10 @@ Exemple::
   .. automethod:: GItem.is_qobject
   
   .. automethod:: GItem.properties
+  
+  .. automethod:: GItem.click
+  
+  .. automethod:: GItem.dclick
 
 Autres widgets
 --------------

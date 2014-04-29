@@ -44,7 +44,7 @@ void mouse_dclick(QWidget * w, const QPoint & pos) {
 
 void dump_properties(QObject * object, QtJson::JsonObject & out) {
     const QMetaObject * metaobject = object->metaObject();
-    for (int i = 0; i < metaobject->propertyCount(); i++) {
+    for (int i = 0; i < metaobject->propertyCount(); ++i) {
         QMetaProperty prop = metaobject->property(i);
         QVariant value = object->property(prop.name());
         // first try to serialize and only add property if it is possible
@@ -121,8 +121,8 @@ void dump_items_model(QAbstractItemModel * model,
                       bool recursive = true) {
 
     QtJson::JsonArray items;
-    for(int i = 0; i < model->rowCount(parent); i++) {
-        for(int j = 0; j < model->columnCount(parent); j++) {
+    for(int i = 0; i < model->rowCount(parent); ++i) {
+        for(int j = 0; j < model->columnCount(parent); ++j) {
             QModelIndex index = model->index(i, j, parent);
             QtJson::JsonObject item;
             dump_item_model_attrs(model, item, index, viewid);
@@ -359,6 +359,33 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     return result;
 }
 
+QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
+    FIND_WIDGET_OR_RETURN(command, QGraphicsView, view, obj, id);
+    QGraphicsItem * item = graphicsItemFromPath(view, command["stackpath"].toString());
+    if (!item) {
+        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
+    }
+    view->ensureVisible(item); // pour rendre l'item visible
+    QString itemaction = command["itemaction"].toString();
+
+    QPoint viewPos = view->mapFromScene(item->mapToScene(item->boundingRect().center()));
+    if (itemaction == "click") {
+        if (view->scene() && view->scene()->mouseGrabberItem()) {
+            view->scene()->mouseGrabberItem()->ungrabMouse();
+        }
+        mouse_click(view->viewport(), viewPos);
+    } else if (itemaction == "doubleclick") {
+        if (view->scene() && view->scene()->mouseGrabberItem()) {
+            view->scene()->mouseGrabberItem()->ungrabMouse();
+        }
+        mouse_dclick(view->viewport(), viewPos);
+    } else {
+        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 inconnue").arg(itemaction));
+    }
+    QtJson::JsonObject result;
+    return result;
+}
+
 QtJson::JsonObject Player::desktop_screenshot(const QtJson::JsonObject & command) {
     QString format = command["format"].toString();
     if (format.isEmpty()) {
@@ -383,7 +410,7 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
         widget = qApp->activeWindow();
     }
     QString text = command["text"].toString();
-    for (int i=0; i<text.count(); i++) {
+    for (int i=0; i<text.count(); ++i) {
         QChar ch = text[i];
         int key = (int) ch.toAscii();
         qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyPress, key, Qt::NoModifier, ch));
@@ -421,7 +448,7 @@ QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
     FIND_WIDGET_OR_RETURN(command, QTabBar, tabbar, obj, id);
     QStringList texts;
-    for (int i=0; i< tabbar->count(); i++) {
+    for (int i=0; i< tabbar->count(); ++i) {
         texts << tabbar->tabText(i);
     }
     QtJson::JsonObject result;
