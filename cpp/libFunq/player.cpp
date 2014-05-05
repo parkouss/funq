@@ -12,6 +12,7 @@
 #include <QDesktopWidget>
 #include <QGraphicsView>
 #include <QGraphicsItem>
+#include <QTimer>
 
 void mouse_click(QWidget * w, const QPoint & pos) {
     QPoint global_pos = w->mapToGlobal(pos);
@@ -181,6 +182,16 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
     out["items"] = outitems;
 }
 
+QPoint pointFromString(const QString & data) {
+    QStringList splitted = data.split(",");
+    if (splitted.count() == 2) {
+        QPoint p;
+        p.setX(splitted[0].toInt());
+        p.setY(splitted[1].toInt());
+    }
+    return QPoint();
+}
+
 Player::Player(QIODevice *device, QObject *parent) :
     JsonClient(device, parent)
 {
@@ -234,29 +245,29 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     return result;
 }
 
-#define FIND_OBJECT_OR_RETURN(command, obj, id) \
-    qulonglong id = command["oid"].value<qulonglong>(); \
+#define FIND_OBJECT_OR_RETURN(command, oidKey, obj, id) \
+    qulonglong id = command[oidKey].value<qulonglong>(); \
     QObject * obj = registeredObject(id); \
     if (!obj) { \
         return createError("NotRegisteredObject", QString::fromUtf8("L'objet (id:%1) n'est pas enregistré ou a été détruit").arg(id)); \
     }
 
-#define FIND_WIDGET_OR_RETURN(command, WIDGET_CLASS, widget, obj, id) \
-    FIND_OBJECT_OR_RETURN(command, obj, id) \
+#define FIND_WIDGET_OR_RETURN(command, oidKey, WIDGET_CLASS, widget, obj, id) \
+    FIND_OBJECT_OR_RETURN(command, oidKey, obj, id) \
     WIDGET_CLASS * widget = qobject_cast<WIDGET_CLASS *>(obj); \
     if (!widget) { \
         return createError("NotAWidget", QString::fromUtf8("L'objet (id:%1) n'est pas un ## WIDGET_CLASS ##").arg(id)); \
     }
 
 QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
-    FIND_OBJECT_OR_RETURN(command, obj, id)
+    FIND_OBJECT_OR_RETURN(command, "oid", obj, id)
     QtJson::JsonObject result;
     dump_properties(obj, result);
     return result;
 }
 
 QtJson::JsonObject Player::object_set_properties(const QtJson::JsonObject & command) {
-    FIND_OBJECT_OR_RETURN(command, obj, id)
+    FIND_OBJECT_OR_RETURN(command, "oid", obj, id)
     QtJson::JsonObject properties = command["properties"].value<QtJson::JsonObject>();
     for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
         obj->setProperty(iter.key().toStdString().c_str(), iter.value());
@@ -282,7 +293,7 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
     bool with_properties = command["with_properties"].toBool();
     QtJson::JsonObject result;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, QWidget, root, obj, id);
+        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, root, obj, id);
         foreach (QObject * obj, root->children()) {
             QWidget * subWidget = qobject_cast<QWidget *>(obj);
             if (subWidget) {
@@ -305,7 +316,7 @@ QtJson::JsonObject Player::quit(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QWidget, widget, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QWidget, widget, obj, id);
     QString action = command["action"].toString();
     QPoint pos = widget->rect().center();
     if (action == "doubleclick") {
@@ -319,7 +330,7 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
-    FIND_WIDGET_OR_RETURN(command, QAbstractItemView, view, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QAbstractItemView, view, obj, id);
     QAbstractItemModel * model = view->model();
     if (!model) {
         return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
@@ -330,7 +341,7 @@ QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QAbstractItemView, view, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QAbstractItemView, view, obj, id);
     QAbstractItemModel * model = view->model();
     if (!model) {
         return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
@@ -360,7 +371,7 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
 }
 
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QGraphicsView, view, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
     QGraphicsItem * item = graphicsItemFromPath(view, command["stackpath"].toString());
     if (!item) {
         return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
@@ -404,7 +415,7 @@ QtJson::JsonObject Player::desktop_screenshot(const QtJson::JsonObject & command
 QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
     QWidget * widget;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, QWidget, _widget, obj, id);
+        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, _widget, obj, id);
         widget = _widget;
     } else {
         widget = qApp->activeWindow();
@@ -423,7 +434,7 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
     QWidget * widget;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, QWidget, _widget, obj, id);
+        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, _widget, obj, id);
         widget = _widget;
     } else {
         widget = qApp->activeWindow();
@@ -446,7 +457,7 @@ QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QTabBar, tabbar, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QTabBar, tabbar, obj, id);
     QStringList texts;
     for (int i=0; i< tabbar->count(); ++i) {
         texts << tabbar->tabText(i);
@@ -457,7 +468,7 @@ QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QGraphicsView, view, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
     QList<QGraphicsItem *> topLevelItems;
     foreach(QGraphicsItem * item, view->items()) {
         if (! item->parentItem()) {
@@ -470,7 +481,7 @@ QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, QGraphicsView, view, obj, id);
+    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
     QString stackpath = command["stackpath"].toString();
     QGraphicsItem * item = graphicsItemFromPath(view, stackpath);
     if (!item) {
@@ -485,4 +496,94 @@ QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) 
     QtJson::JsonObject result;
     dump_properties(object, result);
     return result;
+}
+
+void calculate_drag_n_drop_moves(QList<QPoint> & moves,
+                                 const QPoint & globalSourcePos,
+                                 const QPoint & globalDestPos,
+                                 int deltaFactor=4) {
+    QPoint delta = globalDestPos - globalSourcePos;
+    delta /= deltaFactor;
+    
+    QPoint move = globalSourcePos;
+    QPoint lastMove = globalSourcePos;
+    for (int i = 0; i < deltaFactor; ++i) {
+        move += delta;
+        if (move != lastMove) {
+            lastMove = move;
+            moves << move;
+        }
+    }
+    moves << globalDestPos;
+}
+
+void _drag_n_drop(QWidget * source, const QPoint & sourcePos,
+                 QWidget * dest, const QPoint & destPos,
+                 int startDragTime=0,
+                 int deltaFactor=4) {
+    QPoint globalSourcePos = source->mapToGlobal(sourcePos);
+    QPoint globalDestPos = dest->mapToGlobal(destPos);
+    
+    // 1: press event
+    qApp->postEvent(source,
+        new QMouseEvent(QEvent::MouseButtonPress,
+                        sourcePos,
+                        globalSourcePos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+    
+    // 2: wait drag time
+    if (startDragTime == 0) {
+        startDragTime = QApplication::startDragTime();
+    }
+    QEventLoop localLoop;
+    QTimer::singleShot(startDragTime, &localLoop, SLOT(quit()));
+    localLoop.exec();
+    
+    // 3: do some move event
+    QList<QPoint> moves;
+    calculate_drag_n_drop_moves(moves, globalSourcePos, globalDestPos, deltaFactor);
+    foreach (const QPoint & move, moves) {
+        QWidget * widgetUnderCursor = qApp->widgetAt(move);
+        if (widgetUnderCursor) {
+            qApp->postEvent(widgetUnderCursor,
+                new QMouseEvent(QEvent::MouseMove,
+                                widgetUnderCursor->mapFromGlobal(move),
+                                move,
+                                Qt::LeftButton,
+                                Qt::NoButton,
+                                Qt::NoModifier));
+        }
+    }
+    
+    // 4: now release the button
+    qApp->postEvent(dest,
+        new QMouseEvent(QEvent::MouseButtonRelease,
+                        globalDestPos,
+                        destPos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+}
+
+QtJson::JsonObject Player::drag_n_drop(const QtJson::JsonObject & command) {
+    FIND_WIDGET_OR_RETURN(command, "srcoid", QWidget, w1, obj1, id1);
+    FIND_WIDGET_OR_RETURN(command, "destoid", QWidget, w2, obj2, id2);
+    
+    QPoint srcPos;
+    if (command.contains("srcpos") && ! command["srcpos"].isNull()) {
+        srcPos = pointFromString(command["srcpos"].toString());
+    } else {
+        srcPos = w1->rect().center();
+    }
+    
+    QPoint destPos;
+    if (command.contains("destpos") && ! command["destpos"].isNull()) {
+        destPos = pointFromString(command["destpos"].toString());
+    } else {
+        destPos = w2->rect().center();
+    }
+    _drag_n_drop(w1, srcPos, w2, destPos);
+    return QtJson::JsonObject();
 }
