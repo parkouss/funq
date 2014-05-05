@@ -5,17 +5,49 @@
 #include "jsonclient.h"
 #include <QTimer>
 
+/**
+  * @brief Objet permettant de fournir une réponse asynchrone à une requète json
+  *
+  * Un pointeur de DelayedResponse peut être renvoyée par un slot de Player
+  * pour fournir une réponse asynchrone.
+  *
+  * Un QTimer est utilisé pour appeller de manière cyclique la méthode
+  * execute(), jusquèà ce que writeResponse() soit appelé. Dès le premier
+  * appel de writeResponse(), execute() ne sera plus appelé et l'objet sera
+  * détruit automatiquement.
+  */
 class DelayedResponse : public QObject {
     Q_OBJECT
 public:
     explicit DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval=0);
     
+    /**
+      * @ brief Définit l'intervalle en ms entre les appels de execute().
+      *
+      * Par défaut, l'intervalle vaut 0, ce qui indique que l'appel sera
+      * exécuté au prochain tour de la boucle d'évènements QT.
+      */
     void setInterval(int interval) { m_timer.setInterval(interval); }
 
+    /**
+      * @brief démarre les appels récurrents de execute().
+      */
     void start();
 
 protected:
+    /**
+      * @brief à implémenter pour renvoyer la réponse.
+      *
+      * Cette méthode doit appeller writeResponse() à un moment donné pour envoyer
+      * la réponse et terminer la vie de l'objet.
+      */
     virtual void execute(const QtJson::JsonObject & command) = 0;
+
+    /**
+      * @brief renvoie une réponse au client json.
+      *
+      * Cet appel amorcera la destruction automatique de l'objet.
+      */
     void writeResponse(const QtJson::JsonObject & result);
     JsonClient * jsonClient() { return m_client; }
 
