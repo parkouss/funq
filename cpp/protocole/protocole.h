@@ -17,6 +17,10 @@ public:
     bool sendMessage(const QByteArray & ba);
 
     QByteArray nextAvailableMessage();
+    
+    inline bool hasAvailableMessage() { return ! m_receivedMessages.isEmpty(); }
+    
+    inline bool hasMessageToSend() { return ! m_messagesToSend.isEmpty(); }
 
     void close();
 signals:
