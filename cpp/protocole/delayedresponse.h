@@ -15,11 +15,16 @@
   * execute(), jusquèà ce que writeResponse() soit appelé. Dès le premier
   * appel de writeResponse(), execute() ne sera plus appelé et l'objet sera
   * détruit automatiquement.
+  *
+  * Si la méthode writeResponse() n'est pas appellée dans le temps imparti
+  * par timerOut lors de la construction de l'objet, une réponse sera automatiquement
+  * envoyée pour indiquer une erreur de timeout. par défaut, ce timeout vaut
+  * 20000 ms, soit 20s.
   */
 class DelayedResponse : public QObject {
     Q_OBJECT
 public:
-    explicit DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval=0);
+    explicit DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval=0, int timerOut=20000);
     
     /**
       * @ brief Définit l'intervalle en ms entre les appels de execute().
@@ -53,6 +58,7 @@ protected:
 
 private slots:
     void timerCall();
+    void onTimerOut();
 
 private:
 
