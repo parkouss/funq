@@ -11,11 +11,13 @@ include(../protocole/protocole.pri)
 
 SOURCES += player.cpp \
     funq.cpp \
-    objectpath.cpp
+    objectpath.cpp \
+    dragndropresponse.cpp
 
 HEADERS += player.h \
     funq.h \
-    objectpath.h
+    objectpath.h \
+    dragndropresponse.h
 
 win32 {
 

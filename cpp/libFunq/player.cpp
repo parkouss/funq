@@ -13,6 +13,8 @@
 #include <QGraphicsView>
 #include <QGraphicsItem>
 #include <QTimer>
+#include <QTime>
+#include "dragndropresponse.h"
 
 void mouse_click(QWidget * w, const QPoint & pos) {
     QPoint global_pos = w->mapToGlobal(pos);
@@ -182,16 +184,6 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
     out["items"] = outitems;
 }
 
-QPoint pointFromString(const QString & data) {
-    QStringList splitted = data.split(",");
-    if (splitted.count() == 2) {
-        QPoint p;
-        p.setX(splitted[0].toInt());
-        p.setY(splitted[1].toInt());
-    }
-    return QPoint();
-}
-
 Player::Player(QIODevice *device, QObject *parent) :
     JsonClient(device, parent)
 {
@@ -243,6 +235,17 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     result["oid"] = id;
     dump_object(o, result);
     return result;
+}
+
+ObjectLocatorContext::ObjectLocatorContext(Player * player,
+                                           const QtJson::JsonObject & command,
+                                           const QString & oidKey) {
+    id = command[oidKey].value<qulonglong>();
+    obj = player->registeredObject(id);
+    if (!obj) {
+        lastError = player->createError("NotRegisteredObject",
+                           QString::fromUtf8("L'objet (id:%1) n'est pas enregistré ou a été détruit").arg(id));
+    }
 }
 
 #define FIND_OBJECT_OR_RETURN(command, oidKey, obj, id) \
@@ -498,92 +501,6 @@ QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) 
     return result;
 }
 
-void calculate_drag_n_drop_moves(QList<QPoint> & moves,
-                                 const QPoint & globalSourcePos,
-                                 const QPoint & globalDestPos,
-                                 int deltaFactor=4) {
-    QPoint delta = globalDestPos - globalSourcePos;
-    delta /= deltaFactor;
-    
-    QPoint move = globalSourcePos;
-    QPoint lastMove = globalSourcePos;
-    for (int i = 0; i < deltaFactor; ++i) {
-        move += delta;
-        if (move != lastMove) {
-            lastMove = move;
-            moves << move;
-        }
-    }
-    moves << globalDestPos;
-}
-
-void _drag_n_drop(QWidget * source, const QPoint & sourcePos,
-                 QWidget * dest, const QPoint & destPos,
-                 int startDragTime=0,
-                 int deltaFactor=4) {
-    QPoint globalSourcePos = source->mapToGlobal(sourcePos);
-    QPoint globalDestPos = dest->mapToGlobal(destPos);
-    
-    // 1: press event
-    qApp->postEvent(source,
-        new QMouseEvent(QEvent::MouseButtonPress,
-                        sourcePos,
-                        globalSourcePos,
-                        Qt::LeftButton,
-                        Qt::NoButton,
-                        Qt::NoModifier));
-    
-    // 2: wait drag time
-    if (startDragTime == 0) {
-        startDragTime = QApplication::startDragTime();
-    }
-    QEventLoop localLoop;
-    QTimer::singleShot(startDragTime, &localLoop, SLOT(quit()));
-    localLoop.exec();
-    
-    // 3: do some move event
-    QList<QPoint> moves;
-    calculate_drag_n_drop_moves(moves, globalSourcePos, globalDestPos, deltaFactor);
-    foreach (const QPoint & move, moves) {
-        QWidget * widgetUnderCursor = qApp->widgetAt(move);
-        if (widgetUnderCursor) {
-            qApp->postEvent(widgetUnderCursor,
-                new QMouseEvent(QEvent::MouseMove,
-                                widgetUnderCursor->mapFromGlobal(move),
-                                move,
-                                Qt::LeftButton,
-                                Qt::NoButton,
-                                Qt::NoModifier));
-        }
-    }
-    
-    // 4: now release the button
-    qApp->postEvent(dest,
-        new QMouseEvent(QEvent::MouseButtonRelease,
-                        globalDestPos,
-                        destPos,
-                        Qt::LeftButton,
-                        Qt::NoButton,
-                        Qt::NoModifier));
-}
-
-QtJson::JsonObject Player::drag_n_drop(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "srcoid", QWidget, w1, obj1, id1);
-    FIND_WIDGET_OR_RETURN(command, "destoid", QWidget, w2, obj2, id2);
-    
-    QPoint srcPos;
-    if (command.contains("srcpos") && ! command["srcpos"].isNull()) {
-        srcPos = pointFromString(command["srcpos"].toString());
-    } else {
-        srcPos = w1->rect().center();
-    }
-    
-    QPoint destPos;
-    if (command.contains("destpos") && ! command["destpos"].isNull()) {
-        destPos = pointFromString(command["destpos"].toString());
-    } else {
-        destPos = w2->rect().center();
-    }
-    _drag_n_drop(w1, srcPos, w2, destPos);
-    return QtJson::JsonObject();
+DelayedResponse * Player::drag_n_drop(const QtJson::JsonObject & command) {
+    return new DragNDropResponse(this, command);
 }

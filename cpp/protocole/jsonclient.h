@@ -17,6 +17,8 @@ public:
     
     QtJson::JsonObject createError(const QString & name, const QString & description);
 
+    Protocole * protocole() { return m_protocole; }
+
 signals:
     
 private slots:
