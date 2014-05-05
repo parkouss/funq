@@ -248,32 +248,20 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
     }
 }
 
-#define FIND_OBJECT_OR_RETURN(command, oidKey, obj, id) \
-    qulonglong id = command[oidKey].value<qulonglong>(); \
-    QObject * obj = registeredObject(id); \
-    if (!obj) { \
-        return createError("NotRegisteredObject", QString::fromUtf8("L'objet (id:%1) n'est pas enregistré ou a été détruit").arg(id)); \
-    }
-
-#define FIND_WIDGET_OR_RETURN(command, oidKey, WIDGET_CLASS, widget, obj, id) \
-    FIND_OBJECT_OR_RETURN(command, oidKey, obj, id) \
-    WIDGET_CLASS * widget = qobject_cast<WIDGET_CLASS *>(obj); \
-    if (!widget) { \
-        return createError("NotAWidget", QString::fromUtf8("L'objet (id:%1) n'est pas un ## WIDGET_CLASS ##").arg(id)); \
-    }
-
 QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
-    FIND_OBJECT_OR_RETURN(command, "oid", obj, id)
+    ObjectLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QtJson::JsonObject result;
-    dump_properties(obj, result);
+    dump_properties(ctx.obj, result);
     return result;
 }
 
 QtJson::JsonObject Player::object_set_properties(const QtJson::JsonObject & command) {
-    FIND_OBJECT_OR_RETURN(command, "oid", obj, id)
+    ObjectLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QtJson::JsonObject properties = command["properties"].value<QtJson::JsonObject>();
     for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
-        obj->setProperty(iter.key().toStdString().c_str(), iter.value());
+        ctx.obj->setProperty(iter.key().toStdString().c_str(), iter.value());
     }
     QtJson::JsonObject result;
     return result;
@@ -296,8 +284,9 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
     bool with_properties = command["with_properties"].toBool();
     QtJson::JsonObject result;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, root, obj, id);
-        foreach (QObject * obj, root->children()) {
+        ObjectLocatorContext ctx(this, command, "oid");
+        if (ctx.hasError()) { return ctx.lastError; }
+        foreach (QObject * obj, ctx.obj->children()) {
             QWidget * subWidget = qobject_cast<QWidget *>(obj);
             if (subWidget) {
                 recursive_list_widget(subWidget, result, with_properties);
@@ -319,53 +308,56 @@ QtJson::JsonObject Player::quit(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QWidget, widget, obj, id);
+    WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QString action = command["action"].toString();
-    QPoint pos = widget->rect().center();
+    QPoint pos = ctx.widget->rect().center();
     if (action == "doubleclick") {
-        mouse_dclick(widget, pos);
+        mouse_dclick(ctx.widget, pos);
     } else {
-        mouse_click(widget, pos);
+        mouse_click(ctx.widget, pos);
     }
     QtJson::JsonObject result;
     return result;
 }
 
 QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QtJson::JsonObject result;
-    FIND_WIDGET_OR_RETURN(command, "oid", QAbstractItemView, view, obj, id);
-    QAbstractItemModel * model = view->model();
+    QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
+        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
     }
-    bool recursive = ! (model->inherits("QTableModel") || view->inherits("QTableView") || view->inherits("QListView"));
-    dump_items_model(model, result, QModelIndex(), id, recursive);
+    bool recursive = ! (model->inherits("QTableModel") || ctx.widget->inherits("QTableView") || ctx.widget->inherits("QListView"));
+    dump_items_model(model, result, QModelIndex(), ctx.id, recursive);
     return result;
 }
 
 QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QAbstractItemView, view, obj, id);
-    QAbstractItemModel * model = view->model();
+    WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
+        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
     }
     QModelIndex index = get_model_item(model, command["itempath"].toString(), command["row"].toInt(), command["column"].toInt());
     if (!index.isValid()) {
         return createError("MissingModelItem", QString::fromUtf8("Impossible de trouver l'item identifié par %1").arg(command["itempath"].toString()));
     }
-    view->scrollTo(index); // item visible
+    ctx.widget->scrollTo(index); // item visible
     QString itemaction = command["itemaction"].toString();
     if (itemaction == "select") {
-        view->setCurrentIndex(index);
+        ctx.widget->setCurrentIndex(index);
     } else if (itemaction == "edit") {
-        view->setCurrentIndex(index);
-        view->edit(index);
+        ctx.widget->setCurrentIndex(index);
+        ctx.widget->edit(index);
     } else if (itemaction == "click") {
-        QRect visualRect = view->visualRect(index);
-        mouse_click(view->viewport(), visualRect.center());
+        QRect visualRect = ctx.widget->visualRect(index);
+        mouse_click(ctx.widget->viewport(), visualRect.center());
     } else if (itemaction == "doubleclick") {
-        QRect visualRect = view->visualRect(index);
-        mouse_dclick(view->viewport(), visualRect.center());
+        QRect visualRect = ctx.widget->visualRect(index);
+        mouse_dclick(ctx.widget->viewport(), visualRect.center());
     } else {
         return createError("MissingItemAction", QString::fromUtf8("itemaction %1 inconnue").arg(itemaction));
     }
@@ -374,25 +366,26 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
 }
 
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
-    QGraphicsItem * item = graphicsItemFromPath(view, command["stackpath"].toString());
+    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, command["stackpath"].toString());
     if (!item) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(id));
+        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
     }
-    view->ensureVisible(item); // pour rendre l'item visible
+    ctx.widget->ensureVisible(item); // pour rendre l'item visible
     QString itemaction = command["itemaction"].toString();
 
-    QPoint viewPos = view->mapFromScene(item->mapToScene(item->boundingRect().center()));
+    QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
     if (itemaction == "click") {
-        if (view->scene() && view->scene()->mouseGrabberItem()) {
-            view->scene()->mouseGrabberItem()->ungrabMouse();
+        if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
+            ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
         }
-        mouse_click(view->viewport(), viewPos);
+        mouse_click(ctx.widget->viewport(), viewPos);
     } else if (itemaction == "doubleclick") {
-        if (view->scene() && view->scene()->mouseGrabberItem()) {
-            view->scene()->mouseGrabberItem()->ungrabMouse();
+        if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
+            ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
         }
-        mouse_dclick(view->viewport(), viewPos);
+        mouse_dclick(ctx.widget->viewport(), viewPos);
     } else {
         return createError("MissingItemAction", QString::fromUtf8("itemaction %1 inconnue").arg(itemaction));
     }
@@ -418,8 +411,9 @@ QtJson::JsonObject Player::desktop_screenshot(const QtJson::JsonObject & command
 QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
     QWidget * widget;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, _widget, obj, id);
-        widget = _widget;
+        WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+        if (ctx.hasError()) { return ctx.lastError; }
+        widget = ctx.widget;
     } else {
         widget = qApp->activeWindow();
     }
@@ -437,8 +431,9 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
     QWidget * widget;
     if (command.contains("oid")) {
-        FIND_WIDGET_OR_RETURN(command, "oid", QWidget, _widget, obj, id);
-        widget = _widget;
+        WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+        if (ctx.hasError()) { return ctx.lastError; }
+        widget = ctx.widget;
     } else {
         widget = qApp->activeWindow();
     }
@@ -460,10 +455,11 @@ QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QTabBar, tabbar, obj, id);
+    WidgetLocatorContext<QTabBar> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QStringList texts;
-    for (int i=0; i< tabbar->count(); ++i) {
-        texts << tabbar->tabText(i);
+    for (int i=0; i< ctx.widget->count(); ++i) {
+        texts << ctx.widget->tabText(i);
     }
     QtJson::JsonObject result;
     result["tabtexts"] = texts;
@@ -471,30 +467,32 @@ QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
+    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QList<QGraphicsItem *> topLevelItems;
-    foreach(QGraphicsItem * item, view->items()) {
+    foreach(QGraphicsItem * item, ctx.widget->items()) {
         if (! item->parentItem()) {
             topLevelItems << item;
         }
     }
      QtJson::JsonObject result;
-     dump_graphics_items(topLevelItems, id, result);
+     dump_graphics_items(topLevelItems, ctx.id, result);
      return result;
 }
 
 QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
-    FIND_WIDGET_OR_RETURN(command, "oid", QGraphicsView, view, obj, id);
+    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
     QString stackpath = command["stackpath"].toString();
-    QGraphicsItem * item = graphicsItemFromPath(view, stackpath);
+    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, stackpath);
     if (!item) {
         return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 introuvable sur la vue %2")
-                           .arg(stackpath).arg(id));
+                           .arg(stackpath).arg(ctx.id));
     }
     QObject * object = dynamic_cast<QObject *>(item);
     if (!object) {
         return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 sur la vue %2 n'hérite pas de QObject")
-                           .arg(stackpath).arg(id));
+                           .arg(stackpath).arg(ctx.id));
     }
     QtJson::JsonObject result;
     dump_properties(object, result);
