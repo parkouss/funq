@@ -2,6 +2,7 @@
 #include <QObject>
 #include <QBuffer>
 #include "protocole.h"
+#include "jsonclient.h"
 #include <QSignalSpy>
 
 class EmittingBuffer : public QBuffer {
@@ -15,11 +16,26 @@ public:
     }
 };
 
+class TestJsonClient : public JsonClient {
+    Q_OBJECT
+    
+public:
+    TestJsonClient(QIODevice * device, QObject *parent = 0) : JsonClient(device, parent) {}
+    
+public slots:
+    QtJson::JsonObject test_echo(const QtJson::JsonObject & command) {
+        QtJson::JsonObject result(command);
+        result["value"] = 2;
+        return result;
+    }
+};
+
  class MyFirstTest: public QObject
  {
      Q_OBJECT
  private slots:
-     void test_simple_read() {
+     /* tests de protocole */
+     void test_protocole_simple_read() {
          EmittingBuffer buffer;
          Protocole protocole;
          QSignalSpy spy(&protocole, SIGNAL(messageReceived()));
@@ -35,7 +51,7 @@ public:
          QCOMPARE(QString(protocole.nextAvailableMessage()), QString("{\"1\": 2}"));
      }
      
-     void test_read_bad_network() {
+     void test_protocole_read_bad_network() {
          EmittingBuffer buffer;
          Protocole protocole;
          QSignalSpy spy(&protocole, SIGNAL(messageReceived()));
@@ -58,7 +74,7 @@ public:
          QCOMPARE(QString(protocole.nextAvailableMessage()), QString("{\"1\": 1, \"2\": 2, \"3\": 3}"));
      }
      
-     void test_simple_write() {
+     void test_protocole_simple_write() {
          EmittingBuffer buffer;
          Protocole protocole;
          
@@ -75,6 +91,27 @@ public:
          
          buffer.seek(0);
          QCOMPARE(QString(buffer.readAll()), QString("24\n{\"1\": 1, \"2\": 2, \"3\": 3}"));
+     }
+     
+     /* tests de jsonclient */
+     void test_jsonclient_response() {
+         EmittingBuffer buffer;
+         QVERIFY(buffer.open(QIODevice::ReadWrite));
+         
+         TestJsonClient client(&buffer);
+         
+         buffer.write("35\n{\"action\": \"test_echo\", \"value\": 1}");
+         buffer.seek(0);
+         buffer.emitReadyRead();
+         
+         // l'encodage en json de QVariantMap place 4 espaces de plus.
+         
+         buffer.emitBytesWritten(39 + 3);
+         
+         buffer.seek(35+3);
+         QCOMPARE(QString(buffer.readAll()), QString(
+            "39\n{ \"action\" : \"test_echo\", \"value\" : 2 }"
+         ));
      }
  };
 
