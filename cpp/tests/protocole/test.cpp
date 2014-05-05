@@ -4,7 +4,9 @@
 #include "protocole.h"
 #include "jsonclient.h"
 #include <QSignalSpy>
-
+/*
+ * QBuffer par defaut n'emet ni readyRead, ni bytesWritten. Mais on en a besoin :)
+ */
 class EmittingBuffer : public QBuffer {
     Q_OBJECT
 public:

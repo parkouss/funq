@@ -1,0 +1,22 @@
+Description de Funq
+===================
+
+`Funq` est un utilitaire de tests fonctionnels d'ihm écrites en QT.
+
+Il est séparé en deux parties, l'une écrite en c++, l'autre en python.
+
+Tests unitaires du framework (python)
+-------------------------------------
+
+.. code-block:: bash
+  
+  cd py
+  nosetests
+
+Tests unitaires du framework (cpp)
+----------------------------------
+
+.. code-block:: bash
+  
+  cd cpp/tests
+  qmake && make check
