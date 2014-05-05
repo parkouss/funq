@@ -190,6 +190,31 @@ class FunqClient(object):
         
         """
         self.send_command('shortcut', keysequence=key_sequence)
+    
+    def drag_n_drop(self, src_widget, src_pos=None,
+                          dest_widget=None, dest_pos=None):
+        """
+        Effectue un drag and drop.
+        
+        :param src_widget: widget source
+        :param src_pos: position de début de drag. Si None, le centre de
+                        src_widget sera utilisé. Doit être un tuple (x,y).
+        :param dest_widget: widget de destination. Si none, src_widget sera
+                            utilisé.
+        :param dest_pos: position de fin de drag. Si None, le centre de
+                         dest_widget sera utilisé. Doit être un tuple (x,y).
+        """
+        if dest_widget is None:
+            dest_widget = src_widget
+        if src_pos is not None:
+            src_pos = ','.join(map(str, src_pos))
+        if dest_pos is not None:
+            dest_pos = ','.join(map(str, dest_pos))
+        self.send_command("drag_n_drop",
+                          srcoid=src_widget.oid,
+                          destoid=dest_widget.oid,
+                          srcpos=src_pos,
+                          destpos=dest_pos)
 
 class ApplicationContext(object): # pylint: disable=R0903
     """
