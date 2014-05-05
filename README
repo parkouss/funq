@@ -5,6 +5,21 @@ Description de Funq
 
 Il est séparé en deux parties, l'une écrite en c++, l'autre en python.
 
+Documentation pour les utilisateurs du framework de test (les testeurs)
+-----------------------------------------------------------------------
+
+La doc doit être générée, et l'outil sphinx est requis pour cela.
+
+.. code-block:: bash
+  
+  cd py/doc
+  make html
+  # ouvrir le fichier _build/html/index.html
+
+.. note::
+  
+  La documentation pour l'installation est décrite dans cette doc générée.
+
 Tests unitaires du framework (python)
 -------------------------------------
 
