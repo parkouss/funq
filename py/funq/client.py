@@ -12,6 +12,7 @@ from funq.aliases import HooqAliases
 from funq.tools import wait_for
 from funq.models import Widget
 from funq.errors import FunqError
+from funq import screenshoter
 
 LOG = logging.getLogger('funq.client')
 
@@ -382,6 +383,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
                        executable_stdout=None,
                        executable_stderr=None,
                        attach=True,
+                       screenshot_on_error=False,
                        with_valgrind=False,
                        valgrind_args=('--leak-check=full',
                                       '--show-reachable=yes'),
@@ -396,6 +398,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.executable_stdout = executable_stdout
         self.executable_stderr = executable_stderr
         self.attach = attach
+        self.screenshot_on_error = screenshot_on_error
         self.with_valgrind = with_valgrind
         self.valgrind_args = valgrind_args
         self.global_options = global_options
@@ -458,6 +461,10 @@ class ApplicationConfig(object): # pylint: disable=R0902
             kwargs['valgrind_args'] = shlex.split(
                                             conf.get(section, 'valgrind_args'))
         
+        if conf.has_option(section, 'screenshot_on_error'):
+            kwargs["screenshot_on_error"] = conf.getboolean(section,
+                                                        'screenshot_on_error')
+        
         return cls(executable, **kwargs) # pylint: disable=W0142
 
     def create_context(self):
@@ -479,7 +486,14 @@ class ApplicationConfig(object): # pylint: disable=R0902
         def wrapper():
             """ Implémentation du décorateur"""
             ctx = self.create_context()
-            return meth(ctx.funq)
+            try:
+                return meth(ctx.funq)
+            except (SystemExit, KeyboardInterrupt):
+                raise
+            except:
+                if self.screenshot_on_error:
+                    screenshoter.take_screenshot(ctx.funq)
+                raise
         return wrapper
 
 class MultiApplicationConfig(tuple):

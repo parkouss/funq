@@ -4,6 +4,7 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
+from funq import screenshoter
 from funq.tools import which
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
@@ -59,6 +60,11 @@ class FunqPlugin(Plugin):
     Plugin d'integration avec nosetests.
     """
     name = 'funq'
+    _current_test_name = None
+    
+    @staticmethod
+    def current_test_name():
+        return FunqPlugin._current_test_name
     
     def options(self, parser, env=None):
         env = env or os.environ
@@ -102,9 +108,16 @@ class FunqPlugin(Plugin):
                           help="encodage pour le fichier de l'option"
                                "--funq-trace-tests."
                                " [NOSE_FUNQ_TRACE_TESTS_ENCODING]")
+        parser.add_option('--funq-screenshot-folder',
+                          dest="funq_screenshot_folder",
+                          default=env.get("NOSE_FUNQ_SCREENSHOT_FOLDER")
+                                    or os.path.realpath("screenshot-errors"),
+                          help="Repertoire de stockage des images en erreur."
+                               " Defaut: screenshot-errors."
+                               " [NOSE_FUNQ_SCREENSHOT_FOLDER]")
     
-    def configure(self, options, conf):
-        Plugin.configure(self, options, config)
+    def configure(self, options, cfg):
+        Plugin.configure(self, options, cfg)
         if not self.enabled:
             return
         _patch_nose_tools_assert_functions()
@@ -116,9 +129,11 @@ class FunqPlugin(Plugin):
         _APP_REGISTRY.register_from_conf(conf, options)
         self.trace_tests = options.funq_trace_tests
         self.trace_tests_encoding = options.funq_trace_tests_encoding
+        screenshoter.init(options.funq_screenshot_folder)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
-        message = u"Démarrage de test `%s`" % unicode(test.id(), 'utf-8')
+        FunqPlugin._current_test_name = unicode(test.id(), 'utf-8')
+        message = u"Démarrage de test `%s`" % FunqPlugin.current_test_name()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -130,7 +145,7 @@ class FunqPlugin(Plugin):
             
     
     def afterTest(self, test): # pylint: disable=C0111,C0103,R0201
-        message = u"Fin de test `%s`" % unicode(test.id(), 'utf-8')
+        message = u"Fin de test `%s`" % FunqPlugin.current_test_name()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -139,3 +154,4 @@ class FunqPlugin(Plugin):
                                             self.trace_tests_encoding) as f:
                 f.write('\n'.join(lines))
                 f.write('\n')
+        FunqPlugin._current_test_name = None
