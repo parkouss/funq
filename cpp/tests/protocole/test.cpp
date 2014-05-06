@@ -117,5 +117,5 @@ public slots:
      }
  };
 
-QTEST_MAIN(MyFirstTest)
+QTEST_APPLESS_MAIN(MyFirstTest)
 #include "test.moc"
