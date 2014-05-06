@@ -18,7 +18,7 @@ import os, itertools, logging, codecs
 
 LOG = logging.getLogger('funq.screenshoter')
 
-class ScreenShoter(object):
+class ScreenShoter(object): # pylint: disable=R0903
     """
     Objet permettant de prendre des screenshot.
     Actuellement, cette classe n'est utilisée
@@ -32,6 +32,10 @@ class ScreenShoter(object):
             os.unlink(self.txt_file_path)
     
     def take_screenshot(self, funqclient, longname):
+        """
+        Prends un screenshot de l'application passée en argument, en y
+        associant le nom `longname` donné dans le fichier images.txt.
+        """
         if not os.path.isdir(self.working_folder):
             os.makedirs(self.working_folder)
         
@@ -54,13 +58,17 @@ _INSTANCE = None
 
 def init(*args, **kwargs):
     """
-    Initialise une instance de
+    Initialise screenshoter
     """
-    global _INSTANCE
+    global _INSTANCE # pylint: disable=W0603
     _INSTANCE = ScreenShoter(*args, **kwargs)
 
 def take_screenshot(funqclient):
-    global _INSTANCE
+    """
+    Permet actuellement de prendre un screenshot, en utilisant le nom du
+    test en cours pour identifier le screenshot.
+    """
+    global _INSTANCE # pylint: disable=W0603
     if _INSTANCE is None:
         return
     from funq.noseplugin import FunqPlugin
