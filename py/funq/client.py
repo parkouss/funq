@@ -103,7 +103,7 @@ class FunqClient(object):
         """
         self._raw_send('quit', {})
     
-    def widget(self, alias=None, path=None,
+    def widget(self, alias=None, path=None, # pylint:disable=R0913
                      timeout=10.0, timeout_interval=0.1, wait_active=True):
         """
         Retourne un widget de type :class:`funq.models.Widget` ou dérivé
@@ -414,7 +414,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
                     self.global_options.funq_gkit)
     
     @classmethod
-    def from_conf(cls, conf, section, global_options):
+    def from_conf(cls, conf, section, global_options): # pylint:disable=R0912
         """
         Génère une instance de :class:`ApplicationConfig` à partir
         d'un fichier de configuration lu par ConfigParser.

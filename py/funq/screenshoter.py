@@ -68,7 +68,7 @@ def take_screenshot(funqclient):
     Permet actuellement de prendre un screenshot, en utilisant le nom du
     test en cours pour identifier le screenshot.
     """
-    global _INSTANCE # pylint: disable=W0603
+    global _INSTANCE # pylint: disable=W0603,W0602
     if _INSTANCE is None:
         return
     from funq.noseplugin import FunqPlugin
