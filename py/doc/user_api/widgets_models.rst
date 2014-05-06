@@ -30,6 +30,8 @@ Exemple::
   
   .. automethod:: Widget.shortcut
   
+  .. automethod:: Widget.drag_n_drop
+  
 Manipulation des données du framework Model/View de QT
 ------------------------------------------------------
 

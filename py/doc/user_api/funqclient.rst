@@ -36,3 +36,5 @@ Exemple::
   .. automethod:: FunqClient.keyclick
   
   .. automethod:: FunqClient.shortcut
+  
+  .. automethod:: FunqClient.drag_n_drop
