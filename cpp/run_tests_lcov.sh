@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 
 rm -f `find tests -name '*.gcno' -o -name '*.gcda'`
 rm -Rf test-lcov-html
