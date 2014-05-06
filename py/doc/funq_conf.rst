@@ -32,3 +32,7 @@ Voici la liste des options falcutatives disponibles:
  - **with_valgrind**: positionner à "1" ou "yes" pour activer valgrind
  - **valgrind_args**: arguments pour valgrind. par défaut,
    "--leak-check=full --show-reachable=yes".
+ - **screenshot_on_error**: positionner à "1" ou "yes" pour automatiquement
+   prendre des screenshots lors d'erreur d'exécution de test. Le répertoire
+   *screenshot-errors* sera alors créé et contiendra les images des tests en
+   erreur.
