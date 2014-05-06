@@ -194,6 +194,21 @@ class Widget(object):
         self.client.send_command('shortcut',
                                  keysequence=key_sequence,
                                  oid=self.oid)
+    
+    def drag_n_drop(self, src_pos=None,
+                          dest_widget=None, dest_pos=None):
+        """
+        Effectue un drag and drop depuis ce widget.
+        
+        :param src_pos: position de début de drag. Si None, le centre de
+                        ce widget sera utilisé. Doit être un tuple (x,y).
+        :param dest_widget: widget de destination. Si none, src_widget sera
+                            utilisé.
+        :param dest_pos: position de fin de drag. Si None, le centre de
+                         dest_widget sera utilisé. Doit être un tuple (x,y).
+        """
+        self.client.drag_n_drop(self, src_pos=src_pos, dest_widget=dest_widget,
+                                dest_pos=dest_pos)
 
 class ModelItem(TreeItem):
     """
