@@ -21,21 +21,21 @@ def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
     """
     patche les fonctions assert_* de nose.tools pour inclure
     des messages longs dans les message d'assertions.
-    
+
     voir nose.tools.trivial.
     """
     from nose import tools
     import unittest
     import re
-    
+
     caps = re.compile('([A-Z])')
 
     def pep8(name): # pylint: disable=C0111
         return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
-    
+
     class Dummy(unittest.TestCase): # pylint: disable=C0111,R0904
         longMessage = True # c'est ce qui change tout.
-        
+
         def nop(self):
             """useless"""
             pass
@@ -61,11 +61,11 @@ class FunqPlugin(Plugin):
     """
     name = 'funq'
     _current_test_name = None
-    
+
     @staticmethod
     def current_test_name():
         return FunqPlugin._current_test_name
-    
+
     def options(self, parser, env=None):
         env = env or os.environ
         super(FunqPlugin, self).options(parser, env=env)
@@ -115,7 +115,7 @@ class FunqPlugin(Plugin):
                           help="Repertoire de stockage des images en erreur."
                                " Defaut: screenshot-errors."
                                " [NOSE_FUNQ_SCREENSHOT_FOLDER]")
-    
+
     def configure(self, options, cfg):
         Plugin.configure(self, options, cfg)
         if not self.enabled:
@@ -142,9 +142,9 @@ class FunqPlugin(Plugin):
                                             self.trace_tests_encoding) as f:
                 f.write('\n'.join(lines))
                 f.write('\n')
-            
-    
-    def afterTest(self, test): # pylint: disable=C0111,C0103,R0201
+
+
+    def afterTest(self, test): # pylint: disable=C0111,C0103,R0201,W0613
         message = u"Fin de test `%s`" % FunqPlugin.current_test_name()
         lines = message_with_sep(message)
         for line in lines:
