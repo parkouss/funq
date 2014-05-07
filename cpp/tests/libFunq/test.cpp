@@ -4,7 +4,9 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
+#include <QBuffer>
 #include "objectpath.h"
+#include "player.h"
 
 class LibFunqTest: public QObject
 {
@@ -198,6 +200,27 @@ private slots:
         QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/0"), &item);
         QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/1"), &item2);
     }
+    /*
+     * 
+     * TESTS de player.cpp
+     * 
+     */
+     void test_player_widget_by_path() {
+         QMainWindow w;
+         QObject o(&w);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         command["path"] = "QMainWindow::QObject";
+         
+         QtJson::JsonObject result = player.widget_by_path(command);
+         
+         QVERIFY(result["oid"].value<qulonglong>() != 0);
+         QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), &o);
+     }
 };
 
 QTEST_MAIN(LibFunqTest)
