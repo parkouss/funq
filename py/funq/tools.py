@@ -6,7 +6,7 @@ Utilitaires.
 
 import time
 
-"""permet de modifier le temps d'attente par défaut au niveau global"""
+# permet de modifier le temps d'attente par défaut au niveau global
 SNOOZE_FACTOR = 1.0
 
 def apply_snooze_factor(value):

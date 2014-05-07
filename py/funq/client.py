@@ -3,7 +3,7 @@
 Ce module permet l'intégration avec un serveur libFunq via :class:`FunqClient`.
 """
 
-import socket, json, errno, os, shlex, time, subprocess, base64
+import socket, json, errno, os, shlex, subprocess, base64
 from functools import wraps
 from collections import defaultdict
 import logging

@@ -23,7 +23,7 @@ def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
 
     voir nose.tools.trivial.
     """
-    from nose import tools
+    from nose import tools # pylint: disable=W0621
     import unittest
     import re
 
@@ -63,6 +63,9 @@ class FunqPlugin(Plugin):
 
     @staticmethod
     def current_test_name():
+        """
+        Renvoie le nom du test (test.id()) du test en train d'être passé.
+        """
         return FunqPlugin._current_test_name
 
     def options(self, parser, env=None):
@@ -133,8 +136,9 @@ class FunqPlugin(Plugin):
         conf = ConfigParser()
         conf.read([conf_file])
         _APP_REGISTRY.register_from_conf(conf, options)
-        self.trace_tests = options.funq_trace_tests
-        self.trace_tests_encoding = options.funq_trace_tests_encoding
+        self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
+        self.trace_tests_encoding = (  # pylint: disable=W0201
+                                     options.funq_trace_tests_encoding)
         screenshoter.init(options.funq_screenshot_folder)
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
