@@ -37,3 +37,16 @@ def test_which_with_pass():
         assert_equals(sys.executable, tools.which(fname))
     finally:
         os.environ = old_env
+
+def test_apply_snooze_factor():
+    tools.SNOOZE_FACTOR = 3.2
+    assert_equals(6.4, tools.apply_snooze_factor(2))
+    tools.SNOOZE_FACTOR = 1.0
+
+def test_wait_for_some_time_with_snooze_factor():
+    tools.SNOOZE_FACTOR = 4.0
+    t = time.time()
+    def func():
+        return t + 0.05 < time.time()
+    assert_true(tools.wait_for(func, 0.025))
+    tools.SNOOZE_FACTOR = 1.0
