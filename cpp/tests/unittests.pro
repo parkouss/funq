@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = protocole
+SUBDIRS = protocole libFunq
