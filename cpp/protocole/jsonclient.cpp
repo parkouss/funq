@@ -87,6 +87,7 @@ void JsonClient::onMessageReceived() {
             m_protocole->close();
             return;
         }
+        connect(dresponse, SIGNAL(aboutToWriteResponse()), dresponse, SLOT(deleteLater()));
         dresponse->start();
     }
 }

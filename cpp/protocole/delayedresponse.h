@@ -60,6 +60,9 @@ private slots:
     void timerCall();
     void onTimerOut();
 
+signals:
+    void aboutToWriteResponse();
+
 private:
 
     JsonClient * m_client;

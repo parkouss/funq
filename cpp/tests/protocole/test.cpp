@@ -3,6 +3,7 @@
 #include <QBuffer>
 #include "protocole.h"
 #include "jsonclient.h"
+#include "delayedresponse.h"
 #include <QSignalSpy>
 /*
  * QBuffer par defaut n'emet ni readyRead, ni bytesWritten. Mais on en a besoin :)
@@ -30,6 +31,29 @@ public slots:
         result["value"] = 2;
         return result;
     }
+};
+
+class TestDelayedResponse : public DelayedResponse {
+public:
+    TestDelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int nb_exec_before_response=0, int interval=0, int timerOut=20000) :
+                    DelayedResponse(client, command, interval, timerOut),
+                    nb_executed(0), 
+                    _nb_exec_before_response(nb_exec_before_response) {}
+    
+    void execute(const QtJson::JsonObject &) {
+        nb_executed += 1;
+        if (_nb_exec_before_response > 0) {
+            _nb_exec_before_response -= 1;
+            return;
+        }
+        QtJson::JsonObject result;
+        result["result"] = 1;
+        writeResponse(result);
+    }
+    
+    int nb_executed;
+private:
+    int _nb_exec_before_response;
 };
 
  class MyFirstTest: public QObject
@@ -108,14 +132,108 @@ public slots:
          
          // l'encodage en json de QVariantMap place 4 espaces de plus.
          
-         buffer.emitBytesWritten(39 + 3);
+         buffer.emitBytesWritten(35 + 4 + 3);
          
          buffer.seek(35+3);
          QCOMPARE(QString(buffer.readAll()), QString(
             "39\n{ \"action\" : \"test_echo\", \"value\" : 2 }"
          ));
      }
+     
+     /* tests de delayedresponse */
+     void test_delayedresponse_simple() {
+         EmittingBuffer buffer;
+         QVERIFY(buffer.open(QIODevice::ReadWrite));
+         
+         TestJsonClient client(&buffer);
+         
+         TestDelayedResponse response(&client, QtJson::JsonObject());
+         
+         response.start();
+         qApp->processEvents();
+         
+         QCOMPARE(response.nb_executed, 1);
+         buffer.seek(0);
+         
+         QByteArray data = buffer.readAll();
+         
+         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
+         
+         QCOMPARE(result["result"].toInt(), 1);
+     }
+     
+     void test_delayedresponse_timeout() {
+         EmittingBuffer buffer;
+         QVERIFY(buffer.open(QIODevice::ReadWrite));
+         
+         TestJsonClient client(&buffer);
+         
+         TestDelayedResponse response(&client, QtJson::JsonObject(), 0, 1000, 0);
+         
+         response.start();
+         qApp->processEvents();
+         
+         QCOMPARE(response.nb_executed, 0);
+         buffer.seek(0);
+         
+         QByteArray data = buffer.readAll();
+         
+         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
+         
+         QVERIFY(result.contains("errName"));
+         QVERIFY(result.contains("errDesc"));
+         QVERIFY(result.contains("success"));
+         QCOMPARE(result["success"].toBool(), false);
+     }
+     
+     void test_multi_pass() {
+         EmittingBuffer buffer;
+         QVERIFY(buffer.open(QIODevice::ReadWrite));
+         
+         TestJsonClient client(&buffer);
+         
+         TestDelayedResponse response(&client, QtJson::JsonObject(), 1);
+         
+         response.start();
+         qApp->processEvents();
+         qApp->processEvents();
+         
+         QCOMPARE(response.nb_executed, 2);
+         buffer.seek(0);
+         
+         QByteArray data = buffer.readAll();
+         
+         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
+         
+         QCOMPARE(result["result"].toInt(), 1);
+     }
+     
+     void test_multi_pass_one_response() {
+         EmittingBuffer buffer;
+         QVERIFY(buffer.open(QIODevice::ReadWrite));
+         
+         TestJsonClient client(&buffer);
+         
+         TestDelayedResponse response(&client, QtJson::JsonObject());
+         
+         response.start();
+         qApp->processEvents();
+         qApp->processEvents();
+         
+         QCOMPARE(response.nb_executed, 1);
+         buffer.seek(0);
+         
+         QByteArray data = buffer.readAll();
+         
+         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
+         
+         QCOMPARE(result["result"].toInt(), 1);
+     }
  };
 
-QTEST_APPLESS_MAIN(MyFirstTest)
+QTEST_MAIN(MyFirstTest)
 #include "test.moc"
