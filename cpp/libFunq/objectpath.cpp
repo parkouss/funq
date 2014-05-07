@@ -56,26 +56,26 @@ QString rawObjectName(QObject* object)
     );
 }
 
-QString objectPath(QObject* object)
+QString ObjectPath::objectPath(QObject* object)
 {
     QStringList components;
     QObject* current = object;
     while(current)
     {
-        components.prepend(objectName(current));
+        components.prepend(ObjectPath::objectName(current));
         current = current->parent();
     }
     return components.join("::");
 }
 
-QString objectName(QObject* object)
+QString ObjectPath::objectName(QObject* object)
 {
     QString name = rawObjectName(object);
     name.replace("::", ":_:"); // we use :: as path separators
     return name;
 }
 
-QObject* findObject(const QString& path)
+QObject* ObjectPath::findObject(const QString& path)
 {
     const QString separator("::");
     QStringList parts = path.split(separator);
@@ -117,7 +117,7 @@ QObject* findObject(const QString& path)
     return 0;
 }
 
-int graphicsItemPos(QGraphicsItem *item) {
+int ObjectPath::graphicsItemPos(QGraphicsItem *item) {
     if (item->parentItem()) {
         return item->parentItem()->children().indexOf(item);
     }
@@ -134,16 +134,16 @@ int graphicsItemPos(QGraphicsItem *item) {
     return -1;
 }
 
-QString graphicsItemPath(QGraphicsItem *item) {
+QString ObjectPath::graphicsItemPath(QGraphicsItem *item) {
     QStringList path;
     while (item) {
-        path.prepend(QString::number(graphicsItemPos(item)));
+        path.prepend(QString::number(ObjectPath::graphicsItemPos(item)));
         item = item->parentItem();
     }
     return path.join("/");
 }
 
-QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath) {
+QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QString & stackPath) {
     QStringList path = stackPath.split('/');
     if (stackPath.isEmpty()) {
         return NULL;

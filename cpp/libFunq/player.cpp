@@ -16,6 +16,8 @@
 #include <QTime>
 #include "dragndropresponse.h"
 
+using namespace ObjectPath;
+
 void mouse_click(QWidget * w, const QPoint & pos) {
     QPoint global_pos = w->mapToGlobal(pos);
     qApp->postEvent(w,

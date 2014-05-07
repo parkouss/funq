@@ -98,7 +98,7 @@ bool Funq::eventFilter(QObject* receiver, QEvent* event)
         QMouseEvent *evt = static_cast<QMouseEvent *>(event);
         if (evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier) {
             QString path = QString("WIDGET: `%1` (pos: %2, %3)")
-                    .arg(objectPath(receiver))
+                    .arg(ObjectPath::objectPath(receiver))
                     .arg(evt->pos().x())
                     .arg(evt->pos().y());
             printf("%s\n", path.toStdString().c_str());

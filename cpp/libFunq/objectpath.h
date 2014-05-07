@@ -7,12 +7,14 @@
 class QGraphicsItem;
 class QGraphicsView;
 
-QString objectPath(QObject* object);
-QString objectName(QObject* object);
-QObject* findObject(const QString& path);
+namespace ObjectPath {
+    QString objectPath(QObject* object);
+    QString objectName(QObject* object);
+    QObject* findObject(const QString& path);
 
-QString graphicsItemPath(QGraphicsItem * item);
-int graphicsItemPos(QGraphicsItem * item);
-QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath);
+    QString graphicsItemPath(QGraphicsItem * item);
+    int graphicsItemPos(QGraphicsItem * item);
+    QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath);
+} // namespace ObjectPath
 
 #endif // OBJECTPATH_H
