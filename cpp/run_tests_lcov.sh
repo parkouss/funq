@@ -1,6 +1,7 @@
 #!/bin/bash
 
 rm -f `find tests -name '*.gcno' -o -name '*.gcda'`
+rm -f `find tests -name Makefile`
 rm -Rf test-lcov-html
 rm -f .coverage.*
 
