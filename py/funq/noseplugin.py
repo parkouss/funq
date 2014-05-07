@@ -4,8 +4,7 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq import screenshoter
-from funq.tools import which
+from funq import screenshoter, tools
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
 import os, codecs, logging
@@ -47,7 +46,7 @@ def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
 
 def locate_funq():
     """Tente de localiser l'executable scleHooqAttach"""
-    return which('funq')
+    return tools.which('funq')
 
 # création d'un Application registry global
 _APP_REGISTRY = ApplicationRegistry()
@@ -115,6 +114,13 @@ class FunqPlugin(Plugin):
                           help="Repertoire de stockage des images en erreur."
                                " Defaut: screenshot-errors."
                                " [NOSE_FUNQ_SCREENSHOT_FOLDER]")
+        parser.add_option('--funq-snooze-factor',
+                          dest="funq_snooze_factor",
+                          default=env.get("NOSE_FUNQ_SNOOZE_FACTOR")
+                                    or 1.0,
+                          help="Permet d'appliquer un facteur sur tous les"
+                               " temps d'attente. Defaut: 1.0."
+                               " [NOSE_FUNQ_SNOOZE_FACTOR]")
 
     def configure(self, options, cfg):
         Plugin.configure(self, options, cfg)
@@ -130,6 +136,7 @@ class FunqPlugin(Plugin):
         self.trace_tests = options.funq_trace_tests
         self.trace_tests_encoding = options.funq_trace_tests_encoding
         screenshoter.init(options.funq_screenshot_folder)
+        tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
         FunqPlugin._current_test_name = unicode(test.id(), 'utf-8')

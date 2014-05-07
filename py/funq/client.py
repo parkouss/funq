@@ -9,7 +9,7 @@ from collections import defaultdict
 import logging
 
 from funq.aliases import HooqAliases
-from funq.tools import wait_for
+from funq.tools import wait_for, TimeOutError
 from funq.models import Widget
 from funq.errors import FunqError
 from funq import screenshoter
@@ -312,10 +312,10 @@ class ApplicationContext(object): # pylint: disable=R0903
         """
         if self._process:
             # attente de fermeture gentille
-            max_wait, intervall = 10, 0.05
-            while max_wait > 0 and self._process.poll() is None:
-                time.sleep(intervall)
-                max_wait -= intervall
+            try:
+                wait_for(lambda: self._process.poll() is not None, 10, 0.05)
+            except TimeOutError:
+                pass
             if self._process.returncode is None:
                 # application bloquée ! pas le choix ...
                 LOG.warn("L'application testée [%s] ne veut pas se terminer"
@@ -331,12 +331,12 @@ class ApplicationContext(object): # pylint: disable=R0903
         if self.funq:
             if self._process is not None:
                 # le process peut être mort, et ne pas nous l'avoir signalé
-                max_wait, wait = 0.05, 0.0
-                while wait < max_wait:
-                    if self._process.poll() is not None:
-                        break
-                    time.sleep(0.01)
-                    wait += 0.01
+                try:
+                    wait_for(lambda: self._process.poll() is not None,
+                             0.05,
+                             0.01)
+                except TimeOutError:
+                    pass
                 if self._process.returncode is not None:
                     # process fini de manière innatendue (-11: SegFault)
                     LOG.critical("L'application testée [%s] s'est terminée de"

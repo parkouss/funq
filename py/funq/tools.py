@@ -6,6 +6,13 @@ Utilitaires.
 
 import time
 
+"""permet de modifier le temps d'attente par défaut au niveau global"""
+SNOOZE_FACTOR = 1.0
+
+def apply_snooze_factor(value):
+    """Applique le facteur de snooze global"""
+    return value * SNOOZE_FACTOR
+
 class TimeOutError(Exception):
     """Levée lors d'un timeout"""
 
@@ -25,6 +32,7 @@ def wait_for(func, timeout, timeout_interval=0.1):
     :raises: TimeOutError sur timeout ou l'exception renvoyée par
              la fonction après timeout.
     """
+    timeout = apply_snooze_factor(timeout)
     elapsed = 0.0
     while 1:
         res = func()
