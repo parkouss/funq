@@ -7,6 +7,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QShortcut>
+#include <QTabBar>
 #include <QSignalSpy>
 #include <QBuffer>
 #include "objectpath.h"
@@ -420,7 +421,7 @@ private slots:
          QMainWindow mw;
          QShortcut shortcut(Qt::Key_F2, &mw);
          
-         QSignalSpy spy(&shortcut, SIGNAL(activatedAmbiguously()));
+         QSignalSpy spy(&shortcut, SIGNAL(activated()));
          
          QBuffer buffer;
          Player player(&buffer);
@@ -433,13 +434,38 @@ private slots:
          QtJson::JsonObject command;
          command["oid"] = resultPath["oid"];
          command["keysequence"] = "F2";
-         mw.show();
-         mw.setFocus();
+         
          player.shortcut(command);
          
          qApp->processEvents();
-         qApp->processEvents();
+         /* why is this failing ? */
          QCOMPARE(spy.count(), 1);
+     }
+     
+     void test_player_tabbar_list() {
+         QMainWindow mw;
+         QTabBar tb(&mw);
+         
+         QStringList tabtexts = QStringList() << "toto" << "titi" << "tutu";
+         
+         foreach (const QString & txt, tabtexts) {
+            tb.addTab(txt);
+         }
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::QTabBar";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         
+         QtJson::JsonObject result = player.tabbar_list(command);
+         
+         QCOMPARE(tabtexts, result["tabtexts"].toStringList());
      }
 };
 
