@@ -12,7 +12,9 @@
 #include <unistd.h>
 #endif
 
+#ifndef Q_WS_WIN
 int Attacher::m_sigtermFd[2] = {0,0};
+#endif
 
 Attacher::Attacher(const QString & exe, const QStringList & args, int port, bool pickMode, QObject *parent) :
     QObject(parent), m_exe(exe), m_args(args), m_wellStarted(false)
@@ -58,7 +60,7 @@ void Attacher::start() {
             m_process.kill();
             return;
         }
-        FARPROC hook = ::GetProcAddress(library, "_Z11installHooqP11HINSTANCE__m");
+        FARPROC hook = ::GetProcAddress(library, "installHooq");
         if (!hook) {
             qDebug() << "Impossible de trouver la fonction installHooq";
             m_process.kill();
