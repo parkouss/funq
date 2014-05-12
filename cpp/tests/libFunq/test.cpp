@@ -4,6 +4,10 @@
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QGraphicsRectItem>
+#include <QPushButton>
+#include <QLineEdit>
+#include <QShortcut>
+#include <QSignalSpy>
 #include <QBuffer>
 #include "objectpath.h"
 #include "player.h"
@@ -220,6 +224,222 @@ private slots:
          
          QVERIFY(result["oid"].value<qulonglong>() != 0);
          QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), &o);
+     }
+     
+     void test_player_widget_by_path_wrong_path() {
+         QMainWindow w;
+         QObject o(&w);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         command["path"] = "QMainWindow::QObject3569";
+         
+         QtJson::JsonObject result = player.widget_by_path(command);
+         
+         QCOMPARE(result["success"].toBool(), false);
+         QCOMPARE(result["errName"].toString(), QString("InvalidWidgetPath"));
+     }
+     
+     void test_player_object_properties() {
+         QMainWindow w;
+         QObject o(&w);
+         o.setObjectName("toto");
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::toto";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         
+         QtJson::JsonObject result = player.object_properties(command);
+         
+         QCOMPARE(result["objectName"].toString(), QString("toto"));
+     }
+     
+     void test_player_not_registered_object() {
+         QMainWindow w;
+         QObject o(&w);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         QtJson::JsonObject result = player.object_properties(command);
+         
+         QCOMPARE(result["success"].toBool(), false);
+         QCOMPARE(result["errName"].toString(), QString("NotRegisteredObject"));
+     }
+     
+     void test_player_deleted_object() {
+         QMainWindow w;
+         QObject *o = new QObject(&w);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::QObject";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         
+         delete o;
+         QtJson::JsonObject result = player.object_properties(command);
+         
+         QCOMPARE(result["success"].toBool(), false);
+         QCOMPARE(result["errName"].toString(), QString("NotRegisteredObject"));
+     }
+     
+     void test_player_object_set_properties() {
+         QMainWindow w;
+         QObject o(&w);
+         o.setObjectName("toto");
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::toto";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         QtJson::JsonObject properties;
+         properties["objectName"] = "titi";
+         command["oid"] = resultPath["oid"];
+         command["properties"] = properties;
+         
+         QtJson::JsonObject result = player.object_set_properties(command);
+         
+         QCOMPARE(o.objectName(), QString("titi"));
+     }
+     
+     void test_player_widgets_list() {
+         QMainWindow mw;
+         QWidget w(&mw);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         QtJson::JsonObject result = player.widgets_list(command);
+         
+         QtJson::JsonObject mwResult = result["QMainWindow"].toMap();
+         QtJson::JsonObject childrenResult = mwResult["children"].toMap();
+         QVERIFY(childrenResult.contains("QWidget"));
+         QCOMPARE(mwResult["classes"].toStringList(), QStringList() << "QMainWindow" << "QWidget" << "QObject");
+         QCOMPARE(childrenResult["QWidget"].toMap()["classes"].toStringList(), QStringList() << "QWidget" << "QObject");
+     }
+     
+     void test_player_widgets_list_with_oid() {
+         QMainWindow mw;
+         QWidget w(&mw);
+         
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         QtJson::JsonObject result = player.widgets_list(command);
+         
+         QtJson::JsonObject wResult = result["QWidget"].toMap();
+         QVERIFY(wResult["children"].toMap().isEmpty());
+         QCOMPARE(wResult["classes"].toStringList(), QStringList() << "QWidget" << "QObject");
+     }
+     
+     void test_player_widget_click() {
+         QMainWindow mw;
+         QPushButton * btn = new QPushButton("myBtn");
+         mw.setCentralWidget(btn);
+         
+         QSignalSpy spy(btn, SIGNAL(clicked()));
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::QPushButton";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         player.widget_click(command);
+         
+         qApp->processEvents();
+         QCOMPARE(spy.count(), 1);
+     }
+     
+     void test_player_widget_keyclick() {
+         QMainWindow mw;
+         QLineEdit * line = new QLineEdit();
+         mw.setCentralWidget(line);
+         
+         QSignalSpy spy(line, SIGNAL(textEdited(const QString &)));
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::QLineEdit";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         command["text"] = "this is a new text";
+         player.widget_keyclick(command);
+         
+         qApp->processEvents();
+         QVERIFY(spy.count() > 0);
+         QCOMPARE(line->text(), QString("this is a new text"));
+     }
+     
+     void test_player_shortcut() {
+         QMainWindow mw;
+         QShortcut shortcut(Qt::Key_F2, &mw);
+         
+         QSignalSpy spy(&shortcut, SIGNAL(activatedAmbiguously()));
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         command["keysequence"] = "F2";
+         mw.show();
+         mw.setFocus();
+         player.shortcut(command);
+         
+         qApp->processEvents();
+         qApp->processEvents();
+         QCOMPARE(spy.count(), 1);
      }
 };
 
