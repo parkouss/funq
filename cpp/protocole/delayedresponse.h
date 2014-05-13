@@ -61,7 +61,7 @@ private slots:
     void onTimerOut();
 
 signals:
-    void aboutToWriteResponse();
+    void aboutToWriteResponse(const QtJson::JsonObject &);
 
 private:
 

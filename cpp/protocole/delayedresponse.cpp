@@ -36,7 +36,7 @@ void DelayedResponse::onTimerOut() {
 
 void DelayedResponse::writeResponse(const QtJson::JsonObject & result) {
     m_timer.stop();
-    emit aboutToWriteResponse();
+    emit aboutToWriteResponse(result);
     m_hasResponded = true;
 
     bool success;

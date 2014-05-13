@@ -87,7 +87,7 @@ void JsonClient::onMessageReceived() {
             m_protocole->close();
             return;
         }
-        connect(dresponse, SIGNAL(aboutToWriteResponse()), dresponse, SLOT(deleteLater()));
+        connect(dresponse, SIGNAL(aboutToWriteResponse(const QtJson::JsonObject &)), dresponse, SLOT(deleteLater()));
         dresponse->start();
     }
 }
