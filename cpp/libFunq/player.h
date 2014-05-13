@@ -50,7 +50,7 @@ public slots:
     QtJson::JsonObject model_gitem_action(const QtJson::JsonObject & command);
     QtJson::JsonObject desktop_screenshot(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_keyclick(const QtJson::JsonObject & command);
-    QtJson::JsonObject shortcut(const QtJson::JsonObject & command);
+    DelayedResponse * shortcut(const QtJson::JsonObject & command);
     QtJson::JsonObject tabbar_list(const QtJson::JsonObject & command);
     QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
     QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);

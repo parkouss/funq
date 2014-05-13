@@ -15,6 +15,7 @@
 #include <QTimer>
 #include <QTime>
 #include "dragndropresponse.h"
+#include "shortcutresponse.h"
 
 using namespace ObjectPath;
 
@@ -430,30 +431,8 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::shortcut(const QtJson::JsonObject & command) {
-    QWidget * widget;
-    if (command.contains("oid")) {
-        WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-        if (ctx.hasError()) { return ctx.lastError; }
-        widget = ctx.widget;
-    } else {
-        widget = qApp->activeWindow();
-    }
-    QKeySequence binding = QKeySequence::fromString(command["keysequence"].toString());
-
-    // taken from
-    // http://stackoverflow.com/questions/14283764/how-can-i-simulate-emission-of-a-standard-key-sequence
-    for (uint i = 0; i < binding.count(); ++i) {
-        uint key = binding[i];
-        Qt::KeyboardModifiers modifiers = static_cast<Qt::KeyboardModifiers>(key & Qt::KeyboardModifierMask);
-        key = key & ~Qt::KeyboardModifierMask;
-
-        qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyPress, key, modifiers));
-        qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyRelease, key, modifiers));
-    }
-
-    QtJson::JsonObject result;
-    return result;
+DelayedResponse * Player::shortcut(const QtJson::JsonObject & command) {
+    return new ShortcutResponse(this, command);
 }
 
 QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {

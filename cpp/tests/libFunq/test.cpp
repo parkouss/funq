@@ -15,6 +15,7 @@
 #include <QBuffer>
 #include "objectpath.h"
 #include "player.h"
+#include "shortcutresponse.h"
 
 class LibFunqTest: public QObject
 {
@@ -420,10 +421,10 @@ private slots:
          QCOMPARE(line->text(), QString("this is a new text"));
      }
      
-     void test_player_shortcut() {
+     void test_player_shortcut() {         
          QMainWindow mw;
-         QShortcut shortcut(Qt::Key_F2, &mw);
-         
+         QShortcut shortcut(Qt::Key_F2, &mw, 0, 0, Qt::ApplicationShortcut);
+         mw.show();
          QSignalSpy spy(&shortcut, SIGNAL(activated()));
          
          QBuffer buffer;
@@ -438,10 +439,14 @@ private slots:
          command["oid"] = resultPath["oid"];
          command["keysequence"] = "F2";
          
-         player.shortcut(command);
+         DelayedResponse * dresponse = player.shortcut(command);
          
-         qApp->processEvents();
-         /* why is this failing ? */
+         dresponse->start();
+         
+         QEventLoop loop;
+         QObject::connect(dresponse, SIGNAL(aboutToWriteResponse(const QtJson::JsonObject &)), &loop, SLOT(quit()));
+         loop.exec();
+         
          QCOMPARE(spy.count(), 1);
      }
      

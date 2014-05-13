@@ -40,7 +40,7 @@ public:
                     nb_executed(0), 
                     _nb_exec_before_response(nb_exec_before_response) {}
     
-    void execute(const QtJson::JsonObject &) {
+    void execute(int) {
         nb_executed += 1;
         if (_nb_exec_before_response > 0) {
             _nb_exec_before_response -= 1;
