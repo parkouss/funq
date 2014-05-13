@@ -8,6 +8,9 @@
 #include <QLineEdit>
 #include <QShortcut>
 #include <QTabBar>
+#include <QTableView>
+#include <QStandardItemModel>
+#include <QStandardItem>
 #include <QSignalSpy>
 #include <QBuffer>
 #include "objectpath.h"
@@ -466,6 +469,40 @@ private slots:
          QtJson::JsonObject result = player.tabbar_list(command);
          
          QCOMPARE(tabtexts, result["tabtexts"].toStringList());
+     }
+     
+     void test_player_model_items() {
+         QMainWindow mw;
+         QTableView view(&mw);
+         
+         QStandardItemModel model(4, 4);
+         for (int row = 0; row < 4; ++row) {
+             for (int column = 0; column < 4; ++column) {
+                 QStandardItem *item = new QStandardItem(QString("row %0, column %1").arg(row).arg(column));
+                 model.setItem(row, column, item);
+             }
+         }
+         
+         view.setModel(&model);
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::QTableView";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         
+         QtJson::JsonObject result = player.model_items(command);
+         
+         QList<QVariant> items = result["items"].toList();
+         
+         QCOMPARE(items.count(), 4 * 4);
+         
+         
      }
 };
 
