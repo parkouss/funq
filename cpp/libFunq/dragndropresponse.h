@@ -17,7 +17,7 @@ public:
     explicit DragNDropResponse(JsonClient * client, const QtJson::JsonObject & command);
 
 protected:
-    virtual void execute(const QtJson::JsonObject & command);
+    virtual void execute();
 
 signals:
     

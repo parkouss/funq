@@ -6,7 +6,6 @@
 DelayedResponse::DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval, int timerOut) :
                                  QObject(client),
                                  m_client(client),
-                                 m_command(command),
                                  m_hasResponded(false)
 {
     Q_ASSERT(client);
@@ -14,6 +13,8 @@ DelayedResponse::DelayedResponse(JsonClient * client, const QtJson::JsonObject &
     connect(&m_timer, SIGNAL(timeout()), this, SLOT(timerCall()));
 
     QTimer::singleShot(timerOut, this, SLOT(onTimerOut()));
+    
+    m_action = command["action"].toString();
 }
 
 void DelayedResponse::start() {
@@ -22,7 +23,7 @@ void DelayedResponse::start() {
 
 void DelayedResponse::timerCall() {
     if (! m_hasResponded) {
-        execute(m_command);
+        execute();
     }
 }
 
@@ -43,7 +44,7 @@ void DelayedResponse::writeResponse(const QtJson::JsonObject & result) {
     QByteArray response = QtJson::serialize(result, success);
 
     if (!success) {
-        qDebug() << "unable to serialize result to json" << m_command["action"].toString();
+        qDebug() << "unable to serialize result to json" << m_action;
         m_client->protocole()->close();
         return;
     }

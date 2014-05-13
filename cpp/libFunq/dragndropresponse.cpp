@@ -64,7 +64,7 @@ DragNDropResponse::DragNDropResponse(JsonClient *client, const QtJson::JsonObjec
     m_destPos = destPos;
 }
 
-void DragNDropResponse::execute(const QtJson::JsonObject &) {
+void DragNDropResponse::execute() {
     switch (m_state) {
     case Press:
         m_srcPosGlobal = m_src->mapToGlobal(m_srcPos);

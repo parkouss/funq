@@ -46,7 +46,7 @@ protected:
       * Cette méthode doit appeller writeResponse() à un moment donné pour envoyer
       * la réponse et terminer la vie de l'objet.
       */
-    virtual void execute(const QtJson::JsonObject & command) = 0;
+    virtual void execute() = 0;
 
     /**
       * @brief renvoie une réponse au client json.
@@ -67,7 +67,7 @@ private:
 
     JsonClient * m_client;
     QTimer m_timer;
-    QtJson::JsonObject m_command;
+    QString m_action;
     bool m_hasResponded;
 };
 
