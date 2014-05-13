@@ -6,7 +6,8 @@
 DelayedResponse::DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval, int timerOut) :
                                  QObject(client),
                                  m_client(client),
-                                 m_hasResponded(false)
+                                 m_hasResponded(false),
+                                 m_nbCall(0)
 {
     Q_ASSERT(client);
     m_timer.setInterval(interval);
@@ -23,7 +24,8 @@ void DelayedResponse::start() {
 
 void DelayedResponse::timerCall() {
     if (! m_hasResponded) {
-        execute();
+        execute(m_nbCall);
+        m_nbCall += 1;
     }
 }
 

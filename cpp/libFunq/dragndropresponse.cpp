@@ -35,8 +35,7 @@ QPoint pointFromString(const QString & data) {
 }
 
 DragNDropResponse::DragNDropResponse(JsonClient *client, const QtJson::JsonObject &command) :
-    DelayedResponse(client, command),
-    m_state(Press)
+    DelayedResponse(client, command)
 {
     WidgetLocatorContext<QWidget> ctx(static_cast<Player *>(jsonClient()), command, "srcoid");
     WidgetLocatorContext<QWidget> ctx2(static_cast<Player *>(jsonClient()), command, "destoid");
@@ -64,9 +63,9 @@ DragNDropResponse::DragNDropResponse(JsonClient *client, const QtJson::JsonObjec
     m_destPos = destPos;
 }
 
-void DragNDropResponse::execute() {
-    switch (m_state) {
-    case Press:
+void DragNDropResponse::execute(int call) {
+    switch (call) {
+    case 0: // Press
         m_srcPosGlobal = m_src->mapToGlobal(m_srcPos);
         m_destPosGlobal = m_dest->mapToGlobal(m_destPos);
 
@@ -78,14 +77,12 @@ void DragNDropResponse::execute() {
                             Qt::LeftButton,
                             Qt::NoButton,
                             Qt::NoModifier));
-        m_state = WaitForDragStart;
         break;
-    case WaitForDragStart: {
+    case 1: { // WaitForDragStart
         setInterval(qApp->startDragTime());
-        m_state = Move;
         break;
     }
-    case Move: {
+    case 2: { // Move
         setInterval(0);
         // 3: do some move event
         QList<QPoint> moves;
@@ -102,10 +99,9 @@ void DragNDropResponse::execute() {
                                     Qt::NoModifier));
             }
         }
-        m_state = Release;
         break;
     }
-    case Release: {
+    case 3: { // Release
         // 4: now release the button
         qApp->postEvent(m_dest,
             new QMouseEvent(QEvent::MouseButtonRelease,

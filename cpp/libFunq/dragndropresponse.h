@@ -7,17 +7,10 @@
 class DragNDropResponse : public DelayedResponse
 {
 public:
-    enum State {
-        Press,
-        WaitForDragStart,
-        Move,
-        Release
-    };
-
     explicit DragNDropResponse(JsonClient * client, const QtJson::JsonObject & command);
 
 protected:
-    virtual void execute();
+    virtual void execute(int call);
 
 signals:
     
@@ -28,7 +21,6 @@ private:
     QWidget * m_dest;
     QPoint m_srcPos, m_srcPosGlobal;
     QPoint m_destPos, m_destPosGlobal;
-    State m_state;
 };
 
 #endif // DRAGNDROPRESPONSE_H

@@ -46,7 +46,7 @@ protected:
       * Cette méthode doit appeller writeResponse() à un moment donné pour envoyer
       * la réponse et terminer la vie de l'objet.
       */
-    virtual void execute() = 0;
+    virtual void execute(int call) = 0;
 
     /**
       * @brief renvoie une réponse au client json.
@@ -69,6 +69,7 @@ private:
     QTimer m_timer;
     QString m_action;
     bool m_hasResponded;
+    int m_nbCall;
 };
 
 #endif // DELAYEDRESPONSE_H
