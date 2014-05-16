@@ -65,11 +65,15 @@ DragNDropResponse::DragNDropResponse(JsonClient *client, const QtJson::JsonObjec
 
 void DragNDropResponse::execute(int call) {
     switch (call) {
-    case 0: // Press
+    case 0: // pre-phase : ensure widgets are painted in order to mapToGlobal to work
+        m_src->repaint ();
+        m_dest->repaint ();
+        setInterval(100);
+        break;
+    case 1: // 1: press event
         m_srcPosGlobal = m_src->mapToGlobal(m_srcPos);
         m_destPosGlobal = m_dest->mapToGlobal(m_destPos);
 
-        // 1: press event
         qApp->postEvent(m_src,
             new QMouseEvent(QEvent::MouseButtonPress,
                             m_srcPos,
@@ -78,13 +82,12 @@ void DragNDropResponse::execute(int call) {
                             Qt::NoButton,
                             Qt::NoModifier));
         break;
-    case 1: { // WaitForDragStart
-        setInterval(qApp->startDragTime());
+    case 2: { // 2: WaitForDragStart
+        setInterval(qApp->startDragTime() + 20);
         break;
     }
-    case 2: { // Move
+    case 3: { // 3: do some move event
         setInterval(0);
-        // 3: do some move event
         QList<QPoint> moves;
         calculate_drag_n_drop_moves(moves, m_srcPosGlobal, m_destPosGlobal, 4);
         foreach (const QPoint & move, moves) {
@@ -101,8 +104,7 @@ void DragNDropResponse::execute(int call) {
         }
         break;
     }
-    case 3: { // Release
-        // 4: now release the button
+    case 4: { // 4: now release the button
         qApp->postEvent(m_dest,
             new QMouseEvent(QEvent::MouseButtonRelease,
                             m_destPos,
@@ -110,8 +112,9 @@ void DragNDropResponse::execute(int call) {
                             Qt::LeftButton,
                             Qt::NoButton,
                             Qt::NoModifier));
+    }
+    case 5: // and reply
         writeResponse(QtJson::JsonObject());
         break;
-    }
     }
 }
