@@ -446,7 +446,7 @@ private slots:
          QCOMPARE(line->text(), QString("this is a new text"));
      }
      
-     void test_player_shortcut() {         
+     void test_player_shortcut() {
          QMainWindow mw;
          QShortcut shortcut(Qt::Key_F2, &mw, 0, 0, Qt::ApplicationShortcut);
          mw.show();
@@ -473,6 +473,12 @@ private slots:
          loop.exec();
          
          QCOMPARE(spy.count(), 1);
+     }
+     
+     void test_player_shortcut_15_times() {
+         for (int i=0; i<15; i++) {
+             test_player_shortcut();
+         }
      }
      
      void test_player_tabbar_list() {
@@ -568,7 +574,7 @@ private slots:
          QCOMPARE(dndwidget.m_lineEditDrop->text(), QString("HELLO,I HOPE I WILL BE DRAG AND DROPPED !"));
      }
      
-     void test_drag_ndrop_loop() {
+     void test_drag_ndrop_15_times() {
          for (int i=0; i<15; i++) {
              test_drag_ndrop();
          } 
