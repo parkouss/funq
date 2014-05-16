@@ -11,11 +11,36 @@
 #include <QTableView>
 #include <QStandardItemModel>
 #include <QStandardItem>
+#include <QHBoxLayout>
 #include <QSignalSpy>
 #include <QBuffer>
 #include "objectpath.h"
 #include "player.h"
 #include "shortcutresponse.h"
+
+class TestDragNDropWidget : public QWidget {
+public:
+    explicit TestDragNDropWidget(QWidget * parent=NULL) : QWidget(parent) {
+        m_lineEditDrag = new QLineEdit;
+        m_lineEditDrop = new QLineEdit;
+        
+        QHBoxLayout *layout = new QHBoxLayout;
+        
+        layout->addWidget(m_lineEditDrag);
+        layout->addWidget(m_lineEditDrop);
+        
+        setLayout(layout);
+        
+        m_lineEditDrag->setDragEnabled(true);
+        
+        m_lineEditDrag->setObjectName("drag");
+        m_lineEditDrop->setObjectName("drop");
+        setObjectName("testdnd");
+    }
+    
+    QLineEdit * m_lineEditDrag;
+    QLineEdit * m_lineEditDrop;
+};
 
 class LibFunqTest: public QObject
 {
@@ -506,8 +531,47 @@ private slots:
          QList<QVariant> items = result["items"].toList();
          
          QCOMPARE(items.count(), 4 * 4);
+     }
+     
+     void test_drag_ndrop() {
+         TestDragNDropWidget dndwidget;
          
+         dndwidget.show();
          
+         dndwidget.m_lineEditDrag->setText("HELLO,I HOPE I WILL BE DRAG AND DROPPED !");
+         dndwidget.m_lineEditDrag->selectAll();
+         
+         qApp->processEvents();
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "testdnd::drag";
+         
+         command["srcoid"] = player.widget_by_path(commandPath)["oid"];
+         
+         commandPath["path"] = "testdnd::drop";
+         command["destoid"] = player.widget_by_path(commandPath)["oid"];
+         
+         DelayedResponse * dresponse = player.drag_n_drop(command);
+         
+         QCOMPARE(dndwidget.m_lineEditDrop->text(), QString(""));
+         
+         dresponse->start();
+         
+         QEventLoop loop;
+         QObject::connect(dresponse, SIGNAL(aboutToWriteResponse(const QtJson::JsonObject &)), &loop, SLOT(quit()));
+         loop.exec();
+         
+         QCOMPARE(dndwidget.m_lineEditDrop->text(), QString("HELLO,I HOPE I WILL BE DRAG AND DROPPED !"));
+     }
+     
+     void test_drag_ndrop_loop() {
+         for (int i=0; i<15; i++) {
+             test_drag_ndrop();
+         } 
      }
 };
 
