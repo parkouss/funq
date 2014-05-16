@@ -12,7 +12,7 @@ class TreeItem(object): # pylint: disable=R0903
     """
     client = None
     items = None
-
+    
     @classmethod
     def create(cls, client, data):
         """
@@ -32,12 +32,12 @@ class TreeItems(object):
     classe abstraite pour manipuler des données contenant des :class:`TreeItem`.
     Utilisé pour les modelitem et les graphicsitems.
     """
-
+    
     client = None
     items = None
-
+    
     ITEM_CLASS = TreeItem
-
+    
     @classmethod
     def create(cls, client, data):
         """
@@ -48,7 +48,7 @@ class TreeItems(object):
         self.client = client
         self.items = [cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
         return self
-
+    
     def iter(self):
         """
         Itere sur tous les items.
@@ -75,7 +75,7 @@ class WidgetMetaClass(type):
 class Widget(object):
     """
     Permet de manipuler un QWidget ou dérivé.
-
+    
     :var client: le client pour la communication avec le serveur libFunq
                  [type: :class:`funq.client.FunqClient`]
     :var oid: l'indentifiant de l'instance c++ managée. [type: long]
@@ -85,11 +85,11 @@ class Widget(object):
                   [type : list(str)]
     """
     __metaclass__ = WidgetMetaClass
-
+    
     oid = None
     client = None
     path = None
-
+    
     @classmethod
     def create(cls, client, data):
         """
@@ -102,7 +102,7 @@ class Widget(object):
             if cppcls in cpp_classes:
                 cls = cpp_classes[cppcls]
                 break
-
+        
         self = cls()
         for k, v in data.iteritems():
             setattr(self, k, v)
@@ -114,7 +114,7 @@ class Widget(object):
         Retourne un dictionnaire de propriétés accessibles pour ce widget
         avec leur valeurs courantes.
         Exemple::
-
+          
           enabled = widget.properties()["enabled"]
         """
         return self.client.send_command('object_properties', oid=self.oid)
@@ -123,18 +123,18 @@ class Widget(object):
         """
         Permet de définir des propriétés sur un widget.
         Exemple::
-
+          
           widget.set_properties(text="Mon beau texte")
         """
         self.client.send_command('object_set_properties',
                                  oid=self.oid,
                                  properties=properties)
-
+    
     def set_property(self, name, value):
         """
         Permet de définir une propriété pour ce widget.
         Exemple::
-
+          
           widget.set_property('text', "Mon beau texte")
         """
         self.set_properties(**{name: value}) # pylint:disable=W0142
@@ -143,7 +143,7 @@ class Widget(object):
         """
         Attends que les propriétés prennent les valeurs désirées.
         Exemple::
-
+          
           self.wait_for_properties({'enabled': True, 'visible': True})
         """
         def check_props():
@@ -164,7 +164,7 @@ class Widget(object):
             self.wait_for_properties({'enabled': True, 'visible': True},
                                      timeout=wait_for_enabled)
         self.client.send_command('widget_click', oid=self.oid)
-
+    
     def dclick(self, wait_for_enabled=10.0):
         """
         Double click sur le widget. Si wait_for_enabled est > 0 (défaut), on
@@ -176,16 +176,16 @@ class Widget(object):
         self.client.send_command('widget_click',
                                  oid=self.oid,
                                  action='doubleclick')
-
+    
     def keyclick(self, text):
         """
         Simule les évènements keypress et keyrelease pour chaque lettre du texte
         passé sur ce widget. Exemple::
-
+          
           widget.keyclick("mon texte")
         """
         self.client.send_command('widget_keyclick', text=text, oid=self.oid)
-
+    
     def shortcut(self, key_sequence):
         """
         Envoi un raccourci clavier sur ce widget, défini par une séquence de
@@ -194,12 +194,12 @@ class Widget(object):
         self.client.send_command('shortcut',
                                  keysequence=key_sequence,
                                  oid=self.oid)
-
+    
     def drag_n_drop(self, src_pos=None,
                           dest_widget=None, dest_pos=None):
         """
         Effectue un drag and drop depuis ce widget.
-
+        
         :param src_pos: position de début de drag. Si None, le centre de
                         ce widget sera utilisé. Doit être un tuple (x,y).
         :param dest_widget: widget de destination. Si none, src_widget sera
@@ -213,7 +213,7 @@ class Widget(object):
 class ModelItem(TreeItem):
     """
     Représente un modelitem présent dans un QAbstractModelItem ou dérivé.
-
+    
     :var viewid: identifiant de la vue rattaché au modèle contenant cet item
                  [type: long]
     :var row: numéro de ligne de l'item [type: int]
@@ -224,13 +224,13 @@ class ModelItem(TreeItem):
                    [type: str ou None]
     :var items: liste de :class:`ModelItem` sous-items de cet item
     """
-
+    
     viewid = None
     row = None
     column = None
     itempath = None
     check_state = None
-
+    
     def _action(self, itemaction):
         """ Envoi de commande 'model_item_action' """
         self.client.send_command('model_item_action',
@@ -238,27 +238,27 @@ class ModelItem(TreeItem):
                                  itemaction=itemaction,
                                  row=self.row, column=self.column,
                                  itempath=self.itempath)
-
+    
     def is_checkable(self):
         """Renvoie True si l'item est checkable"""
         return self.check_state is not None
-
+    
     def is_checked(self):
         """Renvoie True si l'item est checké"""
         return self.check_state == 'checked'
-
+    
     def select(self):
         """
         Sélectionne l'item.
         """
         self._action("select")
-
+    
     def edit(self):
         """
         Passe l'item en mode édition.
         """
         self._action("edit")
-
+    
     def click(self):
         """
         Click sur l'item.
@@ -274,10 +274,10 @@ class ModelItem(TreeItem):
 class ModelItems(TreeItems):
     """
     Représente des modelitems présents dans un QAbstractModelItem ou dérivé.
-
+    
     :var items: liste de :class:`ModelItem`
     """
-
+    
     ITEM_CLASS = ModelItem
 
     def item_by_named_path(self, named_path, match_column=0, sep='/', column=0):
@@ -285,12 +285,12 @@ class ModelItems(TreeItems):
         Renvoie l'item (:class:`ModelItem`) correspondant au chemin arborescent
         défini par `named_path` correspondant à la colonne `column` ou
         None si le chemin n'existe pas.
-
+        
         .. note::
-
+          
           Les arguments sont les mêmes que pour :meth:`row_by_named_path`,
           avec l'ajout de `column`.
-
+        
         :param column: la colonne de l'item à récupérer.
         """
         items = self.row_by_named_path(named_path,
@@ -304,19 +304,19 @@ class ModelItems(TreeItems):
         Renvoie la liste de :class:`ModelItem` correspondant à une ligne
         du modèle selon un chemin arborescent défini par le nom
         des items, ou None si le chemin n'existe pas.
-
+        
         .. important::
-
+          
           Penser à utiliser des chaines unicodes pour matcher les éléments
           contenant des accents pour le paramètre `named_path`.
-
+        
         Exemple::
-
+          
           model_items.row_by_named_path([u'TG/CBO/AP (AUT 1)',
                                          u'Paramètres tranche',
                                          u'TG',
                                          u'DANGER'])
-
+        
         :param named_path: le chemin du modelIndex interessant. Peut être
                            défini par une liste de chaine, chacune étant
                            un nom d'item ou par un chaine unique utilisant
@@ -362,16 +362,16 @@ class AbstractItemView(Widget):
         """
         data = self.client.send_command('model_items', oid=self.oid)
         return ModelItems.create(self.client, data)
-
+    
     def current_editor(self, editor_class_name=None):
         """
         Retourne l'éditeur d'item actuellement ouvert sur cette vue.
         l'item doit être en mode édition, ce qui peut être fait par
         l'appel de :meth:`ModelItem.dclick` ou :meth:`ModelItem.edit`.
-
+        
         Les types d'éditeur gérés sont actuellement les suivants:
         'QLineEdit', 'QComboBox', 'QSpinBox' et 'QDoubleSpinBox'.
-
+        
         :param editor_class_name: chaine représentant le type de
                                   l'éditeur. Si None, tous les types
                                   d'éditeurs sont testés.
@@ -401,7 +401,7 @@ class TabBar(Widget):
         """
         data = self.client.send_command('tabbar_list', oid=self.oid)
         return data["tabtexts"]
-
+    
     def set_current_tab(self, tab_index_or_name):
         """
         Définit l'index courant en fonction du texte ou de l'index.
@@ -418,7 +418,7 @@ class TabBar(Widget):
 class GItem(TreeItem):
     """
     Représente un QGraphicsItem.
-
+    
     :var viewid: identifiant de la vue rattaché au modèle contenant cet item
                  [type: long]
     :var stackpath: identifiant de l'item, basé sur le stackIndex et
@@ -433,11 +433,11 @@ class GItem(TreeItem):
     stackpath = None
     objectname = None
     classes = None
-
+    
     def is_qobject(self):
         """ Renvoie True si l'item hérite de QObject """
         return self.objectname != None
-
+    
     def properties(self):
         """
         Renvoie les propriétés de l'item. L'item doit hériter de QObject.
@@ -468,7 +468,7 @@ class GItem(TreeItem):
 class GItems(TreeItems):
     """
     Représente un ensemble de QGraphicsItems
-
+    
     :var items: liste de :class:`GItem` directement sur la scene (qui ne sont
                 pas des sous item)
     """
@@ -479,7 +479,7 @@ class GraphicsView(Widget):
     Représente une instance de QGraphicsView.
     """
     CPP_CLASS = 'QGraphicsView'
-
+    
     def gitems(self):
         """
         Renvoie une instance de :class:`GItems`, contenant tous les GItems
@@ -487,7 +487,7 @@ class GraphicsView(Widget):
         """
         data = self.client.send_command('graphicsitems', oid=self.oid)
         return GItems.create(self.client, data)
-
+    
     def dump_gitems(self, stream='gitems.json'):
         """
         Ecrit dans un fichier la liste des graphics items.
@@ -503,7 +503,7 @@ class ComboBox(Widget):
     Ajoute des méthodes spécifiques aux QComboBox.
     """
     CPP_CLASS = 'QComboBox'
-
+    
     def model_items(self):
         """
         Renvoie le model item (:class:`ModelItems`) associé à cette combobox
@@ -517,7 +517,7 @@ class ComboBox(Widget):
         # on cache la QComboBoxListView
         combo_edit_view.set_property('visible', False)
         return model_items
-
+    
     def set_current_text(self, text):
         """
         Définit le texte de la combobox en assurant que c'est une valeur

@@ -16,12 +16,12 @@ class Player : public JsonClient
     Q_OBJECT
 public:
     explicit Player(QIODevice * device, QObject *parent = 0);
-
+    
     qulonglong registerObject(QObject * object);
     QObject * registeredObject(const qulonglong & id);
 
 signals:
-
+    
 public slots:
     /*
       Ces slots sont automatiquement transformés en commande disponibles
