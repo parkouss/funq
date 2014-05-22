@@ -20,6 +20,7 @@ Contenu:
    :maxdepth: 2
    
    general
+   server
 
 
 Recherche:
