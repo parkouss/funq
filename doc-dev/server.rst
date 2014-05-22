@@ -65,8 +65,8 @@ Et la réponse du serveur sera un objet json vide.
 
 .. note::
   
-  Les fichier **player.h** et **player.cpp** sont une bonne base pour apprendre
-  comment ajouter des commandes et les implémenter.
+  Les fichier **cpp/libFunq/player.h** et **cpp/libFunq/player.cpp** sont une bonne
+  base pour apprendre comment ajouter des commandes et les implémenter.
 
 Contenu du fichier *cpp/libFunq/player.h*
 -----------------------------------------
