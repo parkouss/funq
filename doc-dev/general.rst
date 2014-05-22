@@ -9,6 +9,8 @@ Funq fonctionne en mode **client/server**, via le protocole TCP:
 * le serveur est contenu par l'application à tester
 * le client permet de manipuler l'application en effectuant des requêtes
 
+.. _trames-echanges:
+
 Trames d'échanges
 -----------------
 

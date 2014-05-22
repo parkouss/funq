@@ -307,7 +307,8 @@ QtJson::JsonObject Player::quit(const QtJson::JsonObject & command) {
     if (qApp) {
         qApp->quit();
     }
-    return command;
+    QtJson::JsonObject result;
+    return result;
 }
 
 QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
