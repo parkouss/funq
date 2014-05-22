@@ -9,9 +9,9 @@ from collections import defaultdict
 import logging
 
 from funq.aliases import HooqAliases
-from funq.tools import wait_for, TimeOutError
+from funq.tools import wait_for
 from funq.models import Widget
-from funq.errors import FunqError
+from funq.errors import FunqError, TimeOutError
 from funq import screenshoter
 
 LOG = logging.getLogger('funq.client')

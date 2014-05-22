@@ -5,6 +5,7 @@ Utilitaires.
 """
 
 import time
+from funq.errors import TimeOutError
 
 # permet de modifier le temps d'attente par défaut au niveau global
 SNOOZE_FACTOR = 1.0
@@ -12,9 +13,6 @@ SNOOZE_FACTOR = 1.0
 def apply_snooze_factor(value):
     """Applique le facteur de snooze global"""
     return value * SNOOZE_FACTOR
-
-class TimeOutError(Exception):
-    """Levée lors d'un timeout"""
 
 def wait_for(func, timeout, timeout_interval=0.1):
     """

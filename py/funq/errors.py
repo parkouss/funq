@@ -17,6 +17,9 @@ class FunqError(Exception):
                 classname=classname,
                 desc=desc))
 
+class TimeOutError(Exception):
+    """Levée lors d'un timeout"""
+
 class HooqAliasesInvalidLineError(Exception):
     """
     Exception levée lors d'erreur de parsing du fichier d'alias.
