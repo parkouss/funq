@@ -106,7 +106,7 @@ Pour générer ce genre de documentation, il faut se placer dans le dossier de d
 (contenant un Makefile, make.bat et index.rst au minimum) et taper la commande
 suivante (exemple sous GNU/Linux pour du html):
 
-.. code-block::
+.. code-block:: bash
   
   make html
   firefox _build/html/index.html
