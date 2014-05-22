@@ -3,20 +3,27 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
-Welcome to Documentation de développement sur le framework Funq (test_ihm_qt)'s documentation!
-==============================================================================================
+Documentation de développement sur le framework Funq (test_ihm_qt) documentation
+================================================================================
 
-Contents:
+Cette documentation fournit de l'aide sur le développement du framework de test
+**funq**, aussi connu sous le nom de *test_ihm_qt* dans l'entreprise **INEO SCLE**.
+
+Le développement des tests grâce à ce framework fait partie d'une **autre documentation**,
+disponible dans le dossier **py/doc**. Ici, il est décrit les rouages du framework
+pour aider à sa compréhension et dans le but de le maintenir ou d'ajouter de
+nouvelles fonctionnalités.
+
+Contenu:
 
 .. toctree::
    :maxdepth: 2
+   
+   general
 
 
+Recherche:
+==========
 
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
 * :ref:`search`
 
