@@ -5,5 +5,5 @@ mainWidget = fenPrincipale::widgetCentral
 
 btnTest = {mainWidget}::btnTest
 
-dialog1 = fenPrincipale::QMessageBox-1
-dialog1_btn_ok = {dialog1}::qt_msgbox_buttonbox::QPushButton-1
+dialog1 = fenPrincipale::QMessageBox
+dialog1_btn_ok = {dialog1}::qt_msgbox_buttonbox::QPushButton
