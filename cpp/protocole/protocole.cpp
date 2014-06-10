@@ -10,11 +10,9 @@ Protocole::Protocole(QObject *parent) :
 void Protocole::setDevice(QIODevice *device) {
     if (m_device) {
         disconnect(m_device, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-        disconnect(m_device, SIGNAL(bytesWritten(qint64)), this, SLOT(onBytesWritten(qint64)));
     }
     if (device) {
         connect(device, SIGNAL(readyRead()), this, SLOT(onReadyRead()));
-        connect(device, SIGNAL(bytesWritten(qint64)), this, SLOT(onBytesWritten(qint64)));
     }
     m_device = device;
 }
@@ -55,24 +53,15 @@ QByteArray Protocole::nextAvailableMessage() {
     return message;
 }
 
-void Protocole::onBytesWritten(qint64 written) {
-    m_messagesToSend = m_messagesToSend.mid(written);
-    if (! m_messagesToSend.isEmpty()) {
-        m_device->write(m_messagesToSend);
-    }
-}
-
 bool Protocole::sendMessage(const QByteArray &ba) {
     if (!m_device) {
         return false;
     }
-    bool toSend = m_messagesToSend.isEmpty();
-    m_messagesToSend.append(QString::number(ba.size()));
-    m_messagesToSend.append('\n');
-    m_messagesToSend.append(ba);
-    if (toSend) {
-        m_device->write(m_messagesToSend);
-    }
+    QByteArray messageToSend;
+    messageToSend.append(QString::number(ba.size()));
+    messageToSend.append('\n');
+    messageToSend.append(ba);
+    m_device->write(messageToSend);
     return true;
 }
 

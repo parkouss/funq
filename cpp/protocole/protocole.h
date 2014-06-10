@@ -19,8 +19,6 @@ public:
     QByteArray nextAvailableMessage();
     
     inline bool hasAvailableMessage() { return ! m_receivedMessages.isEmpty(); }
-    
-    inline bool hasMessageToSend() { return ! m_messagesToSend.isEmpty(); }
 
     void close();
 signals:
@@ -28,12 +26,10 @@ signals:
     
 private slots:
     void onReadyRead();
-    void onBytesWritten(qint64);
 private:
     QIODevice * m_device;
     qlonglong m_messageSize;
     QList<QByteArray> m_receivedMessages;
-    QByteArray m_messagesToSend;
 };
 
 #endif // PROTOCOLE_H

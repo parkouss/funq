@@ -109,11 +109,7 @@ private:
          
          protocole.sendMessage("{\"1\": 1, \"2\": 2, \"3\": 3}");
          
-         QVERIFY(protocole.hasMessageToSend());
-         
          buffer.emitBytesWritten(24 + 3);
-         
-         QVERIFY(! protocole.hasMessageToSend());
          
          buffer.seek(0);
          QCOMPARE(QString(buffer.readAll()), QString("24\n{\"1\": 1, \"2\": 2, \"3\": 3}"));
