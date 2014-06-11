@@ -157,18 +157,30 @@ class Widget(object):
 
     def click(self, wait_for_enabled=10.0):
         """
-        Click sur le widget. Si wait_for_enabled est > 0 (défaut), on attends
+        Click sur le widget. Si wait_for_enabled est > 0 (défaut), on attend
         que le widget soit actif (enabled et visible) avant de cliquer.
         """
         if wait_for_enabled > 0.0:
             self.wait_for_properties({'enabled': True, 'visible': True},
                                      timeout=wait_for_enabled)
         self.client.send_command('widget_click', oid=self.oid)
-    
+
+    def call_slot(self, slot_name, params={}):
+        """
+        !!! A N'UTILISER QU'EN DERNIER RECOURS AVEC EXTREMEMENT DE PARSIMONIE !!!
+        !!! SON UTILISATION PEUT S'AVERER DANGEREUSE !!!
+        Appelle un slot (slot_name) définit dans le programme CDL en donnant
+        des parametres (params).
+        Retourne un dictionnaire afin de connaitre le résultat du deroulement
+        de l'execution du slot.
+        """
+        return self.client.send_command('call_slot', slot_name=slot_name,
+                                    params=params, oid=self.oid)['result_slot']
+ 
     def dclick(self, wait_for_enabled=10.0):
         """
         Double click sur le widget. Si wait_for_enabled est > 0 (défaut), on
-        attends que le widget soit actif (enabled et visible) avant de cliquer.
+        attend que le widget soit actif (enabled et visible) avant de cliquer.
         """
         if wait_for_enabled > 0.0:
             self.wait_for_properties({'enabled': True, 'visible': True},

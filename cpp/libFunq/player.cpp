@@ -1,5 +1,4 @@
 #include "player.h"
-#include <QDebug>
 #include <QMetaMethod>
 #include <QStringList>
 #include <QWidget>
@@ -483,4 +482,23 @@ QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) 
 
 DelayedResponse * Player::drag_n_drop(const QtJson::JsonObject & command) {
     return new DragNDropResponse(this, command);
+}
+
+QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QString slot_name = command["slot_name"].toString();
+    QVariant result_slot;
+    bool invokedMeth = QMetaObject::invokeMethod(ctx.widget, slot_name.toLocal8Bit().data(),
+                                      Qt::DirectConnection,
+                                      Q_RETURN_ARG(QVariant, result_slot),
+                                      Q_ARG(QVariant, command["params"]));
+    if (!invokedMeth) {
+        return createError("NoMethodInvoked", QString::fromUtf8("Le slot %1 n'a pas pu être appelé")
+                           .arg(slot_name));
+    }
+
+    QtJson::JsonObject result;
+    result["result_slot"] = result_slot;
+    return result;
 }

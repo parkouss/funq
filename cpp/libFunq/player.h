@@ -27,7 +27,7 @@ public slots:
       Ces slots sont automatiquement transformés en commande disponibles
       pour les clients.
 
-      Ils peuvent être de deux forme différente:
+      Ils peuvent être de deux formes différentes :
 
       - QtJson::JsonObject commande(const QtJson::JsonObject & command);
       - DelayedResponse * commande(const QtJson::JsonObject & command);
@@ -54,6 +54,7 @@ public slots:
     QtJson::JsonObject tabbar_list(const QtJson::JsonObject & command);
     QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
     QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);
+    QtJson::JsonObject call_slot(const QtJson::JsonObject & command);
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
 

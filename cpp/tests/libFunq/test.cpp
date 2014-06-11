@@ -42,6 +42,18 @@ public:
     QLineEdit * m_lineEditDrop;
 };
 
+class TestSlot : public QWidget {
+    Q_OBJECT
+public:
+    QVariant m_variant;
+
+public slots:
+    const QVariant editVariant(const QVariant &variant) {
+        m_variant = variant;
+        return QVariant(123);
+    }
+};
+
 class LibFunqTest: public QObject
 {
     Q_OBJECT
@@ -421,6 +433,30 @@ private slots:
          QCOMPARE(spy.count(), 1);
      }
      
+     void test_player_call_slot() {
+         QMainWindow mw;
+         TestSlot testslot;
+         testslot.setObjectName("test_slot");
+         mw.setCentralWidget(&testslot);
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow::test_slot";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         command["slot_name"] = "editVariant";
+         command["params"] = 23;
+
+         QVariant result_slot = player.call_slot(command)["result_slot"];
+         QCOMPARE(result_slot, QVariant(123));
+         QCOMPARE(testslot.m_variant, QVariant(23));
+     }
+
      void test_player_widget_keyclick() {
          QMainWindow mw;
          QLineEdit * line = new QLineEdit();
@@ -544,7 +580,7 @@ private slots:
          
          dndwidget.show();
          
-         dndwidget.m_lineEditDrag->setText("HELLO,I HOPE I WILL BE DRAG AND DROPPED !");
+         dndwidget.m_lineEditDrag->setText("HELLO, I HOPE I WILL BE DRAGGED AND DROPPED !");
          dndwidget.m_lineEditDrag->selectAll();
          
          qApp->processEvents();
@@ -571,7 +607,7 @@ private slots:
          QObject::connect(dresponse, SIGNAL(aboutToWriteResponse(const QtJson::JsonObject &)), &loop, SLOT(quit()));
          loop.exec();
          
-         QCOMPARE(dndwidget.m_lineEditDrop->text(), QString("HELLO,I HOPE I WILL BE DRAG AND DROPPED !"));
+         QCOMPARE(dndwidget.m_lineEditDrop->text(), QString("HELLO, I HOPE I WILL BE DRAGGED AND DROPPED !"));
      }
      
      void test_drag_ndrop_15_times() {
