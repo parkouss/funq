@@ -527,7 +527,8 @@ class ComboBox(Widget):
         combo_edit_view = self.client.widget(path=self.path + internal_qt_name)
         model_items = combo_edit_view.model_items()
         # on cache la QComboBoxListView
-        combo_edit_view.set_property('visible', False)
+        #combo_edit_view.set_property('visible', False)
+        combo_edit_view.click() # Permet de fermer la combobox proprement
         return model_items
     
     def set_current_text(self, text):
