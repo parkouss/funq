@@ -12,6 +12,7 @@ from funq.aliases import HooqAliases
 from funq.tools import wait_for
 from funq.models import Widget
 from funq.errors import FunqError, TimeOutError
+from unittest.case import SkipTest
 from funq import screenshoter
 
 LOG = logging.getLogger('funq.client')
@@ -488,7 +489,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
             ctx = self.create_context()
             try:
                 return meth(ctx.funq)
-            except (SystemExit, KeyboardInterrupt):
+            except (SystemExit, KeyboardInterrupt, SkipTest):
                 raise
             except:
                 if self.screenshot_on_error:
