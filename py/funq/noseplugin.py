@@ -166,3 +166,6 @@ class FunqPlugin(Plugin):
                 f.write('\n'.join(lines))
                 f.write('\n')
         FunqPlugin._current_test_name = None
+    
+    def describeTest(self, test):
+        return u'%s' % test
