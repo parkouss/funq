@@ -146,6 +146,39 @@ class FunqClient(object):
             widget.wait_for_properties({'enabled': True, 'visible': True})
         return widget
     
+    def active_window(self, timeout=10.0, timeout_interval=0.1, wait_active=True):
+        """
+        Retourne un widget de type :class:`funq.models.Widget` ou dérivé
+        représentant le widget actif de l'application.
+        
+        Exemple::
+          
+          active_widget = client.active_window()
+        
+        :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
+                        la valeur de timeout
+        :param timeout_interval: temps d'attente entre chque demande de
+                                 récupération de widget
+        :param wait_active: Si True, on attends que le widget soit visible
+                            et enabled.
+        """
+        wdata = [None]
+        def get_widget():
+            """ Tente de récupérer le widget actif """
+            try:
+                wdata[0] = self.send_command('active_window')
+                return True
+            except FunqError, err:
+                if err.classname != 'NoActiveWindow':
+                    raise
+                return err
+        wait_for(get_widget, timeout, timeout_interval)
+        
+        widget = Widget.create(self, wdata[0])
+        if wait_active:
+            widget.wait_for_properties({'enabled': True, 'visible': True})
+        return widget
+    
     def widgets_list(self, with_properties=False):
         """
         Renvoie un dictionnaire de la liste des widgets actuels de l'application

@@ -40,6 +40,7 @@ public slots:
     QtJson::JsonObject list_actions(const QtJson::JsonObject & command);
 
     QtJson::JsonObject widget_by_path(const QtJson::JsonObject & command);
+    QtJson::JsonObject active_window(const QtJson::JsonObject & command);
     QtJson::JsonObject object_properties(const QtJson::JsonObject & command);
     QtJson::JsonObject object_set_properties(const QtJson::JsonObject & command);
     QtJson::JsonObject widgets_list(const QtJson::JsonObject & command);

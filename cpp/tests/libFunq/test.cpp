@@ -345,6 +345,24 @@ private slots:
          QCOMPARE(result["errName"].toString(), QString("NotRegisteredObject"));
      }
      
+     void test_player_active_window() {
+         QMainWindow w;
+         
+         w.show();
+         QTest::qWaitForWindowShown(&w);
+         QApplication::setActiveWindow(&w); // required with Xvfb
+         QBuffer buffer;
+         
+         Player player(&buffer);
+         
+         QtJson::JsonObject command;
+         
+         QtJson::JsonObject result = player.active_window(command);
+
+         QVERIFY(result["oid"].value<qulonglong>() != 0);
+         QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), &w);
+     }
+     
      void test_player_object_set_properties() {
          QMainWindow w;
          QObject o(&w);
@@ -486,6 +504,7 @@ private slots:
          QMainWindow mw;
          QShortcut shortcut(Qt::Key_F2, &mw, 0, 0, Qt::ApplicationShortcut);
          mw.show();
+         QTest::qWaitForWindowShown(&mw);
          QSignalSpy spy(&shortcut, SIGNAL(activated()));
          
          QBuffer buffer;
@@ -579,6 +598,7 @@ private slots:
          TestDragNDropWidget dndwidget;
          
          dndwidget.show();
+         QTest::qWaitForWindowShown(&dndwidget);
          
          dndwidget.m_lineEditDrag->setText("HELLO, I HOPE I WILL BE DRAGGED AND DROPPED !");
          dndwidget.m_lineEditDrag->selectAll();

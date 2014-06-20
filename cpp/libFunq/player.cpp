@@ -239,6 +239,18 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     return result;
 }
 
+QtJson::JsonObject Player::active_window(const QtJson::JsonObject &) {
+    QWidget * activewindow = QApplication::activeWindow();
+    if (! activewindow) {
+        return createError("NoActiveWindow", QString::fromUtf8("Il n'y a pas de fenêtre active"));
+    }
+    qulonglong id = registerObject(activewindow);
+    QtJson::JsonObject result;
+    result["oid"] = id;
+    dump_object(activewindow, result);
+    return result;
+}
+
 ObjectLocatorContext::ObjectLocatorContext(Player * player,
                                            const QtJson::JsonObject & command,
                                            const QString & oidKey) {

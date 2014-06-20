@@ -27,6 +27,8 @@ Exemple::
   
   .. automethod:: FunqClient.widget
   
+  .. automethod:: FunqClient.active_window
+  
   .. automethod:: FunqClient.widgets_list
   
   .. automethod:: FunqClient.dump_widgets_list
