@@ -51,7 +51,12 @@ class TreeItems(object):
     
     def iter(self):
         """
-        Itere sur tous les items.
+        Permet d'itérer sur tous les items de manière récursive.
+        
+        Exemple::
+          
+          for item in items.iter():
+              print item
         """
         items = self.items
         while items:
