@@ -64,6 +64,8 @@ Exemple::
 
 .. autoclass:: ModelItems
   
+  .. automethod:: ModelItems.iter
+  
   .. automethod:: ModelItems.item_by_named_path
   
   .. automethod:: ModelItems.row_by_named_path
@@ -113,7 +115,8 @@ Exemple::
 
 
 .. autoclass:: GItems
-
+  
+  .. automethod:: GItems.iter
 
 .. autoclass:: GItem
   
