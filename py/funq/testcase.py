@@ -9,7 +9,8 @@ import weakref
 from functools import wraps
 from funq.client import ApplicationContext
 from funq import screenshoter
-
+import os
+import inspect
 
 class AssertionSuccessError(AssertionError):
     """
@@ -113,6 +114,8 @@ class FunqTestCase(unittest.TestCase):
     screenshot_on_error = False
     CFG = None
     
+    longMessage = True
+    
     def _create_application_context(self):
         cfg = self.CFG
         if cfg is None:
@@ -136,3 +139,8 @@ class FunqTestCase(unittest.TestCase):
     
     def __delete_context(self):
         del self.__ctx
+    
+    def id(self):
+        cls = self.__class__
+        fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
+        return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)

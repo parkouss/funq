@@ -143,7 +143,10 @@ class FunqPlugin(Plugin):
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
-        FunqPlugin._current_test_name = unicode(test.id(), 'utf-8')
+        test_id = test.id()
+        if not isinstance(test_id, unicode):
+            test_id = unicode(test_id, 'utf-8')
+        FunqPlugin._current_test_name = test_id
         message = u"Démarrage de test `%s`" % FunqPlugin.current_test_name()
         lines = message_with_sep(message)
         for line in lines:
@@ -168,4 +171,4 @@ class FunqPlugin(Plugin):
         FunqPlugin._current_test_name = None
     
     def describeTest(self, test):
-        return u'%s' % test
+        return u'%s' % test.id()
