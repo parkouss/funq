@@ -10,6 +10,7 @@ from functools import wraps
 from funq.client import ApplicationContext
 from funq import screenshoter
 import os
+import re
 import inspect
 
 class AssertionSuccessError(AssertionError):
@@ -87,10 +88,12 @@ def wraps_parameterized(func, func_suffix, args, kwargs):
 
 
 class MetaParameterized(type):
+    RE_ESCAPE_BAD_CHARS = re.compile(r'[\.\(\) -/]')
     def __new__(cls, name, bases, attrs):
         for k, v in attrs.items():
             if callable(v) and hasattr(v, 'parameters'):
                 for func_suffix, args, kwargs in v.parameters:
+                    func_suffix = cls.RE_ESCAPE_BAD_CHARS.sub('_', func_suffix)
                     wrapper = wraps_parameterized(v,func_suffix, args, kwargs)
                     if wrapper.__name__ in attrs:
                         raise KeyError("%s is already a defined method on %s" %
