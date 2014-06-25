@@ -382,8 +382,14 @@ class ApplicationContext(object): # pylint: disable=R0903
                     # demande de fermeture, gentiment (qApp->quit()).
                     LOG.info("Fermeture de l'application testée [%s].",
                              self._process.pid)
-                    self.funq.quit()
-            self.funq.close()
+                    try:
+                        self.funq.quit()
+                    except socket.error:
+                        pass
+            try:
+                self.funq.close()
+            except socket.error:
+                pass
             self.funq = None
         self._kill_process()
     
