@@ -21,7 +21,7 @@ ne sera pas fermée dans ce cas à la fin des tests. (mode détaché)
 Voici la liste des options falcutatives disponibles:
 
  - **args**: arguments de l'executable de test
- - **funq_port**: port de communication hooq utilisé (défaut: 9999)
+ - **funq_port**: port de communication utilisé (défaut: 9999)
  - **cwd**: chemin indiquant le dossier d'exécution de l'executable.
         Par défaut, c'est le répertoire de l'exécutable
  - **aliases**: chemin indiquent un fichier d'alias

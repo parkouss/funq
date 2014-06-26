@@ -62,10 +62,11 @@ Il est aussi possible de faire un *dump complet* de l'arborescence des widgets
 
 Voici un exemple d'utilisation::
   
-  from funq.noseplugin import config
-  CFG = config('applitest')
+  from funq.testcase import FunqTestCase
   
-  @CFG.with_hooq
-  def test_mon_premier_test(hooq):
-      # ecriture du dump dans le fichier "dump.json"
-      hooq.dump_widgets_list('dump.json')
+  class MyTestCase(FunqTestCase):
+      app_config_name = 'applitest'
+  
+      def test_mon_premier_test(self):
+          # ecriture du dump dans le fichier "dump.json"
+          self.funq.dump_widgets_list('dump.json')

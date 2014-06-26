@@ -7,16 +7,16 @@ Ce fichier fait partie du tutorial de **funq**. Il définit
 actuellement une seule fonction de test.
 """
 
-from funq.noseplugin import config
+from funq.testcase import FunqTestCase
 import time
 
-# recuperation de la config adéquate pour l'application concernée
-CFG = config('applitest')
+class MyTestCase(FunqTestCase):
+    # recuperation de la config adéquate pour l'application concernée
+    app_config_name = 'applitest'
 
-@CFG.with_hooq
-def test_mon_premier_test(hooq):
-    """
-     --------- Documentation de la fonction ---------
-    """
-    # ne fait rien pendant 3 secondes.
-    time.sleep(3)
+    def test_mon_premier_test(self):
+        """
+         --------- Documentation de la fonction ---------
+        """
+        # ne fait rien pendant 3 secondes.
+        time.sleep(3)

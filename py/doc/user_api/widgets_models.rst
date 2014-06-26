@@ -10,7 +10,7 @@ Un widget est récupéré depuis la méthode :meth:`funq.client.FunqClient.widge
 
 Exemple::
   
-  mon_widget = hooq.widget('mon_widget')
+  mon_widget = self.funq.widget('mon_widget')
 
 .. autoclass:: Widget
   
@@ -44,7 +44,7 @@ via la méthode :meth:`AbstractItemView.model_items`.
 
 Exemple::
   
-  view = hooq.widget('ma_tableview')
+  view = self.funq.widget('ma_tableview')
   assert isinstance(view, AbstractItemView)
   
   model_items = view.model_items()
@@ -97,7 +97,7 @@ graphiques seront accessibles via la méthode :meth:`GraphicsView.gitems`.
 
 Exemple::
   
-  gview = hooq.widget('ma_gview')
+  gview = self.funq.widget('ma_gview')
   
   gitems = gview.gitems()
   

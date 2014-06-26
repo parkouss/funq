@@ -104,14 +104,6 @@ class MetaParameterized(type):
 
 
 class BaseTestCase(unittest.TestCase):
-    """
-    Un TestCase basé sur funq.
-    
-    Le temps de l'exécution de chaque méthode de test, l'ApplicationContext
-    est créé. L'instance de :class:`funq.client.FunqClient` est accessible par
-    la variable membre self.funq.
-    
-    """
     __metaclass__ = MetaParameterized
     
     longMessage = True
@@ -146,6 +138,17 @@ class BaseTestCase(unittest.TestCase):
         return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
 
 class FunqTestCase(BaseTestCase):
+    """
+    classe de TestCase pour lancer une application et la tester. Hérite de unittest.TestCase.
+    
+    L'attribut de classe **app_config_name** est requis et doit contenir un nom de
+    section dans la configuration valide.
+
+    :var funq: instance de :class:`funq.Client.FunqClient`, permettant de manipuler
+               l'application.
+    :var app_config: instance de :class:`funq.Client.ApplicationConfig`, permettant
+                     de connaitre la configuration de l'application testée
+    """
     app_config_name = None
     
     def _create_funq_app_config(self, app_registry):
@@ -157,6 +160,18 @@ class FunqTestCase(BaseTestCase):
         return ctx
 
 class MultiFunqTestCase(BaseTestCase):
+    """
+    classe de TestCase pour lancer plusieurs applications en même temps et les
+    tester. Hérite de unittest.TestCase.
+    
+    L'attribut de classe **app_config_name** est requis et doit contenir un nom de
+    section dans la configuration valide.
+
+    :var funq: instance de :class:`funq.Client.FunqClient`, permettant de manipuler
+               l'application.
+    :var app_config: instance de :class:`funq.Client.ApplicationConfig`, permettant
+                     de connaitre la configuration de l'application testée
+    """
     app_config_names = None
     
     def _create_funq_app_config(self):

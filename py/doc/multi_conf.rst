@@ -22,30 +22,29 @@ Pour cela, il faut déclarer plusieurs sections dans le fichier de conf
 
 Maintenant, voyons le code de test::
   
-  from funq.noseplugin import multi_config
+  from funq.testcase import MultiFunqTestCase
   
-  # recuperation de la config multiple adéquate
-  CFG = multi_config(('applitest', 'applitest2'))
+  class MyTestCase(MultiFunqTestCase):
+      # recuperation des configs voulues
+      app_config_names = ('applitest', 'applitest2')
   
-  @CFG.with_hooq
-  def test_mon_premier_test(hooq_applitest, hooq_applitest2):
-      # deux objets hooqs sont passés:
-      # - hooq_applitest pour contrôler l'appli "applitest"
-      # - hooq_applitest2 pour contrôler l'appli "applitest2"
-      pass
+      def test_mon_premier_test(self):
+          # les objets FunqClient seront accessibles avec un dictionnaire:
+          # - self.funq['applitest'] pour contrôler l'appli "applitest"
+          # - self.funq['applitest2'] pour contrôler l'appli "applitest2"
+          pass
 
 .. note::
   
-  Il faut remarquer deux différences par rapport au contrôle d'une
+  Il faut remarquer quelques différences par rapport au contrôle d'une
   seule application::
   
-   - utilisation de **multi_config** au lieu de **config**
-   - la fonction de test prends autant de paramètres que le nombre de
-     configs déclarées dans l'appel de **multi_config**.
+   - utilisation de la classe :class:`funq.testcase.MultiFunqTestCase`
+   - utilisation de **app_config_names** au lieu de **app_config_name**
+   - **self.funq** devient un dictionnaire dont la clé est le nom de la
+     configuration est la valeur l'instance de :class:`funq.client.FunqClient`
+     associée.
 
 .. note::
   
-  Le nombre d'applications testables en même temps n'est pas limité,
-  il suffit de les déclarer lors de l'appel de **multi_config** et
-  de rajouter le nombre de paramètres adéquat dans les fonctions de test
-  décorées.
+  Le nombre d'applications testables en même temps n'est pas limité.

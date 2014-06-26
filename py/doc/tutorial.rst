@@ -61,9 +61,9 @@ secondes.
 
 .. note::
   
-  Le décorateur de fonction **@CFG.with_hooq** permet d'assurer
-  le lancement de l'application au début de la fonction et sa fermeture
-  à la fin de la fonction.
+  Hériter de :class:`funq.testcase.FunqTestCase` permet d'assurer pour chaque
+  méthode de test le lancement de l'application au début de l'exécution et sa
+  fermeture à la fin de l'exécution.
 
 Exécution des tests
 -------------------
@@ -136,7 +136,7 @@ Ecrivons un deuxième fichier de test, **test_widgets.py**:
 .. literalinclude:: tutorial_test_widgets.py
   :language: python
 
-On remarque que la variable **hooq** passée dans les fonctions est le
+On remarque que la variable membre **self.funq** passée dans les fonctions est le
 point d'entrée de l'API pour communiquer avec l'application testée.
 C'est un objet dont la classe est :class:`funq.client.FunqClient`.
 
