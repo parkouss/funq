@@ -114,10 +114,19 @@ class FunqTestCase(unittest.TestCase):
     
     """
     __metaclass__ = MetaParameterized
-    screenshot_on_error = False
+    _screenshoter = None
+    
     CFG = None
     
     longMessage = True
+    
+    @classmethod
+    def init_screenshoter(cls, working_folder):
+        cls._screenshoter = screenshoter.ScreenShoter(working_folder)
+    
+    def take_sreenshot(self, longname=None):
+        if self.CFG and self.CFG.screenshot_on_error:
+            self._screenshoter.take_screenshot(self.funq, longname or self.id())
     
     def _create_application_context(self):
         cfg = self.CFG
@@ -128,19 +137,12 @@ class FunqTestCase(unittest.TestCase):
     def setUp(self):
         self.__ctx = self._create_application_context()
         self.funq = weakref.proxy(self.__ctx.funq)
-        self.addCleanup(self.__delete_context)
     
     def run(self, result=None):
-        try:
-            unittest.TestCase.run(self, result)
-        except (SystemExit, KeyboardInterrupt, unittest.SkipTest):
-            raise
-        except:
-            if self.screenshot_on_error:
-                screenshoter.take_screenshot(self.funq)
-            raise
-    
-    def __delete_context(self):
+        unittest.TestCase.run(self, result)
+        # todo: this is nose specific
+        if result is not None and not result.result.wasSuccessful():
+            self.take_sreenshot()
         del self.__ctx
     
     def id(self):

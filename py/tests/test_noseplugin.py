@@ -1,5 +1,5 @@
 from nose.tools import assert_equals, assert_true
-from funq import noseplugin, screenshoter, tools
+from funq import noseplugin, testcase, tools
 from optparse import OptionParser
 import tempfile
 
@@ -22,13 +22,13 @@ class FakeTest(object):
 
 def test_simple_configure():
     tools.SNOOZE_FACTOR = 1.0
-    screenshoter._INSTANCE = None
+    testcase.FunqTestCase._screenshoter = None
     
     funqconf = tempfile.NamedTemporaryFile()
     plugin = configured_plugin(["--funq-conf", funqconf.name])
     
     assert_equals(1.0, tools.SNOOZE_FACTOR)
-    assert_true(screenshoter._INSTANCE is not None)
+    assert_true(testcase.FunqTestCase._screenshoter is not None)
     assert_equals(plugin.trace_tests, None)
 
 def test_snooze_factor_configure():

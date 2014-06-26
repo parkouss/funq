@@ -4,7 +4,7 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq import screenshoter, tools
+from funq import testcase, tools
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
 import os, codecs, logging
@@ -110,7 +110,7 @@ class FunqPlugin(Plugin):
         self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
         self.trace_tests_encoding = (  # pylint: disable=W0201
                                      options.funq_trace_tests_encoding)
-        screenshoter.init(options.funq_screenshot_folder)
+        testcase.FunqTestCase.init_screenshoter(options.funq_screenshot_folder)
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201

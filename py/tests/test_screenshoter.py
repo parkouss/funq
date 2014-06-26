@@ -11,36 +11,31 @@ class FakeFunqClient(object):
     def take_screenshot(self, fname, type_):
         self.screens.append(fname)
 
-class ScreenShoterCtx(object):
+class ScreenShoterCtx(screenshoter.ScreenShoter):
+    def __init__(self):
+        screenshoter.ScreenShoter.__init__(self, tempfile.mkdtemp())
+    
     def __enter__(self):
-        self.base_tmp_dir = tempfile.mkdtemp()
-        self.tmp_dir = os.path.join(self.base_tmp_dir, 'images')
-        screenshoter.init(self.tmp_dir)
-        FunqPlugin._current_test_name = None
         return self
     
     def __exit__(self, type, value, tb):
-        shutil.rmtree(self.base_tmp_dir)
-        FunqPlugin._current_test_name = None
+        shutil.rmtree(self.working_folder)
 
 def test_take_one_screenshot():
     hooq = FakeFunqClient()
     with ScreenShoterCtx() as ctx:
-        FunqPlugin._current_test_name = "hello"
-        screenshoter.take_screenshot(hooq)
+        ctx.take_screenshot(hooq, "hello")
         assert_equals(map(os.path.basename, hooq.screens), ["0.png"])
-        assert_true("0.png: hello" in open(os.path.join(ctx.tmp_dir, 'images.txt')).read())
+        assert_true("0.png: hello" in open(os.path.join(ctx.working_folder, 'images.txt')).read())
 
 def test_take_screenshots():
     hooq = FakeFunqClient()
     with ScreenShoterCtx() as ctx:
-        FunqPlugin._current_test_name = "hello"
-        screenshoter.take_screenshot(hooq)
+        ctx.take_screenshot(hooq, "hello")
         
-        FunqPlugin._current_test_name = "thisisit"
-        screenshoter.take_screenshot(hooq)
+        ctx.take_screenshot(hooq, "thisisit")
         
         assert_equals(map(os.path.basename, hooq.screens), ["0.png", "1.png"])
-        content = open(os.path.join(ctx.tmp_dir, 'images.txt')).read()
+        content = open(os.path.join(ctx.working_folder, 'images.txt')).read()
         assert_true("0.png: hello" in content)
         assert_true("1.png: thisisit" in content)
