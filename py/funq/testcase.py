@@ -119,7 +119,7 @@ class BaseTestCase(unittest.TestCase):
     
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.funq_app_config = None
+        self.app_config = None
         self.funq = None
     
     def _create_funq_ctx(self):
@@ -137,7 +137,7 @@ class BaseTestCase(unittest.TestCase):
     
     def run(self, result=None):
         app_registry = result.result.app_registry
-        self.funq_app_config = self._create_funq_app_config(app_registry)
+        self.app_config = self._create_funq_app_config(app_registry)
         unittest.TestCase.run(self, result)
     
     def id(self):
@@ -146,26 +146,26 @@ class BaseTestCase(unittest.TestCase):
         return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
 
 class FunqTestCase(BaseTestCase):
-    funq_config_name = None
+    app_config_name = None
     
     def _create_funq_app_config(self, app_registry):
-        return app_registry.config(self.funq_config_name)
+        return app_registry.config(self.app_config_name)
 
     def _create_funq_ctx(self):
-        ctx = ApplicationContext(self.funq_app_config)
+        ctx = ApplicationContext(self.app_config)
         self.funq = weakref.proxy(ctx.funq)
         return ctx
 
 class MultiFunqTestCase(BaseTestCase):
-    funq_config_names = None
+    app_config_names = None
     
     def _create_funq_app_config(self):
-        return dict([(k, app_registry.config(k)) for k in self.funq_config_names])
+        return dict([(k, app_registry.config(k)) for k in self.app_config_names])
 
     def _create_funq_ctx(self):
         ctx = {}
         self.funq = {}
-        for k, v in self.funq_app_config.iteritems():
+        for k, v in self.app_config.iteritems():
             ctx[k] = ApplicationContext(v)
             self.funq[k] = weakref.proxy(ctx[k].funq)
         return ctx

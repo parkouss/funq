@@ -19,7 +19,7 @@ def message_with_sep(message):
     return (sep, message, sep)
 
 def locate_funq():
-    """Tente de localiser l'executable scleHooqAttach"""
+    """Tente de localiser l'executable funq"""
     return tools.which('funq')
 
 class FunqPlugin(Plugin):
@@ -130,14 +130,14 @@ class FunqPlugin(Plugin):
     
     def take_screenshot(self, test):
         if isinstance(test, MultiFunqTestCase):
-            if test.funq_app_config:
-                for k, v in test.funq_app_config.iteritems():
+            if test.app_config:
+                for k, v in test.app_config.iteritems():
                     if v.screenshot_on_error:
                         self.screenshoter.take_screenshot(test.funq[k],
                                                     '%s [%s]' % (test.id(), k))
         elif isinstance(test, FunqTestCase):
-            if test.funq_app_config:
-                if test.funq_app_config.screenshot_on_error:
+            if test.app_config:
+                if test.app_config.screenshot_on_error:
                     self.screenshoter.take_screenshot(test.funq, test.id())
     
     def prepareTestResult(self, result):

@@ -396,7 +396,7 @@ class ApplicationContext(object): # pylint: disable=R0903
 
 class ApplicationConfig(object): # pylint: disable=R0902
     """
-    Cet objet permet de créer des :class:`ApplicationContext`. Chaque
+    Cet objet contient la configuration d'un exécutable à tester. Chaque
     paramètre est accessible sur l'instance, ce qui permet par exemple de
     récupérer le chemin de l'exécutable testé via *config.executable*.
     
