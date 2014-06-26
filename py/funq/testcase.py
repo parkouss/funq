@@ -164,13 +164,14 @@ class MultiFunqTestCase(BaseTestCase):
     classe de TestCase pour lancer plusieurs applications en même temps et les
     tester. Hérite de unittest.TestCase.
     
-    L'attribut de classe **app_config_name** est requis et doit contenir un nom de
-    section dans la configuration valide.
+    L'attribut de classe **app_config_names** est requis et doit contenir une liste
+    de noms de section dans la configuration valides.
 
-    :var funq: instance de :class:`funq.Client.FunqClient`, permettant de manipuler
-               l'application.
-    :var app_config: instance de :class:`funq.Client.ApplicationConfig`, permettant
-                     de connaitre la configuration de l'application testée
+    :var funq: dictionnaire contenant des :class:`funq.Client.FunqClient`, permettant de manipuler
+               les applications. Les clés sont les noms des configurations.
+    :var app_config: dictionnaire contenant des :class:`funq.Client.ApplicationConfig`, permettant
+                     de connaitre la configuration de l'application testée.
+                     Les clés sont les noms des configurations.
     """
     app_config_names = None
     
