@@ -28,6 +28,12 @@ class FunqPlugin(Plugin):
     """
     name = 'funq'
 
+    _instance = None
+    
+    @classmethod
+    def instance(cls):
+        return cls._instance
+
     def options(self, parser, env=None):
         env = env or os.environ
         super(FunqPlugin, self).options(parser, env=env)
@@ -101,6 +107,7 @@ class FunqPlugin(Plugin):
                                      options.funq_trace_tests_encoding)
         self.screenshoter = ScreenShoter(options.funq_screenshot_folder)
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
+        FunqPlugin._instance = self
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
         message = u"Démarrage de test `%s`" % test.id()

@@ -175,7 +175,7 @@ class MultiFunqTestCase(BaseTestCase):
     """
     app_config_names = None
     
-    def _create_funq_app_config(self):
+    def _create_funq_app_config(self, app_registry):
         return dict([(k, app_registry.config(k)) for k in self.app_config_names])
 
     def _create_funq_ctx(self):
