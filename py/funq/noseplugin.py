@@ -16,34 +16,6 @@ def message_with_sep(message):
     sep = '-' * 70
     return (sep, message, sep)
 
-def _patch_nose_tools_assert_functions(): # pylint: disable=C0103
-    """
-    patche les fonctions assert_* de nose.tools pour inclure
-    des messages longs dans les message d'assertions.
-
-    voir nose.tools.trivial.
-    """
-    from nose import tools # pylint: disable=W0621
-    import unittest
-    import re
-
-    caps = re.compile('([A-Z])')
-
-    def pep8(name): # pylint: disable=C0111
-        return caps.sub(lambda m: '_' + m.groups()[0].lower(), name)
-
-    class Dummy(unittest.TestCase): # pylint: disable=C0111,R0904
-        longMessage = True # c'est ce qui change tout.
-
-        def nop(self):
-            """useless"""
-            pass
-    dummy = Dummy('nop')
-    for name in [ name for name in dir(dummy)
-                if name.startswith('assert') and not '_' in name ]:
-        pepd = pep8(name)
-        setattr(tools, pepd, getattr(dummy, name))
-
 def locate_funq():
     """Tente de localiser l'executable scleHooqAttach"""
     return tools.which('funq')
@@ -129,7 +101,6 @@ class FunqPlugin(Plugin):
         Plugin.configure(self, options, cfg)
         if not self.enabled:
             return
-        _patch_nose_tools_assert_functions()
         conf_file = options.funq_conf = os.path.realpath(options.funq_conf)
         if not os.path.isfile(conf_file):
             raise Exception("Fichier de conf funq manquant: `%s`" % conf_file)
