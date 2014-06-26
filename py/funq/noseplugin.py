@@ -4,7 +4,9 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq import testcase, tools
+from funq.testcase import FunqTestCase
+from funq.screenshoter import ScreenShoter
+from funq import tools
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
 import os, codecs, logging
@@ -110,7 +112,7 @@ class FunqPlugin(Plugin):
         self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
         self.trace_tests_encoding = (  # pylint: disable=W0201
                                      options.funq_trace_tests_encoding)
-        testcase.FunqTestCase.init_screenshoter(options.funq_screenshot_folder)
+        self.screenshoter = ScreenShoter(options.funq_screenshot_folder)
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
@@ -143,3 +145,19 @@ class FunqPlugin(Plugin):
     
     def describeTest(self, test):
         return u'%s' % test.id()
+    
+    def prepareTestResult(self, result):
+        _addError = result.addError
+        _addFailure = result.addFailure
+        def addError(test, err):
+            if isinstance(test.test, FunqTestCase):
+                if test.test.CFG and test.test.CFG.screenshot_on_error:
+                    self.screenshoter.take_screenshot(test.test.funq, test.id())
+            _addError(test, err)
+        def addFailure(test, err):
+            if isinstance(test.test, FunqTestCase):
+                if test.test.CFG and test.test.CFG.screenshot_on_error:
+                    self.screenshoter.take_screenshot(test.test.funq, test.id())
+            _addFailure(test, err)
+        result.addError = addError
+        result.addFailure = addFailure

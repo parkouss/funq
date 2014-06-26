@@ -8,7 +8,6 @@ import unittest
 import weakref
 from functools import wraps
 from funq.client import ApplicationContext
-from funq import screenshoter
 import os
 import re
 import inspect
@@ -114,19 +113,10 @@ class FunqTestCase(unittest.TestCase):
     
     """
     __metaclass__ = MetaParameterized
-    _screenshoter = None
     
     CFG = None
     
     longMessage = True
-    
-    @classmethod
-    def init_screenshoter(cls, working_folder):
-        cls._screenshoter = screenshoter.ScreenShoter(working_folder)
-    
-    def take_sreenshot(self, longname=None):
-        if self.CFG and self.CFG.screenshot_on_error:
-            self._screenshoter.take_screenshot(self.funq, longname or self.id())
     
     def _create_application_context(self):
         cfg = self.CFG
@@ -137,12 +127,9 @@ class FunqTestCase(unittest.TestCase):
     def setUp(self):
         self.__ctx = self._create_application_context()
         self.funq = weakref.proxy(self.__ctx.funq)
+        self.addCleanup(self.__delete_ctx)
     
-    def run(self, result=None):
-        unittest.TestCase.run(self, result)
-        # todo: this is nose specific
-        if result is not None and not result.result.wasSuccessful():
-            self.take_sreenshot()
+    def __delete_ctx(self):
         del self.__ctx
     
     def id(self):

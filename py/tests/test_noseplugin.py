@@ -22,13 +22,12 @@ class FakeTest(object):
 
 def test_simple_configure():
     tools.SNOOZE_FACTOR = 1.0
-    testcase.FunqTestCase._screenshoter = None
     
     funqconf = tempfile.NamedTemporaryFile()
     plugin = configured_plugin(["--funq-conf", funqconf.name])
     
     assert_equals(1.0, tools.SNOOZE_FACTOR)
-    assert_true(testcase.FunqTestCase._screenshoter is not None)
+    assert_true(plugin.screenshoter is not None)
     assert_equals(plugin.trace_tests, None)
 
 def test_snooze_factor_configure():
