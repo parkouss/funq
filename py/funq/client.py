@@ -396,9 +396,12 @@ class ApplicationContext(object): # pylint: disable=R0903
 
 class ApplicationConfig(object): # pylint: disable=R0902
     """
-    Cet objet contient la configuration d'un exécutable à tester. Chaque
-    paramètre est accessible sur l'instance, ce qui permet par exemple de
-    récupérer le chemin de l'exécutable testé via *config.executable*.
+    Cet objet contient la configuration d'un exécutable à tester, qui est
+    principalement récupérée depuis le fichier de configuration. 
+    
+    Chaque paramètre est accessible sur l'instance, ce qui permet par exemple de
+    récupérer le chemin de l'exécutable testé via *config.executable*, ou son
+    répertoire d'exécution via *config.cwd*.
     
     :param executable: chemin complet vers l'exécutable de test
     :param args: arguments de l'exécutable
@@ -409,7 +412,19 @@ class ApplicationConfig(object): # pylint: disable=R0902
                 lors de l'exécution de l'exécutable. Si None, os.environ
                 est utilisé
     :param timeout_connection: temps d'attente maximum avant de déclarer
-                              forfait pour la connexion libFunq.
+                               forfait pour la connexion libFunq.
+    :param aliases: chemin vers le fichier d'alias.
+    :param executable_stdout: chemin vers le fichier de redirection de stdout
+                              ou None
+    :param executable_stderr: chemin vers le fichier de redirection de stderr
+                              ou None
+    :param attach: Indique si le process est attaché ou si l'on si connecte
+                   à distance.
+    :param screenshot_on_error: Indique si l'on prends des images lors de
+                                fails ou d'erreurs.
+    :param with_valgrind: indique si valgrind est utilisé au lancement
+    :param valgrind_args: arguments passés à valgrind
+    :param global_options: options passées par le plugin Funq.
     """
     def __init__(self, executable, # pylint: disable=R0913
                        args=(),

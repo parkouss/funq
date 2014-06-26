@@ -29,11 +29,19 @@ Installation de *funq*
 La partie c++ est à compiler. En utilisant
 *qmake*::
   
+  cd cpp
   qmake funq.pro
   make
+  sudo make install
 
 Le package **funq** en python s'installe de manière conventionnelle
 pour les outils python. Ainsi, il suffit de récupérer les sources et
 de lancer la commande suivante::
   
+  cd py
   python setup.py install
+
+Ou pour les développeurs du framework funq::
+  
+  cd py
+  python setup.py develop
