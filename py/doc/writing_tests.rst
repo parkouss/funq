@@ -128,6 +128,6 @@ Exemple::
       def test_something(self, value):
           self.assertGreater(value, 1)
       
-      @with_parameters(DATA)
+      @with_parameters(PARAMS)
       def test_other_thing(self, value):
           self.assertLess(0, value)
