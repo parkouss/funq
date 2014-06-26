@@ -33,14 +33,6 @@ class FunqPlugin(Plugin):
     Plugin d'integration avec nosetests.
     """
     name = 'funq'
-    _current_test_name = None
-
-    @staticmethod
-    def current_test_name():
-        """
-        Renvoie le nom du test (test.id()) du test en train d'être passé.
-        """
-        return FunqPlugin._current_test_name
 
     def options(self, parser, env=None):
         env = env or os.environ
@@ -116,11 +108,7 @@ class FunqPlugin(Plugin):
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
-        test_id = test.id()
-        if not isinstance(test_id, unicode):
-            test_id = unicode(test_id, 'utf-8')
-        FunqPlugin._current_test_name = test_id
-        message = u"Démarrage de test `%s`" % FunqPlugin.current_test_name()
+        message = u"Démarrage de test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -132,7 +120,7 @@ class FunqPlugin(Plugin):
 
 
     def afterTest(self, test): # pylint: disable=C0111,C0103,R0201,W0613
-        message = u"Fin de test `%s`" % FunqPlugin.current_test_name()
+        message = u"Fin de test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -141,7 +129,6 @@ class FunqPlugin(Plugin):
                                             self.trace_tests_encoding) as f:
                 f.write('\n'.join(lines))
                 f.write('\n')
-        FunqPlugin._current_test_name = None
     
     def describeTest(self, test):
         return u'%s' % test.id()
