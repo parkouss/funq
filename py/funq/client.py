@@ -533,30 +533,28 @@ class ApplicationRegistry(object):
             if ':' in section:
                 app, mode = section.split(':', 1)
             else:
-                app, mode = section, 'default'
+                app = section
             appconf = ApplicationConfig.from_conf(conf, section, global_options)
-            self.register_config(app, appconf, mode)
+            self.register_config(app, appconf)
     
-    def register_config(self, name, conf, mode='default'):
+    def register_config(self, name, conf):
         """ Enregistre la config *name* """
-        self.confs[name][mode] = conf
+        self.confs[name] = conf
     
-    def config(self, name, mode='default'):
+    def config(self, name):
         """
         Retourne la configuration *name* de type :class:`ApplicationConfig`.
         
         :param name: nom de la configuration
-        :param mode: actuellement non utilisé
         """
-        return self.confs[name][mode]
+        return self.confs[name]
     
-    def multi_config(self, names, mode='default'):
+    def multi_config(self, names):
         """
         Retourne la liste de configurations *names* sous la forme d'une instance
         de :class:`MultiApplicationConfig`.
         
         :param names: liste ordonnée des noms de configuration
-        :param mode: actuellement non utilisé
         """
         return MultiApplicationConfig(
-                    [ self.config(name, mode) for name in names ])
+                    [ self.config(name) for name in names ])
