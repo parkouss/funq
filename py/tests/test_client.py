@@ -1,59 +1,17 @@
 from nose.tools import *
-from funq import client
+from funq import client, testcase
+from unittest import TextTestRunner
 import os, subprocess
-import weakref
 
 from ConfigParser import ConfigParser, NoOptionError
 
 class ApplicationConfig(client.ApplicationConfig):
-    def create_context(self):
-        class O: pass
-        class Ctx:
-            funq = O()
-        ctx = Ctx()
-        
-        return ctx
+    pass
 
 class GlobalOptions(object):
     def __init__(self, **kwds):
         for k, v in kwds.iteritems():
             setattr(self, k, v)
-
-def test_ApplicationConfigWithHooqContextDeleted():
-    """
-    Teste que le contexte soit bien detruit avec with_hooq
-    """
-    appconfig = ApplicationConfig("toto")
-    
-    ref = []
-    @appconfig.with_hooq
-    def func(obj):
-        ref.append(weakref.ref(obj))
-    
-    func()
-    
-    assert_equals(len(ref), 1)
-    assert_equals(ref[0](), None) # objet detruit
-
-def test_MultiApplicationConfigWithHooqContextDeleted():
-    """
-    Teste que le contexte soit bien detruit avec with_hooq
-    """
-    appconfig = client.MultiApplicationConfig([
-        ApplicationConfig("toto"),
-        ApplicationConfig("titi")])
-    
-    ref = []
-    @appconfig.with_hooq
-    def func(obj1, obj2):
-        ref.append(weakref.ref(obj1))
-        ref.append(weakref.ref(obj2))
-    
-    func()
-    
-    assert_equals(len(ref), 2)
-    assert_equals(ref[0](), None) # objet detruit
-    assert_equals(ref[1](), None) # objet detruit
 
 class TestApplicationConfigFromConf:
     

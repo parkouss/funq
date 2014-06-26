@@ -12,8 +12,6 @@ from funq.aliases import HooqAliases
 from funq.tools import wait_for
 from funq.models import Widget
 from funq.errors import FunqError, TimeOutError
-from unittest.case import SkipTest
-from funq import screenshoter
 
 LOG = logging.getLogger('funq.client')
 
@@ -507,35 +505,6 @@ class ApplicationConfig(object): # pylint: disable=R0902
         
         return cls(executable, **kwargs) # pylint: disable=W0142
 
-    def create_context(self):
-        """
-        Retourne une instance de :class:`ApplicationContext`.
-        """
-        return ApplicationContext(self)
-    
-    def with_hooq(self, meth):
-        """
-        Décorateur simple de fonction permettant de créer un contexte
-        qui sera passé en argument et automatiquement détruit après
-        exécution de cette fonction.
-        
-        La fonction décorée prendra un argument, généralement nommé *hooq*
-        de type :class:`FunqClient`.
-        """
-        @wraps(meth)
-        def wrapper():
-            """ Implémentation du décorateur"""
-            ctx = self.create_context()
-            try:
-                return meth(ctx.funq)
-            except (SystemExit, KeyboardInterrupt, SkipTest):
-                raise
-            except:
-                if self.screenshot_on_error:
-                    screenshoter.take_screenshot(ctx.funq)
-                raise
-        return wrapper
-
 class MultiApplicationConfig(tuple):
     """
     Permet de manipuler plusieurs applications de test en même temps.
@@ -546,24 +515,6 @@ class MultiApplicationConfig(tuple):
     """
     def __init__(self, appconfigs):
         tuple.__init__(appconfigs)
-    
-    def with_hooq(self, meth):
-        """
-        Décorateur simple de fonction permettant de créer les contextes
-        des :class:`ApplicationConfig` stockées qui seront
-        automatiquement détruits après exécution de la fonction.
-        
-        La fonction décorée prendra autant d'arguments que l'instance de
-        MultiApplicationConfig contient d'ApplicationConfig,
-        de type :class:`FunqClient`.
-        """
-        @wraps(meth)
-        def wrapper():
-            """ Implémentation du décorateur"""
-            ctxs = [ appconfig.create_context() for appconfig
-                     in self]
-            return meth(*[ctx.funq for ctx in ctxs])
-        return wrapper
 
 class ApplicationRegistry(object):
     """
