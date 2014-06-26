@@ -505,17 +505,6 @@ class ApplicationConfig(object): # pylint: disable=R0902
         
         return cls(executable, **kwargs) # pylint: disable=W0142
 
-class MultiApplicationConfig(tuple):
-    """
-    Permet de manipuler plusieurs applications de test en même temps.
-    
-    Cette classe agit comme un tuple de :class:`ApplicationConfig`,
-    donc chaque ApplicationConfig peut être récupérée par l'utilisation
-    de l'opérateur [] basé sur l'index de la configuration voulue.
-    """
-    def __init__(self, appconfigs):
-        tuple.__init__(appconfigs)
-
 class ApplicationRegistry(object):
     """
     Gère un ensemble de :class:`ApplicationConfig`. Une instance
@@ -548,13 +537,3 @@ class ApplicationRegistry(object):
         :param name: nom de la configuration
         """
         return self.confs[name]
-    
-    def multi_config(self, names):
-        """
-        Retourne la liste de configurations *names* sous la forme d'une instance
-        de :class:`MultiApplicationConfig`.
-        
-        :param names: liste ordonnée des noms de configuration
-        """
-        return MultiApplicationConfig(
-                    [ self.config(name) for name in names ])

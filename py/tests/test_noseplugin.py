@@ -47,7 +47,5 @@ def test_before_after():
     test = FakeTest("id of test")
     
     plugin.beforeTest(test)
-    assert_equals(noseplugin.FunqPlugin.current_test_name(), "id of test")
     
     plugin.afterTest(test)
-    assert_equals(noseplugin.FunqPlugin.current_test_name(), None)

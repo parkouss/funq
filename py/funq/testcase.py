@@ -114,23 +114,44 @@ class FunqTestCase(unittest.TestCase):
     """
     __metaclass__ = MetaParameterized
     
-    CFG = None
-    
     longMessage = True
     
-    def _create_application_context(self):
-        cfg = self.CFG
-        if cfg is None:
-            raise RuntimeError(u"%s.CFG must be set" % self.__class__.__name__)
-        return ApplicationContext(self.CFG)
+    funq_config_name = None
+    funq_config_names = None
+    
+    def __init__(self, *args, **kwargs):
+        unittest.TestCase.__init__(self, *args, **kwargs)
+        self.funq_app_config = None
+        self.funq = None
     
     def setUp(self):
-        self.__ctx = self._create_application_context()
-        self.funq = weakref.proxy(self.__ctx.funq)
+        if isinstance(self.funq_app_config, dict):
+            self.__ctx = {}
+            self.funq = {}
+            for k, v in self.funq_app_config.iteritems():
+                 self.__ctx[k] = ApplicationContext(v)
+                 self.funq[k] = weakref.proxy(self.__ctx[k].funq)
+        else:
+            self.__ctx = ApplicationContext(self.funq_app_config)
+            self.funq = weakref.proxy(self.__ctx.funq)
         self.addCleanup(self.__delete_ctx)
     
     def __delete_ctx(self):
         del self.__ctx
+    
+    def run(self, result=None):
+        app_registry = result.result.app_registry
+        if self.funq_config_name is not None:
+            self.funq_app_config = app_registry.config(self.funq_config_name)
+        elif self.funq_config_names is not None:
+            self.funq_app_config = app_registry.multi_config(self.funq_config_names)
+        else:
+            classname = self.__class__.__name__
+            raise RuntimeError("Either %s.funq_config_name or"
+                                " %s.funq_config_names must be set to match"
+                                " a section in the funq conf file." %
+                                (classname, classname))
+        unittest.TestCase.run(self, result)
     
     def id(self):
         cls = self.__class__

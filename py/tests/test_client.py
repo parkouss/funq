@@ -92,16 +92,6 @@ class TestApplicationRegistry:
         
         assert_equals(self.reg.config('example').executable, exe)
 
-    def test_multi_config(self):
-        c1, c2 =  ApplicationConfig('useless'),  ApplicationConfig('useless')
-        self.reg.register_config('c1', c1)
-        self.reg.register_config('c2', c2)
-        
-        multi = self.reg.multi_config(('c2', 'c1'))
-        
-        assert_is_instance(multi, client.MultiApplicationConfig)
-        assert_equals(multi, (c2, c1))
-
 class FakePopen(object):
     @classmethod
     def patch_subprocess_popen(cls, func):

@@ -22,12 +22,6 @@ def locate_funq():
     """Tente de localiser l'executable scleHooqAttach"""
     return tools.which('funq')
 
-# création d'un Application registry global
-_APP_REGISTRY = ApplicationRegistry()
-
-config = _APP_REGISTRY.config # pylint: disable=C0103
-multi_config = _APP_REGISTRY.multi_config # pylint: disable=C0103
-
 class FunqPlugin(Plugin):
     """
     Plugin d'integration avec nosetests.
@@ -100,7 +94,8 @@ class FunqPlugin(Plugin):
             raise Exception("Fichier de conf funq manquant: `%s`" % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
-        _APP_REGISTRY.register_from_conf(conf, options)
+        self.app_registry = ApplicationRegistry()
+        self.app_registry.register_from_conf(conf, options)
         self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
         self.trace_tests_encoding = (  # pylint: disable=W0201
                                      options.funq_trace_tests_encoding)
@@ -133,18 +128,28 @@ class FunqPlugin(Plugin):
     def describeTest(self, test):
         return u'%s' % test.id()
     
+    def take_screenshot(self, test):
+        if not isinstance(test, FunqTestCase):
+            return
+        if test.funq_app_config:
+            if isinstance(test.funq_app_config, dict):
+                for k, v in test.funq_app_config.iteritems():
+                    if v.screenshot_on_error:
+                        self.screenshoter.take_screenshot(test.funq[k],
+                                                    '%s [%s]' % (test.id(), k))
+            else:
+                if test.funq_app_config.screenshot_on_error:
+                    self.screenshoter.take_screenshot(test.funq, test.id())
+    
     def prepareTestResult(self, result):
         _addError = result.addError
         _addFailure = result.addFailure
         def addError(test, err):
-            if isinstance(test.test, FunqTestCase):
-                if test.test.CFG and test.test.CFG.screenshot_on_error:
-                    self.screenshoter.take_screenshot(test.test.funq, test.id())
+            self.take_screenshot(test.test)
             _addError(test, err)
         def addFailure(test, err):
-            if isinstance(test.test, FunqTestCase):
-                if test.test.CFG and test.test.CFG.screenshot_on_error:
-                    self.screenshoter.take_screenshot(test.test.funq, test.id())
+            self.take_screenshot(test.test)
             _addFailure(test, err)
         result.addError = addError
         result.addFailure = addFailure
+        result.app_registry = self.app_registry
