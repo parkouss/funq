@@ -10,8 +10,10 @@ Plan de documentation
    :maxdepth: 2
    
    tutorial
-   localise_widget
    funq_conf
+   writing_tests
+   launching_tests
+   localise_widget
    multi_conf
    test_attachable
    gkit_aliases
