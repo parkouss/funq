@@ -103,7 +103,7 @@ class MetaParameterized(type):
         return type.__new__(cls, name, bases, attrs)
 
 
-class FunqTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase):
     """
     Un TestCase basé sur funq.
     
@@ -116,44 +116,56 @@ class FunqTestCase(unittest.TestCase):
     
     longMessage = True
     
-    funq_config_name = None
-    funq_config_names = None
     
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
         self.funq_app_config = None
         self.funq = None
     
-    def setUp(self):
-        if isinstance(self.funq_app_config, dict):
-            self.__ctx = {}
-            self.funq = {}
-            for k, v in self.funq_app_config.iteritems():
-                 self.__ctx[k] = ApplicationContext(v)
-                 self.funq[k] = weakref.proxy(self.__ctx[k].funq)
-        else:
-            self.__ctx = ApplicationContext(self.funq_app_config)
-            self.funq = weakref.proxy(self.__ctx.funq)
-        self.addCleanup(self.__delete_ctx)
+    def _create_funq_ctx(self):
+        raise NotImplementedError
     
-    def __delete_ctx(self):
+    def setUp(self):
+        self.__ctx = self._create_funq_ctx()
+        self.addCleanup(self.__delete_funq_ctx)
+    
+    def __delete_funq_ctx(self):
         del self.__ctx
+    
+    def _create_funq_app_config(self, app_registry):
+        raise NotImplementedError
     
     def run(self, result=None):
         app_registry = result.result.app_registry
-        if self.funq_config_name is not None:
-            self.funq_app_config = app_registry.config(self.funq_config_name)
-        elif self.funq_config_names is not None:
-            self.funq_app_config = app_registry.multi_config(self.funq_config_names)
-        else:
-            classname = self.__class__.__name__
-            raise RuntimeError("Either %s.funq_config_name or"
-                                " %s.funq_config_names must be set to match"
-                                " a section in the funq conf file." %
-                                (classname, classname))
+        self.funq_app_config = self._create_funq_app_config(app_registry)
         unittest.TestCase.run(self, result)
     
     def id(self):
         cls = self.__class__
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
         return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
+
+class FunqTestCase(BaseTestCase):
+    funq_config_name = None
+    
+    def _create_funq_app_config(self, app_registry):
+        return app_registry.config(self.funq_config_name)
+
+    def _create_funq_ctx(self):
+        ctx = ApplicationContext(self.funq_app_config)
+        self.funq = weakref.proxy(ctx.funq)
+        return ctx
+
+class MultiFunqTestCase(BaseTestCase):
+    funq_config_names = None
+    
+    def _create_funq_app_config(self):
+        return dict([(k, app_registry.config(k)) for k in self.funq_config_names])
+
+    def _create_funq_ctx(self):
+        ctx = {}
+        self.funq = {}
+        for k, v in self.funq_app_config.iteritems():
+            ctx[k] = ApplicationContext(v)
+            self.funq[k] = weakref.proxy(ctx[k].funq)
+        return ctx

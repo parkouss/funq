@@ -4,7 +4,7 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq.testcase import FunqTestCase
+from funq.testcase import MultiFunqTestCase, FunqTestCase
 from funq.screenshoter import ScreenShoter
 from funq import tools
 from nose.plugins import Plugin
@@ -129,15 +129,14 @@ class FunqPlugin(Plugin):
         return u'%s' % test.id()
     
     def take_screenshot(self, test):
-        if not isinstance(test, FunqTestCase):
-            return
-        if test.funq_app_config:
-            if isinstance(test.funq_app_config, dict):
+        if isinstance(test, MultiFunqTestCase):
+            if test.funq_app_config:
                 for k, v in test.funq_app_config.iteritems():
                     if v.screenshot_on_error:
                         self.screenshoter.take_screenshot(test.funq[k],
                                                     '%s [%s]' % (test.id(), k))
-            else:
+        elif isinstance(test, FunqTestCase):
+            if test.funq_app_config:
                 if test.funq_app_config.screenshot_on_error:
                     self.screenshoter.take_screenshot(test.funq, test.id())
     
