@@ -25,6 +25,10 @@ Voici la liste des options falcutatives disponibles:
  - **cwd**: chemin indiquant le dossier d'exécution de l'executable.
         Par défaut, c'est le répertoire de l'exécutable
  - **aliases**: chemin indiquent un fichier d'alias
+ - **executable_stdout** spécifie un fichier de sortie pour enregistrer le
+   flux stdout du programme testé. Si NULL, le flux n'est pas redirigé.
+ - **executable_stderr** spécifie un fichier de sortie pour enregistrer le
+   flux stderr du programme testé. Si NULL, le flux n'est pas redirigé.
  - **timeout_connection**: temps d'attente maximal en seconde pour tenter
    de se connecter à la socket libFunq. Défaut 10 secondes.
  - **attach**: positionner à "no" ou "0" pour désactiver l'utilisation
