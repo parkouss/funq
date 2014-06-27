@@ -1,4 +1,4 @@
-from PyQt4 import QtGui, QtCore
+from PySide import QtGui, QtCore
 import sys
 
 def exec_dlg(self, dlgclass):
