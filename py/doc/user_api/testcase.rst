@@ -1,5 +1,5 @@
-TestCases et écritures de tests
-===============================
+TestCases et helpers
+====================
 
 .. currentmodule:: funq.testcase
 
