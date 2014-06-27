@@ -192,7 +192,7 @@ class Widget(object):
                                      timeout=wait_for_enabled)
         self.client.send_command('widget_click',
                                  oid=self.oid,
-                                 action='doubleclick')
+                                 mouseAction='doubleclick')
     
     def keyclick(self, text):
         """

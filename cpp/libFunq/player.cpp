@@ -325,7 +325,7 @@ QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
 QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QString action = command["action"].toString();
+    QString action = command["mouseAction"].toString();
     QPoint pos = ctx.widget->rect().center();
     if (action == "doubleclick") {
         mouse_dclick(ctx.widget, pos);
