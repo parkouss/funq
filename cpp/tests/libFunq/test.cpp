@@ -385,6 +385,8 @@ private slots:
          
          QtJson::JsonObject result = player.object_set_properties(command);
          
+         qApp->processEvents();
+         
          QCOMPARE(o.objectName(), QString("titi"));
      }
      

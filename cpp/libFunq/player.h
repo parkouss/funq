@@ -21,6 +21,7 @@ public:
     QObject * registeredObject(const qulonglong & id);
 
 signals:
+    void emit_object_set_properties(QObject * object, const QVariantMap & props);
     
 public slots:
     /*
@@ -62,7 +63,7 @@ public slots:
 
 private slots:
     void objectDeleted(QObject * object);
-    void object_set_properties(QObject * object, const QtJson::JsonObject & props);
+    void _object_set_properties(QObject * object, const QVariantMap & props);
 
 private:
     QHash<qulonglong, QObject*> m_registeredObjects;

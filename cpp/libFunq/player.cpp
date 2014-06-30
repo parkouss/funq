@@ -192,6 +192,9 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
 Player::Player(QIODevice *device, QObject *parent) :
     JsonClient(device, parent)
 {
+    connect(this, SIGNAL(emit_object_set_properties(QObject *, const QVariantMap &)),
+            this, SLOT(_object_set_properties(QObject *, const QVariantMap &)),
+            Qt::QueuedConnection);
 }
 
 qulonglong Player::registerObject(QObject *object) {
@@ -276,13 +279,13 @@ QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command)
 QtJson::JsonObject Player::object_set_properties(const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QtJson::JsonObject properties = command["properties"].value<QtJson::JsonObject>();
-    QTimer::singleShot(0, this, SLOT(object_set_properties(QObject *, const QtJson::JsonObject &)));
+    QVariantMap properties = command["properties"].value<QVariantMap>();
+    emit_object_set_properties(ctx.obj, properties);
     QtJson::JsonObject result;
     return result;
 }
 
-void Player::object_set_properties(QObject * object, const QtJson::JsonObject & properties) {
+void Player::_object_set_properties(QObject * object, const QVariantMap & properties) {
     for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
         object->setProperty(iter.key().toStdString().c_str(), iter.value());
     }
