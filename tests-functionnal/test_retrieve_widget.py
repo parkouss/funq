@@ -31,3 +31,15 @@ class TestClick(AppTestCase):
         self.start_dialog('retrieve')
         combo = self.funq.widget(path='mainWindow::RetrieveWidget::QComboBox')
         self.assertIsInstance(combo, ComboBox)
+    
+    def test_widget_property(self):
+        self.start_dialog('retrieve')
+        lbl = self.funq.widget('lbl_retrieve')
+        
+        self.assertEquals(lbl.properties()['text'], 'hello')
+    
+    def test_widget_set_property(self):
+        self.start_dialog('retrieve')
+        lbl = self.funq.widget('lbl_retrieve')
+        lbl.set_property('text', 'hello2')
+        self.assertEquals(lbl.properties()['text'], 'hello2')
