@@ -277,11 +277,15 @@ QtJson::JsonObject Player::object_set_properties(const QtJson::JsonObject & comm
     ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
     QtJson::JsonObject properties = command["properties"].value<QtJson::JsonObject>();
-    for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
-        ctx.obj->setProperty(iter.key().toStdString().c_str(), iter.value());
-    }
+    QTimer::singleShot(0, this, SLOT(object_set_properties(QObject *, const QtJson::JsonObject &)));
     QtJson::JsonObject result;
     return result;
+}
+
+void Player::object_set_properties(QObject * object, const QtJson::JsonObject & properties) {
+    for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
+        object->setProperty(iter.key().toStdString().c_str(), iter.value());
+    }
 }
 
 void recursive_list_widget(QWidget * widget, QtJson::JsonObject & out, bool with_properties) {

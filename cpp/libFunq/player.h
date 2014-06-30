@@ -62,6 +62,7 @@ public slots:
 
 private slots:
     void objectDeleted(QObject * object);
+    void object_set_properties(QObject * object, const QtJson::JsonObject & props);
 
 private:
     QHash<qulonglong, QObject*> m_registeredObjects;
