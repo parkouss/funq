@@ -486,6 +486,13 @@ class ApplicationConfig(object): # pylint: disable=R0902
 
         if conf.has_option(section, 'funq_port'):
             kwargs['funq_port'] = conf.getint(section, 'funq_port')
+            if kwargs['funq_port'] == 0 and not executable.startswith('socket://'):
+                # recupere un port disponible
+                sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                sock.bind(('', 0))
+                kwargs['funq_port'] = sock.getsockname()[1]
+                sock.close()
+                del sock
 
         if conf.has_option(section, 'timeout_connection'):
             kwargs['timeout_connection'] = conf.getint(section,
