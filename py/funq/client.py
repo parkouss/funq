@@ -28,7 +28,7 @@ class FunqClient(object):
             host = self.DEFAULT_HOST
         if port is None:
             port = self.DEFAULT_PORT
-        
+
         if aliases is None:
             aliases = HooqAliases()
         elif isinstance(aliases, basestring):
@@ -36,9 +36,9 @@ class FunqClient(object):
         elif not isinstance(aliases, HooqAliases):
             raise TypeError("aliases must be None or str or an"
                              " instance of HooqAliases")
-        
+
         self.aliases = aliases
-        
+
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         def connect():
@@ -52,7 +52,25 @@ class FunqClient(object):
                 return e
         
         wait_for(connect, timeout_connection, 0.2)
-        self._fsocket = self._socket.makefile() 
+        self._fsocket = self._socket.makefile()
+
+
+    def duplicate(self):
+        """
+        Permet de manipuler l'application attachée dans un autre thread.
+
+        Renvoie une nouvelle instance de :class:`FunqClient` avec une nouvelle
+        socket connectée pour éviter le chevauchement des messages échangés
+
+        Exemple::
+
+          client_copy = client.duplicate()
+
+          # `client_copy` pourra alors être utilisé en concurrence avec `client`
+          # dans un autre thread
+        """
+        host, port = self._socket.getpeername()
+        return FunqClient(host=host, port=port, aliases=self.aliases)
 
     def close(self):
         """
@@ -123,10 +141,10 @@ class FunqClient(object):
         """
         if not (alias or path):
             raise TypeError("alias or path must be defined")
-        
+
         if alias:
             path = self.aliases[alias]
-        
+
         wdata = [None]
         def get_widget():
             """ Tente de récupérer un widget """

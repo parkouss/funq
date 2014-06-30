@@ -40,3 +40,5 @@ Exemple::
   .. automethod:: FunqClient.shortcut
   
   .. automethod:: FunqClient.drag_n_drop
+  
+  .. automethod:: FunqClient.duplicate
