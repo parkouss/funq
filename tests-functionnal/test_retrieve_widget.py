@@ -1,7 +1,7 @@
 from base import AppTestCase
 from funq.testcase import parameterized
 
-from funq.models import Widget
+from funq.models import Widget, ComboBox
 from funq.client import FunqClient
 from funq.errors import HooqAliasesKeyError, FunqError
 
@@ -26,3 +26,8 @@ class TestClick(AppTestCase):
     def test_widget_path_unavailable(self):
         with self.assertRaisesRegexp(FunqError, "InvalidWidgetPath"):
             lbl = self.funq.widget(path='toto', timeout=0.1)
+    
+    def test_widget_subclass(self):
+        self.start_dialog('retrieve')
+        combo = self.funq.widget(path='mainWindow::RetrieveWidget::QComboBox')
+        self.assertIsInstance(combo, ComboBox)

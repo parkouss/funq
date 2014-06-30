@@ -57,8 +57,8 @@ class DoubleClickDialog(SimpleDialog):
 
 class RetrieveWidget(SimpleDialog):
     def _create_widgets(self):
-        w = QtGui.QLabel("hello")
-        yield w
+        yield QtGui.QLabel("hello")
+        yield QtGui.QComboBox()
 
 def main():
     dialogs = {
