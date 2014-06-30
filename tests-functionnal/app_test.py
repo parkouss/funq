@@ -54,12 +54,17 @@ class DoubleClickDialog(SimpleDialog):
     
     def mouseDoubleClickEvent (self, e):
         self.showResult("double clicked !")
-        
+
+class RetrieveWidget(SimpleDialog):
+    def _create_widgets(self):
+        w = QtGui.QLabel("hello")
+        yield w
 
 def main():
     dialogs = {
         "click": ClickDialog,
-        'doubleclick': DoubleClickDialog
+        'doubleclick': DoubleClickDialog,
+        'retrieve': RetrieveWidget,
     }
     
     app = QtGui.QApplication(sys.argv)
