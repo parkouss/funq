@@ -65,9 +65,11 @@ void dump_object(QObject * object, QtJson::JsonObject & out, bool with_propertie
     out["path"] = objectPath(object);
     QStringList classes;
     const QMetaObject * mo = object->metaObject();
-    mo = mo->superClass(); // same name twice
     while (mo) {
-        classes << mo->className();
+        // sometimes classes appears twice
+        if (!classes.contains(mo->className())) {
+            classes << mo->className();
+        }
         mo = mo->superClass();
     }
     out["classes"] = classes;
