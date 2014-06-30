@@ -5,7 +5,7 @@ from funq.models import Widget, ComboBox
 from funq.client import FunqClient
 from funq.errors import HooqAliasesKeyError, FunqError
 
-class TestClick(AppTestCase):
+class TestRetrieve(AppTestCase):
     
     @parameterized('path', path='mainWindow::RetrieveWidget::QLabel')
     @parameterized('alias', alias='lbl_retrieve')
@@ -43,3 +43,17 @@ class TestClick(AppTestCase):
         lbl = self.funq.widget('lbl_retrieve')
         lbl.set_property('text', 'hello2')
         self.assertEquals(lbl.properties()['text'], 'hello2')
+    
+    def test_widget_set_properties(self):
+        self.start_dialog('retrieve')
+        lbl = self.funq.widget('lbl_retrieve')
+        lbl.set_properties(text='hello2', wordWrap=True)
+        self.assertEquals(lbl.properties()['text'], 'hello2')
+        self.assertEquals(lbl.properties()['wordWrap'], True)
+    
+    def test_window_active(self):
+        self.start_dialog('retrieve')
+        self.funq.widget(path='mainWindow::RetrieveWidget') # wait for the dialog to be shown
+        active = self.funq.active_window()
+        self.assertEquals(active.path, 'mainWindow::RetrieveWidget')
+        
