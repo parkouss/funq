@@ -3,6 +3,7 @@ from funq.testcase import parameterized
 
 from funq.models import Widget
 from funq.client import FunqClient
+from funq.errors import HooqAliasesKeyError, FunqError
 
 class TestClick(AppTestCase):
     
@@ -17,4 +18,11 @@ class TestClick(AppTestCase):
         self.assertEquals(lbl.path, 'mainWindow::RetrieveWidget::QLabel')
         self.assertEquals(lbl.classes, [u'QLabel', u'QFrame', u'QWidget', u'QObject'])
         self.assertTrue(lbl.oid)
-        
+    
+    def test_widget_alias_unknow(self):
+        with self.assertRaises(HooqAliasesKeyError):
+            lbl = self.funq.widget('toto')
+    
+    def test_widget_path_unavailable(self):
+        with self.assertRaisesRegexp(FunqError, "InvalidWidgetPath"):
+            lbl = self.funq.widget(path='toto', timeout=0.1)
