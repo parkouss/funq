@@ -227,6 +227,12 @@ class Widget(object):
         self.client.drag_n_drop(self, src_pos=src_pos, dest_widget=dest_widget,
                                 dest_pos=dest_pos)
 
+    def close(self):
+        """
+        Demande de fermeture du widget, en appellant QWidget::close().
+        """
+        self.client.send_command('widget_close', oid=self.oid)
+
 class ModelItem(TreeItem):
     """
     Représente un modelitem présent dans un QAbstractModelItem ou dérivé.

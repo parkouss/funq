@@ -32,8 +32,10 @@ Exemple::
   
   .. automethod:: Widget.drag_n_drop
   
-  .. automethod:: Widget.call_slot
+  .. automethod:: Widget.close
   
+  .. automethod:: Widget.call_slot
+
 Manipulation des données du framework Model/View de QT
 ------------------------------------------------------
 

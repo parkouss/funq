@@ -339,6 +339,16 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     return result;
 }
 
+QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+
+    QTimer::singleShot(0, ctx.widget, SLOT(close()));
+
+    QtJson::JsonObject result;
+    return result;
+}
+
 QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }

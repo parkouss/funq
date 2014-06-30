@@ -451,6 +451,30 @@ private slots:
          QCOMPARE(spy.count(), 1);
      }
      
+     void test_player_widget_close() {
+         QMainWindow mw;
+         mw.show();
+         QTest::qWaitForWindowShown(&mw);
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath;
+         commandPath["path"] = "QMainWindow";
+         
+         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
+         
+         QtJson::JsonObject command;
+         command["oid"] = resultPath["oid"];
+         
+         QCOMPARE(mw.isVisible(), true);
+         
+         player.widget_close(command);
+         
+         qApp->processEvents();
+         QCOMPARE(mw.isVisible(), false);
+     }
+     
      void test_player_call_slot() {
          QMainWindow mw;
          TestSlot testslot;
