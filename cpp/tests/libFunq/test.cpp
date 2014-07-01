@@ -345,7 +345,7 @@ private slots:
          QCOMPARE(result["errName"].toString(), QString("NotRegisteredObject"));
      }
      
-     void test_player_active_window() {
+     void test_player_active_widget() {
          QMainWindow w;
          
          w.show();
@@ -357,7 +357,7 @@ private slots:
          
          QtJson::JsonObject command;
          
-         QtJson::JsonObject result = player.active_window(command);
+         QtJson::JsonObject result = player.active_widget(command);
 
          QVERIFY(result["oid"].value<qulonglong>() != 0);
          QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), &w);

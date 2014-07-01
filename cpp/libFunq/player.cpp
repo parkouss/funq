@@ -245,15 +245,25 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::active_window(const QtJson::JsonObject &) {
-    QWidget * activewindow = QApplication::activeWindow();
-    if (! activewindow) {
-        return createError("NoActiveWindow", QString::fromUtf8("Il n'y a pas de fenêtre active"));
+QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
+    QWidget * active;
+    QString type = command["type"].toString();
+    if (type == "modal") {
+        active = QApplication::activeModalWidget();
+    } else if (type == "popup") {
+        active = QApplication::activePopupWidget();
+    } else {
+        active = QApplication::activeWindow();
     }
-    qulonglong id = registerObject(activewindow);
+    if (! active) {
+        type = "window";
+        return createError("NoActiveWindow",
+                            QString::fromUtf8("Il n'y a pas de widget (%1) actif").arg(type));
+    }
+    qulonglong id = registerObject(active);
     QtJson::JsonObject result;
     result["oid"] = id;
-    dump_object(activewindow, result);
+    dump_object(active, result);
     return result;
 }
 

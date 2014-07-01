@@ -51,9 +51,9 @@ class TestRetrieve(AppTestCase):
         self.assertEquals(lbl.properties()['text'], 'hello2')
         self.assertEquals(lbl.properties()['wordWrap'], True)
     
-    def test_window_active(self):
+    def test_widget_active(self):
         self.start_dialog('retrieve')
         self.funq.widget(path='mainWindow::RetrieveWidget') # wait for the dialog to be shown
-        active = self.funq.active_window()
+        active = self.funq.active_widget('modal')
         self.assertEquals(active.path, 'mainWindow::RetrieveWidget')
         

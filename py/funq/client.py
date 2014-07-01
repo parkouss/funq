@@ -162,15 +162,20 @@ class FunqClient(object):
             widget.wait_for_properties({'enabled': True, 'visible': True})
         return widget
     
-    def active_window(self, timeout=10.0, timeout_interval=0.1, wait_active=True):
+    def active_widget(self, widget_type='window', timeout=10.0, timeout_interval=0.1,
+                      wait_active=True):
         """
         Retourne un widget de type :class:`funq.models.Widget` ou dérivé
         représentant le widget actif de l'application.
         
         Exemple::
           
-          active_widget = client.active_window()
+          my_dialog = client.active_window('modal')
         
+        :param widget_type: type de widget recherché. ('window', 'modal' ou 'popup'
+                            -> voir la doc de QT QApplication::activeWindow,
+                            QApplication::activeModalWidget et
+                            QApplication::activePopupWidget respectivement)
         :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
                         la valeur de timeout
         :param timeout_interval: temps d'attente entre chque demande de
@@ -182,7 +187,7 @@ class FunqClient(object):
         def get_widget():
             """ Tente de récupérer le widget actif """
             try:
-                wdata[0] = self.send_command('active_window')
+                wdata[0] = self.send_command('active_widget', type=widget_type)
                 return True
             except FunqError, err:
                 if err.classname != 'NoActiveWindow':
