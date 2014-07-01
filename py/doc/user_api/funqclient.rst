@@ -12,7 +12,7 @@ Exemple::
   from funq.testcase import FunqTestCase
   
   class MonTestCase(FunqTestCase):
-      app_config_name = 'ma_conf'
+      __app_config_name__ = 'ma_conf'
   
       def test_qquechose(self):
           """Documentation de la fonction"""

@@ -11,7 +11,7 @@ from funq.client import FunqError
 
 class TestCase2(FunqTestCase):
     # recuperation de la config adéquate pour l'application concernée
-    app_config_name = 'applitest'
+    __app_config_name__ = 'applitest'
 
     def test_libelle_btn_test(self):
         """

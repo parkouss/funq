@@ -26,7 +26,7 @@ Maintenant, voyons le code de test::
   
   class MyTestCase(MultiFunqTestCase):
       # recuperation des configs voulues
-      app_config_names = ('applitest', 'applitest2')
+      __app_config_names__ = ('applitest', 'applitest2')
   
       def test_mon_premier_test(self):
           # les objets FunqClient seront accessibles avec un dictionnaire:
@@ -40,7 +40,7 @@ Maintenant, voyons le code de test::
   seule application::
   
    - utilisation de la classe :class:`funq.testcase.MultiFunqTestCase`
-   - utilisation de **app_config_names** au lieu de **app_config_name**
+   - utilisation de **__app_config_names__** au lieu de **__app_config_name__**
    - **self.funq** devient un dictionnaire dont la clé est le nom de la
      configuration est la valeur l'instance de :class:`funq.client.FunqClient`
      associée.

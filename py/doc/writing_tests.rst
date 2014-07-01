@@ -27,7 +27,7 @@ Exemple:
       """
       Une classe de test.
       """
-      app_config_name = 'ma_conf'
+      __app_config_name__ = 'ma_conf'
       
       def test_something(self):
           """
@@ -68,7 +68,7 @@ Exemple::
   from funq.testcase import FunqTestCase
   
   class MyTest(FunqTestCase):
-      app_config_name = 'ma_conf'
+      __app_config_name__ = 'ma_conf'
       
       def test_something(self):
           self.assertEqual(1, 1, "Message d'erreur")
@@ -90,7 +90,7 @@ Exemple::
   import sys
   
   class MyTest(FunqTestCase):
-      app_config_name = 'ma_conf'
+      __app_config_name__ = 'ma_conf'
       
       @todo("En attente de fonctionnement !")
       def test_something(self):
@@ -121,7 +121,7 @@ Exemple::
   ]
   
   class MyTest(FunqTestCase):
-      app_config_name = 'ma_conf'
+      __app_config_name__ = 'ma_conf'
       
       @parameterized('2', 2)
       @parameterized('3', 3)

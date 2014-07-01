@@ -178,6 +178,30 @@ class MetaParameterized(type):
                     
         return type.__new__(cls, name, bases, attrs)
 
+class declared_attr(property):
+    """
+    Déclare une méthode de classe comme attribut accessible au niveau de la
+    classe.
+    """
+    def __init__(self, fget, *arg, **kw):
+        super(declared_attr, self).__init__(fget, *arg, **kw)
+        self.__doc__ = fget.__doc__
+
+    def __get__(desc, self, cls): # pylint: disable=E0213
+        return desc.fget(cls)
+
+def funq_app_config(confname):
+    """
+    Renvoie la configuration associée au nom *name*
+    """
+    return BaseTestCase.__app_registry__.config(confname)
+
+def register_funq_app_registry(registry):
+    """
+    Stocke le registre de configurations. Doit être appellé avant d'utiliser
+    les classes de test.
+    """
+    BaseTestCase.__app_registry__ = registry
 
 class BaseTestCase(unittest.TestCase):
     """
@@ -192,13 +216,12 @@ class BaseTestCase(unittest.TestCase):
     d'assertions pratiques, comme assertEquals, assertFalse, etc.
     """
     __metaclass__ = MetaParameterized
+    __app_registry__ = None
     
     longMessage = True
     
-    
     def __init__(self, *args, **kwargs):
         unittest.TestCase.__init__(self, *args, **kwargs)
-        self.app_config = None
         self.funq = None
     
     def _create_funq_ctx(self):
@@ -211,14 +234,6 @@ class BaseTestCase(unittest.TestCase):
     def __delete_funq_ctx(self):
         del self.__ctx
     
-    def _create_funq_app_config(self, app_registry):
-        raise NotImplementedError
-    
-    def run(self, result=None):
-        app_registry = result.result.app_registry
-        self.app_config = self._create_funq_app_config(app_registry)
-        unittest.TestCase.run(self, result)
-    
     def id(self):
         cls = self.__class__
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
@@ -228,21 +243,23 @@ class FunqTestCase(BaseTestCase):
     """
     classe de TestCase pour lancer une application et la tester.
     
-    L'attribut de classe **app_config_name** est requis et doit contenir un nom de
-    section dans la configuration valide.
+    L'attribut de classe **__app_config_name__** est requis et doit contenir un nom de
+    section dans la configuration valide. Une variable de classe '__app_config__'
+    sera alors automatiquement créée et représentera la configuration de
+    l'application testée (:class:`funq.client.ApplicationConfig`).
 
     :var funq: instance de :class:`funq.client.FunqClient`, permettant de manipuler
                l'application.
-    :var app_config: instance de :class:`funq.client.ApplicationConfig`, permettant
-                     de connaitre la configuration de l'application testée
     """
-    app_config_name = None
-    
-    def _create_funq_app_config(self, app_registry):
-        return app_registry.config(self.app_config_name)
+    __app_config_name__ = None
+
+    @declared_attr
+    def __app_config__(cls): # pylint: disable=E0213
+        if cls.__app_config_name__ is not None:
+            return cls.__app_registry__.config(cls.__app_config_name__)
 
     def _create_funq_ctx(self):
-        ctx = ApplicationContext(self.app_config)
+        ctx = ApplicationContext(self.__app_config__)
         self.funq = weakref.proxy(ctx.funq)
         return ctx
 
@@ -251,24 +268,27 @@ class MultiFunqTestCase(BaseTestCase):
     classe de TestCase pour lancer plusieurs applications en même temps et les
     tester.
     
-    L'attribut de classe **app_config_names** est requis et doit contenir une liste
-    de noms de section dans la configuration valides.
+    L'attribut de classe **__app_config_names__** est requis et doit contenir une liste
+    de noms de section dans la configuration valides. Une variable de classe '__app_config__'
+    sera alors automatiquement créée et représentera l'ensemble des configurations de
+    l'application testée (un dict de :class:`funq.client.ApplicationConfig`, dont
+    les clés sont les noms des configurations).
 
     :var funq: dictionnaire contenant des :class:`funq.client.FunqClient`, permettant de manipuler
                les applications. Les clés sont les noms des configurations.
-    :var app_config: dictionnaire contenant des :class:`funq.client.ApplicationConfig`, permettant
-                     de connaitre la configuration de l'application testée.
-                     Les clés sont les noms des configurations.
     """
-    app_config_names = None
+    __app_config_names__ = None
     
-    def _create_funq_app_config(self, app_registry):
-        return dict([(k, app_registry.config(k)) for k in self.app_config_names])
-
+    @declared_attr
+    def __app_config__(cls): # pylint: disable=E0213
+        if cls.__app_config_names__ is not None:
+            return dict([(k, cls.__app_registry__.config(k))
+                          for k in cls.__app_config_names__])
+    
     def _create_funq_ctx(self):
         ctx = {}
         self.funq = {}
-        for k, v in self.app_config.iteritems():
+        for k, v in self.__app_config__.iteritems():
             ctx[k] = ApplicationContext(v)
             self.funq[k] = weakref.proxy(ctx[k].funq)
         return ctx

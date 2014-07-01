@@ -4,7 +4,7 @@ Module pour l'intégration avec le framework nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq.testcase import MultiFunqTestCase, FunqTestCase
+from funq.testcase import MultiFunqTestCase, FunqTestCase, register_funq_app_registry
 from funq.screenshoter import ScreenShoter
 from funq import tools
 from nose.plugins import Plugin
@@ -102,6 +102,7 @@ class FunqPlugin(Plugin):
         conf.read([conf_file])
         self.app_registry = ApplicationRegistry()
         self.app_registry.register_from_conf(conf, options)
+        register_funq_app_registry(self.app_registry)
         self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
         self.trace_tests_encoding = (  # pylint: disable=W0201
                                      options.funq_trace_tests_encoding)
@@ -137,14 +138,14 @@ class FunqPlugin(Plugin):
     
     def take_screenshot(self, test):
         if isinstance(test, MultiFunqTestCase):
-            if test.app_config:
-                for k, v in test.app_config.iteritems():
+            if test.__app_config__:
+                for k, v in test.__app_config__.iteritems():
                     if v.screenshot_on_error:
                         self.screenshoter.take_screenshot(test.funq[k],
                                                     '%s [%s]' % (test.id(), k))
         elif isinstance(test, FunqTestCase):
-            if test.app_config:
-                if test.app_config.screenshot_on_error:
+            if test.__app_config__:
+                if test.__app_config__.screenshot_on_error:
                     self.screenshoter.take_screenshot(test.funq, test.id())
     
     def prepareTestResult(self, result):
@@ -158,4 +159,3 @@ class FunqPlugin(Plugin):
             _addFailure(test, err)
         result.addError = addError
         result.addFailure = addFailure
-        result.app_registry = self.app_registry

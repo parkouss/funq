@@ -12,7 +12,7 @@ import time
 
 class MyTestCase(FunqTestCase):
     # recuperation de la config adéquate pour l'application concernée
-    app_config_name = 'applitest'
+    __app_config_name__ = 'applitest'
 
     def test_mon_premier_test(self):
         """

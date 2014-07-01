@@ -65,7 +65,7 @@ Voici un exemple d'utilisation::
   from funq.testcase import FunqTestCase
   
   class MyTestCase(FunqTestCase):
-      app_config_name = 'applitest'
+      __app_config_name__ = 'applitest'
   
       def test_mon_premier_test(self):
           # ecriture du dump dans le fichier "dump.json"
