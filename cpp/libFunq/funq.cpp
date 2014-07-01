@@ -4,9 +4,7 @@
 #include <QTcpSocket>
 #include <QEvent>
 #include <QCoreApplication>
-#include <QMetaProperty>
-#include <QMouseEvent>
-#include "objectpath.h"
+#include "pick.h"
 
 #define DEFAUT_HOOQ_PORT 9999;
 
@@ -18,7 +16,7 @@ extern Q_GUI_EXPORT bool qt_use_native_dialogs;
 Funq * Funq::_instance = 0;
 
 Funq::Funq(Funq::MODE mode) :
-    QObject(), m_mode(mode), m_server(0)
+    QObject(), m_mode(mode), m_server(0), m_pick(0)
 {
     Q_ASSERT(!_instance);
     _instance = this;
@@ -26,6 +24,8 @@ Funq::Funq(Funq::MODE mode) :
     if (mode == Funq::PLAYER) {
         m_server = new QTcpServer(this);
         connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+    } else {
+        m_pick = new Pick(new PickFormatter);
     }
 }
 
@@ -94,25 +94,7 @@ bool Funq::hook(void** data)
 
 bool Funq::eventFilter(QObject* receiver, QEvent* event)
 {
-    if(event->type() == QEvent::MouseButtonPress) {
-        QMouseEvent *evt = static_cast<QMouseEvent *>(event);
-        if (evt->modifiers() & Qt::ShiftModifier && evt->modifiers() &  Qt::ControlModifier) {
-            QString path = QString("WIDGET: `%1` (pos: %2, %3)")
-                    .arg(ObjectPath::objectPath(receiver))
-                    .arg(evt->pos().x())
-                    .arg(evt->pos().y());
-            printf("%s\n", path.toStdString().c_str());
-            for(int i = 0; i < receiver->metaObject()->propertyCount(); ++i)
-            {
-                QMetaProperty property = receiver->metaObject()->property(i);
-                QString strValue = property.read(receiver).toString();
-                if (! strValue.isEmpty()) {
-                    printf("\t%s: %s\n",
-                        property.name(), strValue.toStdString().c_str());
-                }
-            }
-        }
-    }
+    m_pick->handleEvent(receiver, event);
     return false;
 }
 

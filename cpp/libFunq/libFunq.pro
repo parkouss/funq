@@ -13,13 +13,15 @@ SOURCES += player.cpp \
     funq.cpp \
     objectpath.cpp \
     dragndropresponse.cpp \
-    shortcutresponse.cpp
+    shortcutresponse.cpp \
+    pick.cpp
 
 HEADERS += player.h \
     funq.h \
     objectpath.h \
     dragndropresponse.h \
-    shortcutresponse.h
+    shortcutresponse.h \
+    pick.h
 
 win32 {
 

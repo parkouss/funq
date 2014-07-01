@@ -4,6 +4,7 @@
 #include <QObject>
 
 class QTcpServer;
+class Pick;
 
 class Funq : public QObject
 {
@@ -35,6 +36,8 @@ private:
 
     MODE m_mode;
     QTcpServer * m_server;
+    
+    Pick * m_pick;
 };
 
 #endif // FUNQ_H
