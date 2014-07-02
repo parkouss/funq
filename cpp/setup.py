@@ -1,4 +1,5 @@
 from setuptools import setup, Command
+from setuptools.command.install import install as _install
 from distutils.command.build import build as _build
 import subprocess
 import shutil
@@ -67,6 +68,9 @@ class build_libfunq(Command):
 class build(_build):
     sub_commands = _build.sub_commands + [('build_libfunq', None)]
 
+class install(_install):
+    sub_commands = _install.sub_commands + [('build_libfunq', None)]
+
 setup(
     name='funq_server',
     packages=['funq_server'],
@@ -78,5 +82,6 @@ setup(
     cmdclass = {
         'build_libfunq': build_libfunq,
         'build': build,
+        'install': install,
     },
 )
