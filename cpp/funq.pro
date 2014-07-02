@@ -1,3 +1,3 @@
 TEMPLATE = subdirs
 
-SUBDIRS = funq libFunq
+SUBDIRS = libFunq
