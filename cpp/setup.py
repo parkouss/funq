@@ -6,6 +6,10 @@ import shutil
 import os
 import platform
 
+install_requires = []
+if platform.system() == 'Windows':
+    install_requires.append('winappdbg')
+
 class build_libfunq(Command):
     """
     Construction de la lib c++.
@@ -55,10 +59,14 @@ class build_libfunq(Command):
     
     def run(self):
         if self.force:
-            subprocess.call([self.make_path, 'clean'])
+            subprocess.call([self.make_path, 'clean'], shell=True)
         buildtype = 'Debug' if self.debug else 'Release'
-        subprocess.check_call([self.qmake_path, 'CONFIG+=%s' % buildtype, '-r'])
-        subprocess.check_call([self.make_path])
+        qmake_cmd = [self.qmake_path, 'CONFIG+=%s' % buildtype, '-r']
+        print 'running %s' % qmake_cmd
+        subprocess.check_call(qmake_cmd)
+        make_cmd = [self.make_path]
+        print 'running %s' % make_cmd
+        subprocess.check_call(make_cmd, shell=True)
         
         shutil.copy2(os.path.join('bin', self.funqlib_name), self.funqlib_out_path())
 
@@ -84,4 +92,5 @@ setup(
         'build': build,
         'install': install,
     },
+    install_requires=install_requires,
 )
