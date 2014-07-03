@@ -4,6 +4,8 @@
 Utilitaires.
 """
 
+import os
+import platform
 import time
 from funq.errors import TimeOutError
 
@@ -43,15 +45,14 @@ def wait_for(func, timeout, timeout_interval=0.1):
         time.sleep(timeout_interval)
         elapsed += timeout_interval
 
-def which(program):
-    """
-    Tente de localiser un executable sur PATH.
-    """
-    import os
-    def is_exe(fpath):
-        """Renvoie True si fpath est un fichier exécutable"""
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+def is_exe(fpath):
+    """Renvoie True si fpath est un fichier exécutable"""
+    return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
+def _which(program):
+    """
+    Internal
+    """
     if os.path.dirname(program):
         if is_exe(program):
             return program
@@ -61,5 +62,15 @@ def which(program):
             exe_file = os.path.join(path, program)
             if is_exe(exe_file):
                 return exe_file
-
     return None
+
+def which(program):
+    """
+    Tente de localiser un executable sur PATH.
+    """
+    if platform.system() == 'Windows':
+        # try with exe suffix first
+        pgm = _which(program + '.exe')
+        if pgm:
+            return pgm
+    return _which(program)
