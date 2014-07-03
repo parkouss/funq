@@ -33,8 +33,14 @@ pour intégrer le serveur dans une application.
 
 .. note::
   
-  Actuellement, l'injection de code sous Windows n'est pas fonctionnelle -
-  elle marche une fois sur deux.
+  Actuellement, l'injection de code sous Windows est fonctionnelle, mais
+  incomplète. Par exemple, tester une application construite en DEBUG nécessite
+  libFunq compilé et installé en DEBUG. l'exécutable **funq** (serveur) pourrait
+  prendre automatiquement la décision si l'installation fournissait les versions DEBUG
+  et RELEASE (TODO).
+  
+  Aussi, le script server/setup.py ne gère pour l'instant que la compil avec
+  mingw-32. (TODO)
 
 Choix d'implémentation - partie client
 --------------------------------------
@@ -60,7 +66,7 @@ Pour la partie serveur:
 
 .. code-block:: bash
   
-  cd cpp/tests
+  cd server/tests
   qmake && make && make check
 
 .. note::
@@ -69,14 +75,14 @@ Pour la partie serveur:
   
   .. code-block:: bash
     
-    cd cpp
+    cd server
     ./run_tests_lcov.sh && firefox test-lcov-html/index.html
 
 Pour la partie client:
 
 .. code-block:: bash
   
-  cd py
+  cd client
   nosetests
 
 .. note::
@@ -85,7 +91,7 @@ Pour la partie client:
   
   .. code-block:: bash
     
-    cd py
+    cd client
     nosetests --with-coverage --cover-package funq
 
 La partie client requiert le framework Python **nose** [1] pour lancer les tests,

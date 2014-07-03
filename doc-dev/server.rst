@@ -6,17 +6,17 @@ Les sources du serveur sont placées dans le dossier cpp.
 Arborescence des fichiers:
 --------------------------
 
-* **cpp/funq.pro**: Fichier de construction général qmake
-* **cpp/player_tester/**: application exemple, pour tester manuellement le framework
-* **cpp/tests/**: dossier de tests unitaires
-* **cpp/protocole/**: répertoire pour la couche protocolaire
-* **cpp/libFunq/**: répertoire pour la librairie libFunq
-* **cpp/funq/**: répertoire pour l'exécutable funq (injection de code libFunq dans une appli)
+* **server/funq.pro**: Fichier de construction général qmake
+* **server/player_tester/**: application exemple, pour tester manuellement le framework
+* **server/tests/**: dossier de tests unitaires
+* **server/protocole/**: répertoire pour la couche protocolaire
+* **server/libFunq/**: répertoire pour la librairie libFunq
+* **server/funq/**: répertoire pour l'exécutable funq (injection de code libFunq dans une appli)
 
 Ajout de fonctionnalités (commandes possibles depuis un client)
 ---------------------------------------------------------------
 
-Le fichier le plus important est le fichier **cpp/libFunq/player.h**, avec la définition
+Le fichier le plus important est le fichier **server/libFunq/player.h**, avec la définition
 de la classe **Player**.
 
 Les slots publics définis à l'intérieur de cette classe seront automatiquement appelés
@@ -41,7 +41,7 @@ player.cpp:
 
 .. code-block:: cpp
   
-  QtJson::JsonObject Player::quit(const QtJson::JsonObject & command) {
+  QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
       if (qApp) {
           qApp->quit();
       }
@@ -65,14 +65,14 @@ Et la réponse du serveur sera un objet json vide.
 
 .. note::
   
-  Les fichier **cpp/libFunq/player.h** et **cpp/libFunq/player.cpp** sont une bonne
+  Les fichier **server/libFunq/player.h** et **server/libFunq/player.cpp** sont une bonne
   base pour apprendre comment ajouter des commandes et les implémenter.
 
-Contenu du fichier *cpp/libFunq/player.h*
------------------------------------------
+Contenu du fichier *server/libFunq/player.h*
+--------------------------------------------
 
 Voici le contenu du fichier player.h. Pour bien comprendre, regarder les sources
-complètes dans **cpp/libFunq**.
+complètes dans **server/libFunq**.
 
-.. literalinclude:: ../cpp/libFunq/player.h
+.. literalinclude:: ../server/libFunq/player.h
   :language: cpp
