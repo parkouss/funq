@@ -18,6 +18,7 @@ class WindowsRunnerInjector(RunnerInjector):
                                    % self._proc.returncode)
         
             if start + self.max_wait < time.time():
+                self._proc.terminate()
                 raise RuntimeError("Error while waiting for subprocess to be launched."
                                    " Is the executable linked to qt4 ?")
             proc.scan_modules()
@@ -26,6 +27,6 @@ class WindowsRunnerInjector(RunnerInjector):
                 break
             time.sleep(0.01)
         
-        time.sleep(0.2) # wait a bit, and hope that QT is now really initialized !
+        time.sleep(1) # wait a bit, and hope that QT is now really initialized !
         # we can inject the dll
         proc.inject_dll(self.library_path)

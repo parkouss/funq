@@ -18,13 +18,14 @@ public:
     };
 
 protected:
-    explicit Funq(MODE mode);
+    explicit Funq(MODE mode, int port);
     bool eventFilter(QObject* receiver, QEvent* event);
     
 signals:
     
 private slots:
     void onNewConnection();
+    void funqInit();
 
 private:
     static bool registerPick();
@@ -35,6 +36,7 @@ private:
     static Funq * _instance;
 
     MODE m_mode;
+    int m_port;
     QTcpServer * m_server;
     
     Pick * m_pick;

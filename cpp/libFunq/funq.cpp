@@ -3,6 +3,7 @@
 #include <QTcpServer>
 #include <QTcpSocket>
 #include <QEvent>
+#include <QTimer>
 #include <QCoreApplication>
 #include "pick.h"
 
@@ -15,17 +16,35 @@ extern Q_GUI_EXPORT bool qt_use_native_dialogs;
 /*static*/
 Funq * Funq::_instance = 0;
 
-Funq::Funq(Funq::MODE mode) :
-    QObject(), m_mode(mode), m_server(0), m_pick(0)
+Funq::Funq(Funq::MODE mode, int port) :
+    QObject(), m_mode(mode), m_port(port), m_server(0), m_pick(0)
 {
     Q_ASSERT(!_instance);
     _instance = this;
 
-    if (mode == Funq::PLAYER) {
+    // this is needed for the dll injection under Windows
+    moveToThread(qApp->thread());
+
+    QTimer::singleShot(0, this, SLOT(funqInit()));
+}
+
+void Funq::funqInit() {
+    if (m_mode == Funq::PLAYER) {
         m_server = new QTcpServer(this);
         connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
+        if (!m_server->listen(QHostAddress::LocalHost, m_port)) {
+            qDebug() << "Impossible d'initialiser Funq. Erreur:\n\t"
+                     << m_server->errorString();
+        } else {
+            qDebug() << "Funq est initialisé sur le port " << m_port << ".";
+        }
     } else {
         m_pick = new Pick(new PickFormatter);
+        if (registerPick()) {
+            qDebug() << "Funq mode PICK en action !";
+        } else {
+            qDebug() << "Erreur interne, impossible d'utiliser le mode PICK de Funq";
+        }
     }
 }
 
@@ -52,21 +71,7 @@ void Funq::active_hook_player(Funq::MODE mode) {
         }
     }
 
-    Funq * hook = new Funq(mode);
-    if (mode == Funq::PLAYER) {
-        if (!hook->m_server->listen(QHostAddress::LocalHost, port)) {
-            qDebug() << "Impossible d'initialiser Funq. Erreur:\n\t"
-                     << hook->m_server->errorString();
-        } else {
-            qDebug() << "Funq est initialisé sur le port " << port << ".";
-        }
-    } else {
-        if (registerPick()) {
-            qDebug() << "Funq mode PICK en action !";
-        } else {
-            qDebug() << "Erreur interne, impossible d'utiliser le mode PICK de Funq";
-        }
-    }
+    Funq * hook = new Funq(mode, port);
 
     QObject::connect(
         QCoreApplication::instance(),

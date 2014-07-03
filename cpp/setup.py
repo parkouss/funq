@@ -6,8 +6,10 @@ import shutil
 import os
 import platform
 
+IS_WINDOWS = platform.system() == 'Windows'
+
 install_requires = []
-if platform.system() == 'Windows':
+if IS_WINDOWS:
     install_requires.append('winappdbg')
 
 class build_libfunq(Command):
@@ -17,15 +19,13 @@ class build_libfunq(Command):
     user_options = [
         ('build-lib=', 'd', "directory to \"build\" (copy) to"),
         ('force', 'f', "forcibly build everything (ignore file timestamps)"),
+        ('qmake-path=', None, "path to the qmake executable"),
+        ('make-path=', None, "path to the make executable"),
         ('debug', 'g',
          "compile/link with debugging information"),
         ('inplace', 'i',
          "ignore build-lib and put compiled extensions into the source " +
          "directory alongside your pure Python modules"),
-        ('qmake', None,
-         "path to the qmake executable"),
-        ('make', None,
-         "path to the make executable"),
         ]
     
     boolean_options = ['inplace', 'debug', 'force']
@@ -38,7 +38,7 @@ class build_libfunq(Command):
         self.qmake_path = None
         self.make_path = None
         
-        if platform.system() == 'Windows':
+        if IS_WINDOWS:
             self.funqlib_name = 'Funq.dll'
         else:
             self.funqlib_name = 'libFunq.so'
@@ -49,7 +49,7 @@ class build_libfunq(Command):
                                    ('debug', 'debug'),
                                    ('build_lib', 'build_lib'))
         if self.qmake_path is None:
-            self.qmake_path = 'qmake' if platform.system() == 'Windows' else 'qmake-qt4'
+            self.qmake_path = 'qmake' if IS_WINDOWS else 'qmake-qt4'
         if self.make_path is None:
             self.make_path = 'make'
     
@@ -62,9 +62,13 @@ class build_libfunq(Command):
             subprocess.call([self.make_path, 'clean'], shell=True)
         buildtype = 'Debug' if self.debug else 'Release'
         qmake_cmd = [self.qmake_path, 'CONFIG+=%s' % buildtype, '-r']
+        if IS_WINDOWS:
+            qmake_cmd += ['-spec', 'win32-g++']
         print 'running %s' % qmake_cmd
         subprocess.check_call(qmake_cmd)
         make_cmd = [self.make_path]
+        if IS_WINDOWS:
+            make_cmd += ['debug' if self.debug else 'release']
         print 'running %s' % make_cmd
         subprocess.check_call(make_cmd, shell=True)
         

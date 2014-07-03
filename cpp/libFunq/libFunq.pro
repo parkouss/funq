@@ -28,7 +28,7 @@ win32 {
 HEADERS += \
     WindowsInjector.h
 
-SOURCES +=
+SOURCES += WindowsInjector.cpp
 
 } else {
 
