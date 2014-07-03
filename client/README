@@ -13,8 +13,8 @@ Fonctionnement de *funq*
 
 **funq** est divisé en deux parties:
 
-- **funq_server** est la partie serveur du projet, composé d'un executable
-  **funq** et d'une librairie dynamique. funq permet de
+- **server** est la partie serveur du projet, composé d'un executable
+  **funq** et d'une librairie dynamique "libFunq". funq permet de
   lancer une application QT existante et d'y intégrer dynamiquement
   un serveur TCP pour en permettre le contrôle avec des requêtes.
 
@@ -27,13 +27,13 @@ Installation de *funq*
 
 La partie serveur contient du code c++ à compiler::
   
-  cd cpp
+  cd server
   python setup.py build
   sudo python setup.py install
 
 Ou pour les développeurs du framework funq::
   
-  cd cpp
+  cd server
   python setup.py build_libfunq -i
   sudo python setup.py develop
   
@@ -49,10 +49,10 @@ Le package **funq** en python s'installe de manière conventionnelle
 pour les outils python. Ainsi, il suffit de récupérer les sources et
 de lancer la commande suivante::
   
-  cd py
+  cd client
   python setup.py install
 
 Ou pour les développeurs du framework funq::
   
-  cd py
+  cd client
   python setup.py develop
