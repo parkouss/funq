@@ -4,6 +4,7 @@ import sys
 import subprocess
 import platform
 import argparse
+import funq_server
 
 class RunnerInjector(object):
     def __init__(self, library_path, args, env):
@@ -27,7 +28,10 @@ class Runner(object):
         self.system = platform.system()
     
     def _parse_args(self, argv=None):
-        parser = argparse.ArgumentParser()
+        parser = argparse.ArgumentParser(version=funq_server.__version__,
+                                         description=u"""
+        Démarre une application avec un serveur funq intégré.
+        """)
         parser.add_argument('--pick', action='store_true',
                             help="Passe funq en mode pick, pour localiser"
                                  " les widgets.")

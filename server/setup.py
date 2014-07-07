@@ -4,6 +4,7 @@ from distutils.command.build import build as _build
 import subprocess
 import shutil
 import os
+import re
 import platform
 
 IS_WINDOWS = platform.system() == 'Windows'
@@ -11,6 +12,12 @@ IS_WINDOWS = platform.system() == 'Windows'
 install_requires = []
 if IS_WINDOWS:
     install_requires.append('winappdbg')
+
+def read(*paths):
+	this_dir = os.path.dirname(os.path.realpath(__file__))
+	return open(os.path.join(this_dir, *paths)).read()
+
+version = re.search("__version__ = '(.+)'", read('funq_server/__init__.py')).group(1)
 
 class build_libfunq(Command):
     """
@@ -85,6 +92,7 @@ class install(_install):
 
 setup(
     name='funq_server',
+    version=version,
     packages=['funq_server'],
     entry_points = {
         'console_scripts': [
