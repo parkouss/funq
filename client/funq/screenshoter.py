@@ -11,7 +11,7 @@ Le module doit être utilisé de la manière suivante::
   # puis utilisation autre part
   from funq import screenshoter
   
-  screenshoter.take_screenshot(hooq)
+  screenshoter.take_screenshot(funq)
 """
 
 import os, itertools, logging, codecs

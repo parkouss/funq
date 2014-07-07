@@ -26,9 +26,9 @@ FORMS    += \
 
 win32 {
         #SOURCES += WinDll.cpp
-        target.path = $${OUT_PWD}/../hooq-release
+        target.path = $${OUT_PWD}/../funq-release
         CONFIG(debug, debug|release) {
-                target.path = $${OUT_PWD}/../hooq-debug
+                target.path = $${OUT_PWD}/../funq-debug
         }
         INSTALLS += target
 }

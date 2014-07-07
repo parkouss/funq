@@ -10,16 +10,16 @@ from ConfigParser import ConfigParser
 import collections
 from funq.errors import HooqAliasesInvalidLineError, HooqAliasesKeyError
 
-def set_gkit_aliases(hooqaliases, gkit_file, gkit):
+def set_gkit_aliases(funqaliases, gkit_file, gkit):
     """
-    Définit des alias dans *hooqaliases* à partir du fichier de conf *gkit_file*
+    Définit des alias dans *funqaliases* à partir du fichier de conf *gkit_file*
     et pour la section *gkit*.
     """
     cfg = ConfigParser(dict_type=collections.OrderedDict)
     cfg.read([gkit_file])
     for optname in cfg.options(gkit):
         optname = optname.upper()
-        hooqaliases[optname] = cfg.get(gkit, optname)
+        funqaliases[optname] = cfg.get(gkit, optname)
 
 class HooqAliases(dict):
     """

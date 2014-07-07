@@ -381,7 +381,7 @@ class ApplicationContext(object): # pylint: disable=R0903
     
     def terminate(self):
         """
-        Tente de tuer le process de test et ferme l'objet **hooq**.
+        Tente de tuer le process de test et ferme l'objet **funq**.
         """
         if self.funq:
             if self._process is not None:
