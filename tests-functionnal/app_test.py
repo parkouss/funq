@@ -60,11 +60,29 @@ class RetrieveWidget(SimpleDialog):
         yield QtGui.QLabel("hello")
         yield QtGui.QComboBox()
 
+class ShortcutDialog(SimpleDialog):
+    sequences = ["F2", "DOWN", "ENTER", "CTRL+C"]
+    
+    def on_shortcut(self, sequence):
+        def slot():
+            self.showResult("Shortcut: " + sequence)
+        return slot
+    
+    def _create_widgets(self):
+        shortcuts = []
+        for sequence in self.sequences:
+            shortcut = QtGui.QShortcut(QtGui.QKeySequence(sequence), self)
+            shortcut.activated.connect(self.on_shortcut(sequence))
+            shortcuts.append(shortcut)
+        self.shortcuts = shortcuts
+        return []
+
 def main():
     dialogs = {
         "click": ClickDialog,
         'doubleclick': DoubleClickDialog,
         'retrieve': RetrieveWidget,
+        'shortcut': ShortcutDialog,
     }
     
     app = QtGui.QApplication(sys.argv)
