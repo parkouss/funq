@@ -166,16 +166,19 @@ class FunqClient(object):
                       wait_active=True):
         """
         Retourne un widget de type :class:`funq.models.Widget` ou dérivé
-        représentant le widget actif de l'application.
+        représentant le widget actif de l'application ou le widget possédant le 
+        focus.
         
         Exemple::
           
           my_dialog = client.active_window('modal')
         
-        :param widget_type: type de widget recherché. ('window', 'modal' ou 'popup'
+        :param widget_type: type de widget recherché. ('window', 'modal', 'popup'
+                            ou 'focus'
                             -> voir la doc de QT QApplication::activeWindow,
-                            QApplication::activeModalWidget et
-                            QApplication::activePopupWidget respectivement)
+                            QApplication::activeModalWidget, 
+                            QApplication::activePopupWidget et
+                            QApplication::focusWidget respectivement)
         :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
                         la valeur de timeout
         :param timeout_interval: temps d'attente entre chque demande de
