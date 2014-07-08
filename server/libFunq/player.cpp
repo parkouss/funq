@@ -252,7 +252,9 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
         active = QApplication::activeModalWidget();
     } else if (type == "popup") {
         active = QApplication::activePopupWidget();
-    } else {
+    } else if (type == "focus") {
+        active = QApplication::focusWidget();
+    }else {
         active = QApplication::activeWindow();
     }
     if (! active) {
