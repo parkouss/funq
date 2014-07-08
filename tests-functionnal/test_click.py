@@ -1,4 +1,5 @@
 from base import AppTestCase
+from funq.testcase import parameterized
 
 class TestClick(AppTestCase):
     
@@ -13,3 +14,11 @@ class TestClick(AppTestCase):
         btn = self.funq.widget(path='mainWindow::DoubleClickDialog')
         btn.dclick()
         self.assertEquals(self.get_status_text(), 'double clicked !')
+    
+    @parameterized('sometext', 'Hello this is me !')
+    @parameterized('someothertext', 'AAAA BBBBBBBBBBBBBBBBBB CCCCCCCCCCCCCCCCCCCC')
+    def test_key_click(self, text):
+        self.start_dialog('keyclick')
+        line = self.funq.widget(path='mainWindow::KeyClickDialog::QLineEdit')
+        line.keyclick(text)
+        self.assertEquals(self.get_status_text(), text)

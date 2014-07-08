@@ -46,6 +46,12 @@ class ClickDialog(SimpleDialog):
         btn.clicked.connect(lambda: self.showResult("clicked !"))
         yield btn
 
+class KeyClickDialog(SimpleDialog):
+    def _create_widgets(self):
+        line = QtGui.QLineEdit()
+        line.textEdited.connect(lambda txt: self.showResult(txt))
+        yield line
+
 class DoubleClickDialog(SimpleDialog):
     def _create_widgets(self):
         w = QtGui.QWidget()
@@ -81,6 +87,7 @@ def main():
     dialogs = {
         "click": ClickDialog,
         'doubleclick': DoubleClickDialog,
+        'keyclick': KeyClickDialog,
         'retrieve': RetrieveWidget,
         'shortcut': ShortcutDialog,
     }
