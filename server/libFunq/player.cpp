@@ -195,6 +195,9 @@ Player::Player(QIODevice *device, QObject *parent) :
     connect(this, SIGNAL(emit_object_set_properties(QObject *, const QVariantMap &)),
             this, SLOT(_object_set_properties(QObject *, const QVariantMap &)),
             Qt::QueuedConnection);
+    connect(this, SIGNAL(emit_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &)),
+            this, SLOT(_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &)),
+            Qt::QueuedConnection);
 }
 
 qulonglong Player::registerObject(QObject *object) {
@@ -395,10 +398,9 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     ctx.widget->scrollTo(index); // item visible
     QString itemaction = command["itemaction"].toString();
     if (itemaction == "select") {
-        ctx.widget->setCurrentIndex(index);
+        emit emit_model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "edit") {
-        ctx.widget->setCurrentIndex(index);
-        ctx.widget->edit(index);
+        emit emit_model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "click") {
         QRect visualRect = ctx.widget->visualRect(index);
         mouse_click(ctx.widget->viewport(), visualRect.center());
@@ -410,6 +412,15 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     }
     QtJson::JsonObject result;
     return result;
+}
+
+void Player::_model_item_action(const QString & action, QAbstractItemView * widget, const QModelIndex & index) {
+    if (action == "select") {
+        widget->setCurrentIndex(index);
+    } else if (action == "edit") {
+        widget->setCurrentIndex(index);
+        widget->edit(index);
+    }
 }
 
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {

@@ -3,8 +3,9 @@
 
 #include "jsonclient.h"
 #include <QWidget>
+#include <QModelIndex>
 class DelayedResponse;
-
+class QAbstractItemView;
 /**
   * @brief Player est une spécialisation de JsonClient pour la gestion des objets manipuler à distance.
   *
@@ -22,6 +23,7 @@ public:
 
 signals:
     void emit_object_set_properties(QObject * object, const QVariantMap & props);
+    void emit_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &);
     
 public slots:
     /*
@@ -64,6 +66,7 @@ public slots:
 private slots:
     void objectDeleted(QObject * object);
     void _object_set_properties(QObject * object, const QVariantMap & props);
+    void _model_item_action(const QString &, QAbstractItemView *, const QModelIndex &);
 
 private:
     QHash<qulonglong, QObject*> m_registeredObjects;
