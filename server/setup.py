@@ -115,4 +115,5 @@ setup(
         'develop': develop,
     },
     install_requires=install_requires,
+    license='CeCILL v1.2',
 )

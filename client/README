@@ -1,11 +1,14 @@
 Le projet *funq*
 ----------------
 
-**funq** est un outil développé en interne chez INEO-SCLE permettant
+**funq** est un outil développé en interne chez SCLE SFE permettant
 de tester des applications graphiques écrites en QT depuis python.
 
+Il est distribué sous licence CeCILL (proche de la GPL). Voir le fichier
+LICENCE.txt distribué dans les sources pour plus d'information.
+
 L'outil se veut minimaliste pour tester certaines fonctionnalités propres
-aux application INEO-SCLE. Le but n'est pas de couvrir l'ensemble du
+aux application SCLE SFE. Le but n'est pas de couvrir l'ensemble du
 toolkit QT.
 
 Fonctionnement de *funq*

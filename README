@@ -1,7 +1,9 @@
 Description de Funq
 ===================
 
-`Funq` est un utilitaire de tests fonctionnels d'ihm écrites en QT.
+`Funq` est un utilitaire de tests fonctionnels d'ihm écrites en QT. Il est
+distribué sous la licence CeCILL v2.1 (proche de la GPL 2). Voir le fichier
+LICENCE-fr.txt pour plus de détails.
 
 Il est séparé en deux parties, serveur et client.
 
