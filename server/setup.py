@@ -89,7 +89,9 @@ class build(_build):
     sub_commands = _build.sub_commands + [('build_libfunq', None)]
 
 class install(_install):
-    sub_commands = _install.sub_commands + [('build_libfunq', None)]
+    def run(self):
+        self.run_command('build_libfunq')
+        _install.run(self)
 
 class develop(_develop):
     def run(self):

@@ -25,10 +25,10 @@ Fonctionnement de *funq*
 Installation de *funq*
 ----------------------
 
-La partie serveur contient du code c++ à compiler::
+La partie serveur contient du code c++ à compiler, ce qui peut se faire de manière
+transparente via::
   
   cd server
-  python setup.py build
   sudo python setup.py install
 
 Ou pour les développeurs du framework funq::
