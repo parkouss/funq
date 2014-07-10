@@ -36,4 +36,4 @@
 Fichier requis pour la détection de package python. Contient la version du
 logiciel.
 """
-__version__ = '0.3.0'
+__version__ = '1.0.0'
