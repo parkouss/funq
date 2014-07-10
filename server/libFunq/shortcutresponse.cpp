@@ -13,10 +13,24 @@ ShortcutResponse::ShortcutResponse(JsonClient * client, const QtJson::JsonObject
     } else {
         m_target = qApp->activeWindow();
     }
+    if (m_target) {
+        connect(m_target, SIGNAL(destroyed()), this, SLOT(on_target_deleted()));
+    }
     m_binding = QKeySequence::fromString(command["keysequence"].toString());
 }
 
+void ShortcutResponse::on_target_deleted() {
+    m_target = NULL;
+}
+
 void ShortcutResponse::execute(int call) {
+    if (!m_target) {
+        // this can happen when target is deleted for example in
+        // step 2, after a press event has been sent. We do not
+        // want it to be an error.
+        writeResponse(QtJson::JsonObject());
+        return;
+    }
     if (call == 0) {
         m_target->repaint();
         setInterval(100);
