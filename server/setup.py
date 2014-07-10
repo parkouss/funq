@@ -1,5 +1,6 @@
 from setuptools import setup, Command
 from setuptools.command.install import install as _install
+from setuptools.command.develop import develop as _develop
 from distutils.command.build import build as _build
 import subprocess
 import shutil
@@ -90,6 +91,12 @@ class build(_build):
 class install(_install):
     sub_commands = _install.sub_commands + [('build_libfunq', None)]
 
+class develop(_develop):
+    def run(self):
+        self.reinitialize_command('build_libfunq', inplace=1)
+        self.run_command('build_libfunq')
+        _develop.run(self)
+
 setup(
     name='funq_server',
     version=version,
@@ -103,6 +110,7 @@ setup(
         'build_libfunq': build_libfunq,
         'build': build,
         'install': install,
+        'develop': develop,
     },
     install_requires=install_requires,
 )

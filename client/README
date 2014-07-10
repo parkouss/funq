@@ -34,10 +34,9 @@ La partie serveur contient du code c++ à compiler::
 Ou pour les développeurs du framework funq::
   
   cd server
-  python setup.py build_libfunq -i
   sudo python setup.py develop
   
-  # la commande `python setup.py build_libfunq -i` ser à relancer chaque fois
+  # la commande `sudo python setup.py develop` sera à relancer chaque fois
   # que le code C++ changera
 
 .. note::
