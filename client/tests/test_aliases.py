@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 # Copyright: SCLE SFE
 # Contributor: Julien Pagès <j.parkouss@gmail.com>
 # 
