@@ -1,8 +1,8 @@
 About Funq
-----------
+==========
 
-funq is a tool for creating FUNctional tests for Qt applications. Please be patient,
-english translation is coming soon !
+funq is a tool for creating FUNctional tests for Qt applications using python.
+Please be patient, english translation is coming soon !
 
 Description de Funq
 ===================
