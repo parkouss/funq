@@ -33,18 +33,8 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Permet de prendre des screenshots et de les nommer de manière automatique.
-
-Le module doit être utilisé de la manière suivante::
-  
-  from funq import screenshoter
-  
-  screenshoter.init('/path/vers/dossier/images')
-  
-  # puis utilisation autre part
-  from funq import screenshoter
-  
-  screenshoter.take_screenshot(funq)
+This module allows to take screenshots and to save them as PNG image
+automatically.
 """
 
 import os, itertools, logging, codecs
@@ -53,7 +43,7 @@ LOG = logging.getLogger('funq.screenshoter')
 
 class ScreenShoter(object): # pylint: disable=R0903
     """
-    Objet permettant de prendre des screenshot.
+    Object that can take screenshots.
     """
     def __init__(self, working_folder):
         self.working_folder = os.path.realpath(working_folder)
@@ -65,8 +55,8 @@ class ScreenShoter(object): # pylint: disable=R0903
     
     def take_screenshot(self, funqclient, longname):
         """
-        Prends un screenshot de l'application passée en argument, en y
-        associant le nom `longname` donné dans le fichier images.txt.
+        Take a screenshot of the given application, associating **longname**
+        in the generated images.txt file.
         """
         if not os.path.isdir(self.working_folder):
             os.makedirs(self.working_folder)

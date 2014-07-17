@@ -46,10 +46,10 @@ import inspect
 
 class AssertionSuccessError(AssertionError):
     """
-    Exception qui sera levée si une méthode décoré par :func:`todo` passe
-    alors que ce n'est pas attendu.
+    Exception which will be raised if method decorated with :func:`todo`
+    pass (it is not expected).
     
-    :param name: message d'erreur.
+    :param name: error message.
     """
 
     def __init__(self, name):
@@ -57,8 +57,7 @@ class AssertionSuccessError(AssertionError):
         self.name = name
 
     def __str__(self):
-        return u"Le test %s s'est bien déroulé alors qu'il est marqué " \
-               u"en TODO" % self.name
+        return u"Test %s passed but it is decorated as TODO" % self.name
 
     def __rep__(self):
         return self.__str__()
@@ -66,25 +65,24 @@ class AssertionSuccessError(AssertionError):
 
 def todo(skip_message, exception_cls=AssertionError):
     """
-    Décorateur qui "skippe" un test si ce dernier échoue, et qui lève une
-    exception de type :class:`AssertionSuccessError` si le test passe alors
-    que ce n'est pas attendu.
+    A decorator to skip a test on given exception types. If the decorated
+    test pass, an exception :class:`AssertionSuccessError` will be thrown.
     
-    Il est possible de spécifier le type d'erreur pris en compte avec l'argument
-    **exception_cls**.
+    It is possible to specify which type of Exception is handled with the
+    **exception_cls** argument.
     
-    Exemple::
+    Example::
       
       class MyTestCase(FunqTestCase):
-          app_config_name = 'ma_conf'
+          __app_config_name__ = 'ma_conf'
           
           @todo("this test needs something to pass")
           def test_one(self):
               raise AssertionError('this will fail')
     
-    :param skip_message: Message d'erreur affiché lorsque le test est passé
-    :param exception_cls: Classe d'erreur ou tuple de classes qui indiquent
-                          les exceptions à prendre ne compte.
+    :param skip_message: error message when test is skipped
+    :param exception_cls: Exception type or tuple of Exception type that are
+                          handled to skip a test.
     """
     def wrapped(func):
         """
@@ -102,7 +100,7 @@ def todo(skip_message, exception_cls=AssertionError):
                 if isinstance(err, unicode):
                     err = err.encode('utf-8', errors='ignore')  # pylint: disable=E1103
                 skip_msg = skip_message.encode('utf-8', errors='ignore')
-                raise unittest.SkipTest('\nErreur: %s\n%s' % (err, skip_msg))
+                raise unittest.SkipTest('\nError: %s\n%s' % (err, skip_msg))
 
             raise AssertionSuccessError(func.__name__)
 
@@ -112,34 +110,34 @@ def todo(skip_message, exception_cls=AssertionError):
 
 def parameterized(func_suffix, *args, **kwargs):
     """
-    Décorateur de méthode paramétrée. Permet de générer une méthode à partie
-    d'une autre méthode et de données.
+    A decorator that can generate methods given a base method and some data.
     
-    **func_suffix** est utilisé comme suffixe pour la nouvelle méthode créée
-    et doit être unique pour une même méthode. Si **func_suffix** contient
-    des caractères spéciaux qui ne peuvent normalement être contenus dans des
-    noms de fonction, ils seront remplacés par "_".
+    **func_suffix** is used as a suffix for the new created method and must be
+    unique given a base method. if **func_suffix** countains characters that
+    are not allowed in normal python function name, these characters will be
+    replaced with "_".
     
-    Ce décorateur peut être appliqué plusieurs fois sur la même méthode.
+    This decorator can be used more than once on a single base method. The class
+    must have a metaclass of :class:`MetaParameterized`.
     
-    Exemple::
+    Example::
       
-      # Cet exemple permet de générer deux fonctions:
+      # This example will generate two methods:
       #
       # - MyTestCase.test_it_1
       # - MyTestCase.test_it_2
       #
       class MyTestCase(FunqTestCase):
-          app_config_name = 'ma_conf'
+          __app_config_name__ = 'ma_conf'
           
           @parameterized("1", 5, named='nom')
           @parameterized("2", 6, named='nom2')
           def test_it(self, value, named=None):
               print value, named
     
-    :param func_suffix: string qui sera utilisé en suffixe de fonction
-    :param \*args: les arguments restants seront passés à la méthode décorée
-    :param \*\*kwargs: les arguments restants seront passés à la méthode décorée
+    :param func_suffix: will be used as a suffix for the new method
+    :param \*args: arguments to pass to the new method
+    :param \*\*kwargs: named arguments to pass to the new method
     """
     def wrapped(func):
         if not hasattr(func, 'parameters'):
@@ -151,12 +149,12 @@ def parameterized(func_suffix, *args, **kwargs):
 
 def with_parameters(parameters):
     """
-    Décorateur de méthode paramétrée. Fonctione un peu comme :func:`parameterized`
-    mais définit les paramètres en un coup.
+    A decorator that can generate methods given a base method and some data.
+    Acts like :func:`parameterized`, but define all methods in one call.
     
-    Exemple::
+    Example::
       
-      # Cet exemple permet de générer deux fonctions:
+      # This example will generate two methods:
       #
       # - MyTestCase.test_it_1
       # - MyTestCase.test_it_2
@@ -171,8 +169,8 @@ def with_parameters(parameters):
           def test_it(self, value, named=None):
               print value, named
     
-    :param parameters: liste de tuple (**func_suffix**, **args**, **kwargs**
-                       définissant les paramètres comme dans :func:`todo`.
+    :param parameters: list of tuples (**func_suffix**, **args**, **kwargs**)
+                       defining parameters like in :func:`todo`.
     """
     def wrapped(func):
         func.parameters = parameters
@@ -181,7 +179,7 @@ def with_parameters(parameters):
 
 
 def wraps_parameterized(func, func_suffix, args, kwargs):
-    """Internal: pour MetaParameterized"""
+    """Internal: for MetaParameterized"""
     def wrapper(self):
         return func(self, *args, **kwargs)
     wrapper.__name__ = func.__name__ + '_' + func_suffix
@@ -191,9 +189,8 @@ def wraps_parameterized(func, func_suffix, args, kwargs):
 
 class MetaParameterized(type):
     """
-    Metaclasse pour permettre aux classes qui utilisent des méthodes décorées
-    avec :func:`parameterized` ou :func:`with_parameters` de générer les nouvelles
-    méthodes.
+    A metaclass that allow a class to use decorators like :func:`parameterized`
+    or :func:`with_parameters` to generate new methods.
     """
     RE_ESCAPE_BAD_CHARS = re.compile(r'[\.\(\) -/]')
     def __new__(cls, name, bases, attrs):
@@ -212,8 +209,8 @@ class MetaParameterized(type):
 
 class declared_attr(property):
     """
-    Déclare une méthode de classe comme attribut accessible au niveau de la
-    classe.
+    Allow to write a class method that will be accessible as a class
+    attribute.
     """
     def __init__(self, fget, *arg, **kw):
         super(declared_attr, self).__init__(fget, *arg, **kw)
@@ -224,28 +221,26 @@ class declared_attr(property):
 
 def funq_app_config(confname):
     """
-    Renvoie la configuration associée au nom *name*
+    Returns the config named *confname*.
     """
     return BaseTestCase.__app_registry__.config(confname)
 
 def register_funq_app_registry(registry):
     """
-    Stocke le registre de configurations. Doit être appellé avant d'utiliser
-    les classes de test.
+    Saves the configurations registry. Must be called before uses of tests
+    classes.
     """
     BaseTestCase.__app_registry__ = registry
 
 class BaseTestCase(unittest.TestCase):
     """
-    Classe abstraite pour un testcase Funq.
+    Abstract class of a testcase for Funq.
     
-    Définit un comportement commun pour le nommage des tests ainsi que par
-    l'utilisation de la métaclasse :class:`MetaParameterized` (ce qui permet
-    de décorer des méthodes afin de dupliques des méthodes en fonction de
-    paramètres).
+    It defines a common behaviour to name tests methods and uses the metaclass
+    :class:`MetaParameterized` that allows to generate methods from data.
     
-    L'héritage depuis :class:`unittest.TestCase` offre de nombres fonctions
-    d'assertions pratiques, comme assertEquals, assertFalse, etc.
+    It inherits from :class:`unittest.TestCase`, thus allowing to use very useful
+    methods like assertEquals, assertFalse, etc.
     """
     __metaclass__ = MetaParameterized
     __app_registry__ = None
@@ -273,15 +268,15 @@ class BaseTestCase(unittest.TestCase):
 
 class FunqTestCase(BaseTestCase):
     """
-    classe de TestCase pour lancer une application et la tester.
+    A testcase to launch an application and write tests against it.
     
-    L'attribut de classe **__app_config_name__** est requis et doit contenir un nom de
-    section dans la configuration valide. Une variable de classe '__app_config__'
-    sera alors automatiquement créée et représentera la configuration de
-    l'application testée (:class:`funq.client.ApplicationConfig`).
-
-    :var funq: instance de :class:`funq.client.FunqClient`, permettant de manipuler
-               l'application.
+    The class attribute **__app_config_name__** is required and must contains
+    the name of a section in the funq configuration file. A class attribute
+    **__app_config__** will then be automatically created to give access to
+    the configuration of the application (:class:`funq.client.ApplicationConfig`).
+    
+    :var funq: instance of :class:`funq.client.FunqClient`, allowing to manipulate
+    the application.
     """
     __app_config_name__ = None
 
@@ -297,17 +292,18 @@ class FunqTestCase(BaseTestCase):
 
 class MultiFunqTestCase(BaseTestCase):
     """
-    classe de TestCase pour lancer plusieurs applications en même temps et les
-    tester.
+    A testcase to launch multiple applications at the same time and write tests
+    against them.
     
-    L'attribut de classe **__app_config_names__** est requis et doit contenir une liste
-    de noms de section dans la configuration valides. Une variable de classe '__app_config__'
-    sera alors automatiquement créée et représentera l'ensemble des configurations de
-    l'application testée (un dict de :class:`funq.client.ApplicationConfig`, dont
-    les clés sont les noms des configurations).
-
-    :var funq: dictionnaire contenant des :class:`funq.client.FunqClient`, permettant de manipuler
-               les applications. Les clés sont les noms des configurations.
+    The class attribute **__app_config_names__** is required and must contains
+    a list of section's names in the funq configuration file. A class attribute
+    **__app_configs__** will then be automatically created to give access to
+    the configurations of the application (a dict with values of type
+    :class:`funq.client.ApplicationConfig`, where the keys are configuration
+    names).
+    
+    :var funq: a dict that contains :class:`funq.client.FunqClient`, allowing to
+    manipulate the application. Keys are configuration names.
     """
     __app_config_names__ = None
     

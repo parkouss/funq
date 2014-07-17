@@ -33,7 +33,7 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Ce module permet l'intégration avec un serveur libFunq via :class:`FunqClient`.
+This module allow to communicate with a libFunq server with :class:`FunqClient`.
 """
 
 import socket, json, errno, os, shlex, subprocess, base64
@@ -50,7 +50,9 @@ LOG = logging.getLogger('funq.client')
 
 class FunqClient(object):
     """
-    Permet l'échange de messages avec un serveur libFunq.
+    Allow to communicate with a libFunq server.
+    
+    This is the main class used to manipulate tested application.
     """
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 9999
@@ -75,7 +77,7 @@ class FunqClient(object):
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         
         def connect():
-            """ tentative de connexion """
+            """ try to connect """
             try:
                 self._socket.connect((host, port))
                 return True
@@ -90,27 +92,24 @@ class FunqClient(object):
 
     def duplicate(self):
         """
-        Permet de manipuler l'application attachée dans un autre thread.
+        Allow to manipulate the application in another thread.
+        
+        Returns a new instance of :class:`FunqClient` with a new socket.
 
-        Renvoie une nouvelle instance de :class:`FunqClient` avec une nouvelle
-        socket connectée pour éviter le chevauchement des messages échangés
-
-        Exemple::
-
+        Example::
+          
+          # `client_copy` may be used in concurrence with `client`.
           client_copy = client.duplicate()
-
-          # `client_copy` pourra alors être utilisé en concurrence avec `client`
-          # dans un autre thread
         """
         host, port = self._socket.getpeername()
         return FunqClient(host=host, port=port, aliases=self.aliases)
 
     def close(self):
         """
-        Ferme le socket de connexion avec libFunq.
+        Close the libFunq socket.
         
-        L'objet devient inutilisable après appel de cette méthode.
-        Cette méthode est appelée automatiquement sur destruction de l'objet.
+        The instance become useless after this method is called. This
+        method is automatically called on the object destruction.
         """
         self._socket.close()
     
@@ -119,7 +118,7 @@ class FunqClient(object):
 
     def _raw_send(self, action, kwargs):
         """
-        Envoi de message, sans attente de réception.
+        Send a message without waiting for an answer.
         """
         kwargs['action'] = action
         rawdata = json.dumps(kwargs)
@@ -130,9 +129,10 @@ class FunqClient(object):
 
     def send_command(self, action, **kwargs):
         """
-        Envoi un message au serveur libFunq, et retourne la réponse décodée.
+        Send a message to the libFunq server and returns the decoded
+        answer.
         
-        :raises: :class:`funq.errors.FunqError`
+        :raises: :class:`funq.errors.FunqError` on error
         """
         self._raw_send(action, kwargs)
         f = self._fsocket
@@ -149,28 +149,28 @@ class FunqClient(object):
 
     def quit(self):
         """
-        Provoque un appel de qApp->quit() dans l'application testée.
+        Ask the tested application to quit by calling qApp->quit().
         """
         self._raw_send('quit', {})
     
     def widget(self, alias=None, path=None, # pylint:disable=R0913
                      timeout=10.0, timeout_interval=0.1, wait_active=True):
         """
-        Retourne un widget de type :class:`funq.models.Widget` ou dérivé
-        identifié par un alias ou le path complet.
+        Returns an instance of a :class:`funq.models.Widget` or derived
+        identified with an alias or with its complete path.
         
-        Exemple::
+        Example::
           
-          widget = client.widget('mon_alias')
+          widget = client.widget('my_alias')
         
-        :param alias: alias défini dans le fichier d'alias
-        :param path: path complet identifiant le widget
-        :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
-                        la valeur de timeout
-        :param timeout_interval: temps d'attente entre chque demande de
-                                 récupération de widget
-        :param wait_active: Si True, on attends que le widget soit visible
-                            et enabled.
+        :param alias: alias defined in the aliases file.
+        :param path: complete path for the widget
+        :param timeout: if > 0, tries to get the widget until timeout
+                        is reached (second)
+        :param timeout_interval: time between two atempts to get a widget
+                                 (seconds)
+        :param wait_active: If true - the default -, wait until the widget
+                            become visible and enabled.
         """
         if not (alias or path):
             raise TypeError("alias or path must be defined")
@@ -180,7 +180,7 @@ class FunqClient(object):
 
         wdata = [None]
         def get_widget():
-            """ Tente de récupérer un widget """
+            """ Try to get the widget """
             try:
                 wdata[0] = self.send_command('widget_by_path', path=path)
                 return True
@@ -198,30 +198,33 @@ class FunqClient(object):
     def active_widget(self, widget_type='window', timeout=10.0, timeout_interval=0.1,
                       wait_active=True):
         """
-        Retourne un widget de type :class:`funq.models.Widget` ou dérivé
-        représentant le widget actif de l'application ou le widget possédant le 
-        focus.
+        Returns an instance of a :class:`funq.models.Widget` or derived
+        that is the active widget of the application, or the widget that
+        got the focus.
         
-        Exemple::
+        Be careful, this method acts weidly under Xvfb.
+        
+        Example::
           
           my_dialog = client.active_window('modal')
         
-        :param widget_type: type de widget recherché. ('window', 'modal', 'popup'
+        :param widget_type: kind of widget. ('window', 'modal', 'popup'
                             ou 'focus'
-                            -> voir la doc de QT QApplication::activeWindow,
+                            -> see the QT documentation about
+                            QApplication::activeWindow,
                             QApplication::activeModalWidget, 
-                            QApplication::activePopupWidget et
-                            QApplication::focusWidget respectivement)
-        :param timeout: si > 0, retente de récupérer le widget si échec jusqu'à
-                        la valeur de timeout
-        :param timeout_interval: temps d'attente entre chque demande de
-                                 récupération de widget
-        :param wait_active: Si True, on attends que le widget soit visible
-                            et enabled.
+                            QApplication::activePopupWidget or
+                            QApplication::focusWidget respectively)
+        :param timeout: if > 0, tries to get the widget until timeout
+                        is reached (second)
+        :param timeout_interval: time between two atempts to get a widget
+                                 (seconds)
+        :param wait_active: If true - the default -, wait until the widget
+                            become visible and enabled.
         """
         wdata = [None]
         def get_widget():
-            """ Tente de récupérer le widget actif """
+            """ Try to get the widget """
             try:
                 wdata[0] = self.send_command('active_widget', type=widget_type)
                 return True
@@ -238,8 +241,7 @@ class FunqClient(object):
     
     def widgets_list(self, with_properties=False):
         """
-        Renvoie un dictionnaire de la liste des widgets actuels de l'application
-        testée.
+        Returns a dict with every widgets in the application.
         """
         return self.send_command('widgets_list',
                                   with_properties=with_properties)
@@ -247,7 +249,7 @@ class FunqClient(object):
     def dump_widgets_list(self, stream='widgets_list.json',
                                  with_properties=False):
         """
-        Ecrit dans un fichier le résultat de :meth:`widgets_list`.
+        Write in a file the result of :meth:`widgets_list`.
         """
         if isinstance(stream, basestring):
             stream = open(stream, 'w')
@@ -256,7 +258,7 @@ class FunqClient(object):
 
     def take_screenshot(self, stream='screenshot.png', format_='PNG'):
         """
-        Prends un screenshot du desktop actif.
+        Take a screenshot of the active desktop.
         """
         data = self.send_command('desktop_screenshot', format=format_)
         if isinstance(stream, basestring):
@@ -266,17 +268,18 @@ class FunqClient(object):
     
     def keyclick(self, text):
         """
-        Simule les évènements keypress et keyrelease pour chaque lettre du texte
-        passé.
+        Simulate keyboard entry by sending keypress and keyrelease events
+        for each character of the given text.
         """
         self.send_command('widget_keyclick', text=text)
     
     def shortcut(self, key_sequence):
         """
-        Envoi un raccourci clavier, féfini par une séquence de texte. Le
-        format de la séquence est défini par QKeySequence::fromString.
+        Send a shortcut defined with a text sequence. The format of this
+        text sequence is defined with QKeySequence::fromString (see QT
+        documentation for more details).
         
-        Exemple::
+        Example::
           
           client.shortcut('F2')
         
@@ -286,15 +289,17 @@ class FunqClient(object):
     def drag_n_drop(self, src_widget, src_pos=None,
                           dest_widget=None, dest_pos=None):
         """
-        Effectue un drag and drop.
+        Do a drag and drop.
         
-        :param src_widget: widget source
-        :param src_pos: position de début de drag. Si None, le centre de
-                        src_widget sera utilisé. Doit être un tuple (x,y).
-        :param dest_widget: widget de destination. Si none, src_widget sera
-                            utilisé.
-        :param dest_pos: position de fin de drag. Si None, le centre de
-                         dest_widget sera utilisé. Doit être un tuple (x,y).
+        :param src_widget: source widget
+        :param src_pos: starting position for the drag. If None, the center
+                        of `src_widget` will be used, else it must be a
+                        tuple (x, y) in widget coordinates.
+        :param dest_widget: destination widget. If None, src_widget will
+                            be used.
+        :param dest_pos: ending position for the drop. If None, the center
+                         of `dest_widget` will be used, else it must be a
+                         tuple (x, y) in widget coordinates.
         """
         if dest_widget is None:
             dest_widget = src_widget
@@ -310,18 +315,17 @@ class FunqClient(object):
 
 class ApplicationContext(object): # pylint: disable=R0903
     """
-    Représente le contexte d'une application testée.
+    This is the context of a tested application.
     
-    L'instanciation de cette classe peut lancer l'exécutable à tester
-    avec funq (si appconfig.executable ne commence pas par 
-    "socket://").
+    Instanciate this class may launch the tested application with funq
+    (if appconfig.executable does not starts with "socket://").
     
-    Ensuite on tente de se connecter au serveur via une instance de
-    :class:`FunqClient` accessible par la variable membre **funq**.
+    Then it will try to connect to the libFunq server with a
+    :class:`FunqClient` accessible from the member **funq**.
     
-    A la destruction de cette instance, la méthode :meth:`terminate`
-    est automatiquement appellée et ferme l'objet **funq** ainsi que le
-    processus testé s'il a été créé.
+    When the instance is garbage collected, :meth:`terminate` is
+    automatically called to close the **funq** member and terminate
+    the tested application process.
     """
     def __init__(self, appconfig, client_class=FunqClient):
         self._process, self.funq = None, None
@@ -339,7 +343,7 @@ class ApplicationContext(object): # pylint: disable=R0903
     
     def _start_test_process(self, appconfig):
         """
-        Demarre le process de l'appli à tester.
+        Start the process of the tested application.
         """
         
         env = appconfig.env
@@ -372,10 +376,9 @@ class ApplicationContext(object): # pylint: disable=R0903
         else:
             # injection de dll par l'utilisation de funq
             if not appconfig.global_options.funq_attach_exe:
-                raise RuntimeError("Pour utiliser funq, il faut"
-                                    " specifier l'option --funq-attach-exe de"
-                                    " nose ou positionner funq dans"
-                                    " le PATH.")
+                raise RuntimeError("To use funq, you have to specify the"
+                                    " nose option --funq-attach-exe"
+                                    " or put the funq executable in PATH")
             cmd = [appconfig.global_options.funq_attach_exe]
             if funq_port:
                 cmd.append('--port')
@@ -388,14 +391,14 @@ class ApplicationContext(object): # pylint: disable=R0903
         
         cmd.extend(appconfig.args)
         
-        LOG.info("L'application testée va être démarrée dans le répertoire %r"
-                 " avec la commande %r", appconfig.cwd, cmd)
+        LOG.info("The tested application will be launched in the"
+                 " directory %r with th command %r", appconfig.cwd, cmd)
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,
                                          stderr=stderr,
                                          env=env)
-        LOG.info("Démarrage de l'application testée [%s].", self._process.pid)
+        LOG.info("Launching tested application [%s].", self._process.pid)
     
     def _kill_process(self):
         """
@@ -409,15 +412,15 @@ class ApplicationContext(object): # pylint: disable=R0903
                 pass
             if self._process.returncode is None:
                 # application bloquée ! pas le choix ...
-                LOG.warn("L'application testée [%s] ne veut pas se terminer"
-                         " gentiment, on force son arrêt.", self._process.pid)
+                LOG.warn("The tested application [%s] can not be stopped"
+                         " nicely.", self._process.pid)
                 self._process.terminate()
                 self._process.wait()
             self._process = None
     
     def terminate(self):
         """
-        Tente de tuer le process de test et ferme l'objet **funq**.
+        Try to kill the process and close the **funq** object.
         """
         if self.funq:
             if self._process is not None:
@@ -455,35 +458,31 @@ class ApplicationContext(object): # pylint: disable=R0903
 
 class ApplicationConfig(object): # pylint: disable=R0902
     """
-    Cet objet contient la configuration d'un exécutable à tester, qui est
-    principalement récupérée depuis le fichier de configuration. 
+    This object hold the configuration of the application to test, mostly
+    retrieved from the funq configuration file.
     
-    Chaque paramètre est accessible sur l'instance, ce qui permet par exemple de
-    récupérer le chemin de l'exécutable testé via *config.executable*, ou son
-    répertoire d'exécution via *config.cwd*.
+    Each parameter is accessible on the instance, allowing to retrieve
+    the tested application path for example with *config.executable*,
+    or its exeution path with *config.cwd*.
     
-    :param executable: chemin complet vers l'exécutable de test
-    :param args: arguments de l'exécutable
-    :param funq_port: Spécifie un port pour la communication libFunq
-    :param cwd: Répertoire d'exécution de l'exécutable. Si None,
-                l'exécutable sera lancé depuis son propre dossier
-    :param env: dict représentant les variables d'environnement à passer
-                lors de l'exécution de l'exécutable. Si None, os.environ
-                est utilisé
-    :param timeout_connection: temps d'attente maximum avant de déclarer
-                               forfait pour la connexion libFunq.
-    :param aliases: chemin vers le fichier d'alias.
-    :param executable_stdout: chemin vers le fichier de redirection de stdout
-                              ou None
-    :param executable_stderr: chemin vers le fichier de redirection de stderr
-                              ou None
-    :param attach: Indique si le process est attaché ou si l'on si connecte
-                   à distance.
-    :param screenshot_on_error: Indique si l'on prends des images lors de
-                                fails ou d'erreurs.
-    :param with_valgrind: indique si valgrind est utilisé au lancement
-    :param valgrind_args: arguments passés à valgrind
-    :param global_options: options passées par le plugin Funq.
+    :param executable: complete path to the tested application
+    :param args: executable arguments
+    :param funq_port: socket port number for the libFunq connection
+    :param cwd: execution path for the tested application. If None, the
+                value will be the directory of executable.
+    :param env: dict environment variables. If None, os.environ will be
+                used.
+    :param timeout_connection: timeout to try to connect to libFunq.
+    :param aliases: path to the aliases file
+    :param executable_stdout: file path to redirect stdout or None.
+    :param executable_stderr: file path to redirect stderr or None.
+    :param attach: Indicate if the process is attached or if it is a
+                   distant connection.
+    :param screenshot_on_error: Indicate if screenshots must be taken
+                                on errors.
+    :param with_valgrind: indicate if valgrind must be used.
+    :param valgrind_args: valgrind arguments
+    :param global_options: options from the funq nose plugin.
     """
     def __init__(self, executable, # pylint: disable=R0913
                        args=(),
@@ -517,7 +516,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
     
     def create_aliases(self):
         """
-        Crée et renvoie un objet :class:`HooqAliases` selon la config
+        Create and returns and aliases object.
         """
         if not self.aliases:
             return None
@@ -528,8 +527,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
     @classmethod
     def from_conf(cls, conf, section, global_options): # pylint:disable=R0912
         """
-        Génère une instance de :class:`ApplicationConfig` à partir
-        d'un fichier de configuration lu par ConfigParser.
+        Create an instance of :class:`ApplicationConfig` from a
+        funq configuration section.
         """
         
         basedir = os.path.dirname(global_options.funq_conf)
@@ -588,16 +587,16 @@ class ApplicationConfig(object): # pylint: disable=R0902
 
 class ApplicationRegistry(object):
     """
-    Gère un ensemble de :class:`ApplicationConfig`. Une instance
-    globale est utilisée dans :mod:`funq.noseplugin` pour stocker
-    les ApplicationConfig déclarées par le fichier de conf.
+    Handle multiple :class:`ApplicationConfig`. A global instance is
+    used in :mod:`funq.noseplugin` to keep every configuration defined
+    in the funq configuration file.
     """
     def __init__(self):
         self.confs = defaultdict(dict)
     
     def register_from_conf(self, conf, global_options):
         """
-        Enregistre des configs depuis un fichier de conf.
+        Save configurations given a funq config.
         """
         for section in conf.sections():
             if ':' in section:
@@ -608,13 +607,13 @@ class ApplicationRegistry(object):
             self.register_config(app, appconf)
     
     def register_config(self, name, conf):
-        """ Enregistre la config *name* """
+        """ Save the config *name* """
         self.confs[name] = conf
     
     def config(self, name):
         """
-        Retourne la configuration *name* de type :class:`ApplicationConfig`.
+        Returns the :class:`ApplicationConfig` associated to *name*.
         
-        :param name: nom de la configuration
+        :param name: name of the configuration
         """
         return self.confs[name]

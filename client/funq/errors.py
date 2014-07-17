@@ -33,15 +33,15 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Déclaration des erreur définies par la librarie funq.
+Defines error classes used in funq.
 """
 
 class FunqError(Exception):
     """
-    Exception levée lorsque le serveur libFunq renvoie une erreur.
-    les attributs `classname` et `desc` sont stockés dans l'exception
-    et correspondent aux attributs de même nom renvoyés par le serveur
-    libFunq.
+    Exception thrown when the libFunq server send back an error.
+    
+    The attributes `classname` and `desc` are accessible within an instance
+    of the exception.
     """
     def __init__(self, classname, desc):
         self.classname = classname
@@ -51,16 +51,17 @@ class FunqError(Exception):
                 desc=desc))
 
 class TimeOutError(Exception):
-    """Levée lors d'un timeout"""
+    """Raised on timeout"""
 
 class HooqAliasesInvalidLineError(Exception):
     """
-    Exception levée lors d'erreur de parsing du fichier d'alias.
+    Raised when an error occured during the parsing of the aliases file.
     """
     pass
 
 class HooqAliasesKeyError(KeyError):
     """
-    Exception levée lors de doublon d'alias ou d'alias non existant.
+    Raised when two aliases or more have the same name, or when an alias is
+    not defined.
     """
     pass

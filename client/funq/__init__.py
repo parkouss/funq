@@ -33,7 +33,6 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Fichier requis pour la détection de package python. Contient la version du
-logiciel.
+funq module, containing the __version__ string.
 """
 __version__ = '1.0.0'

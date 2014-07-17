@@ -33,7 +33,7 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Utilitaires.
+Tools for funq.
 """
 
 import os
@@ -41,28 +41,25 @@ import platform
 import time
 from funq.errors import TimeOutError
 
-# permet de modifier le temps d'attente par défaut au niveau global
+# this allows to specify the global snooze factor
 SNOOZE_FACTOR = 1.0
 
 def apply_snooze_factor(value):
-    """Applique le facteur de snooze global"""
+    """Appply global snooze factor"""
     return value * SNOOZE_FACTOR
 
 def wait_for(func, timeout, timeout_interval=0.1):
     """
-    Apelle une fonction régulièrement jusqu'à ce qu'elle retourne
-    True ou que le timeout expire. Si la fonction retourne une instance
-    d'exception, celle si sera levée à la fin du timeout. Sinon,
-    :class:`TimeOutError` sera levée.
+    Call a callable multiple times until it returns True or until the
+    timeout expires. When the timeout expires, if the function returned an
+    instance of Exception it will be raised, else :class:`TimeOutError`
+    will be raised.
     
-    :param func: fonction à appeller
-    :param value: valeur attendue de la propriété
-    :param timeout: temps d'attente maximal
-    :param timeout_interval: temps d'attente entre chaque demande
-                                au serveur.
+    :param func: a callable with no parameters
+    :param timeout: timeout before expiration
+    :param timeout_interval: delay between calls of the callable
     
-    :raises: TimeOutError sur timeout ou l'exception renvoyée par
-             la fonction après timeout.
+    :raises: TimeOutError on timeout or the exception returned by the callable.
     """
     timeout = apply_snooze_factor(timeout)
     elapsed = 0.0
@@ -78,7 +75,7 @@ def wait_for(func, timeout, timeout_interval=0.1):
         elapsed += timeout_interval
 
 def is_exe(fpath):
-    """Renvoie True si fpath est un fichier exécutable"""
+    """Returns True if fpath is an executable file"""
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
 
 def _which(program):
@@ -98,7 +95,7 @@ def _which(program):
 
 def which(program):
     """
-    Tente de localiser un executable sur PATH.
+    Try to find an executable given its name or path.
     """
     if platform.system() == 'Windows':
         # try with exe suffix first

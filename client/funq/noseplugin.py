@@ -33,7 +33,7 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Module pour l'intégration avec le framework nosetests.
+Module that integrates funq with nosetests.
 """
 
 from funq.client import ApplicationRegistry
@@ -47,17 +47,17 @@ import os, codecs, logging
 LOG = logging.getLogger('nose.plugins.funq')
 
 def message_with_sep(message):
-    """retourne un message avec un séparateur."""
+    """Returns a message with a separator."""
     sep = '-' * 70
     return (sep, message, sep)
 
 def locate_funq():
-    """Tente de localiser l'executable funq"""
+    """find the funq executable"""
     return tools.which('funq')
 
 class FunqPlugin(Plugin):
     """
-    Plugin d'integration avec nosetests.
+    Nosetests plugin to integrate funq.
     """
     name = 'funq'
 
@@ -73,56 +73,52 @@ class FunqPlugin(Plugin):
         parser.add_option('--funq-conf',
                           dest='funq_conf',
                           default=env.get('NOSE_FUNQ_CONF') or 'funq.conf',
-                          help="Fichier de configuration funq, defaut"
+                          help="funq configuration file, defaults to"
                                " `funq.conf` [NOSE_FUNQ_CONF].")
         parser.add_option('--funq-gkit',
                           dest='funq_gkit',
                           default=env.get('NOSE_FUNQ_GKIT') or 'default',
-                          help="Specifie le toolkit graphique utilise."
-                               " Permet de definir des alias par defaut"
-                               " differents. Defaut: `default"
-                               " [NOSE_FUNQ_GKIT]`")
+                          help="Choose a specific graphic toolkit. This allows"
+                               " to define default different aliases"
+                               " Default: `default` [NOSE_FUNQ_GKIT]`")
         gkit_file = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                                  'aliases-gkits.conf')
         parser.add_option('--funq-gkit-file',
                           dest='funq_gkit_file',
                           default=env.get('NOSE_FUNQ_GKIT_FILE') or gkit_file,
-                          help="Specifie le fichier de description du"
-                               " toolkit graphique a utiliser. Defaut:"
-                               " `%s` [NOSE_FUNQ_GKIT_FILE]" % gkit_file)
+                          help="Override the file that defines graphic toolkits."
+                               " Default: `%s` [NOSE_FUNQ_GKIT_FILE]" % gkit_file)
         parser.add_option('--funq-attach-exe',
                           dest='funq_attach_exe',
                           default=env.get('NOSE_FUNQ_ATTACH_EXE')
                                                             or locate_funq(),
-                          help="Chemin complet ver l'executable funq."
+                          help="Complete path to the funq executable."
                                " [NOSE_FUNQ_ATTACH_EXE]")
         parser.add_option('--funq-trace-tests',
                           dest='funq_trace_tests',
                           default=env.get('NOSE_FUNQ_TRACE_TESTS'),
-                          help="Un fichier dans lequel les traces de debut"
-                               " et fin de chaque test seront ajoutees."
-                               " [NOSE_FUNQ_TRACE_TESTS]")
+                          help="A file in which start and end of tests will be"
+                               " logged. [NOSE_FUNQ_TRACE_TESTS]")
         parser.add_option('--funq-trace-tests-encoding',
                           dest='funq_trace_tests_encoding',
                           default=env.get('NOSE_FUNQ_TRACE_TESTS_ENCODING')
                                     or 'utf-8',
-                          help="encodage pour le fichier de l'option"
-                               "--funq-trace-tests."
+                          help="encoding of the file used in"
+                               " --funq-trace-tests."
                                " [NOSE_FUNQ_TRACE_TESTS_ENCODING]")
         parser.add_option('--funq-screenshot-folder',
                           dest="funq_screenshot_folder",
                           default=env.get("NOSE_FUNQ_SCREENSHOT_FOLDER")
                                     or os.path.realpath("screenshot-errors"),
-                          help="Repertoire de stockage des images en erreur."
-                               " Defaut: screenshot-errors."
+                          help="Folder to saves screenshots on error."
+                               " Default: screenshot-errors."
                                " [NOSE_FUNQ_SCREENSHOT_FOLDER]")
         parser.add_option('--funq-snooze-factor',
                           dest="funq_snooze_factor",
                           default=env.get("NOSE_FUNQ_SNOOZE_FACTOR")
                                     or 1.0,
-                          help="Permet d'appliquer un facteur sur tous les"
-                               " temps d'attente. Defaut: 1.0."
-                               " [NOSE_FUNQ_SNOOZE_FACTOR]")
+                          help="Allow to specify a factor on every timeout."
+                               " Default: 1.0.  [NOSE_FUNQ_SNOOZE_FACTOR]")
 
     def configure(self, options, cfg):
         Plugin.configure(self, options, cfg)
@@ -130,7 +126,7 @@ class FunqPlugin(Plugin):
             return
         conf_file = options.funq_conf = os.path.realpath(options.funq_conf)
         if not os.path.isfile(conf_file):
-            raise Exception("Fichier de conf funq manquant: `%s`" % conf_file)
+            raise Exception("Missing configuration file of funq: `%s`" % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
         self.app_registry = ApplicationRegistry()
@@ -144,7 +140,7 @@ class FunqPlugin(Plugin):
         FunqPlugin._instance = self
 
     def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
-        message = u"Démarrage de test `%s`" % test.id()
+        message = u"Starting test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -156,7 +152,7 @@ class FunqPlugin(Plugin):
 
 
     def afterTest(self, test): # pylint: disable=C0111,C0103,R0201,W0613
-        message = u"Fin de test `%s`" % test.id()
+        message = u"Ending test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)

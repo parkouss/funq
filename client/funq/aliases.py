@@ -33,8 +33,8 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Ce module définit l'implémentation des alias pour permettre de donner
-des noms à un path de widget.
+This module defines aliases implementation to give names instead of
+complete widget's paths.
 """
 
 from ConfigParser import ConfigParser
@@ -43,8 +43,8 @@ from funq.errors import HooqAliasesInvalidLineError, HooqAliasesKeyError
 
 def set_gkit_aliases(funqaliases, gkit_file, gkit):
     """
-    Définit des alias dans *funqaliases* à partir du fichier de conf *gkit_file*
-    et pour la section *gkit*.
+    Define some aliases in *funqaliases* given the config file *gkit_file*
+    for the section *gkit*.
     """
     cfg = ConfigParser(dict_type=collections.OrderedDict)
     cfg.read([gkit_file])
@@ -54,7 +54,7 @@ def set_gkit_aliases(funqaliases, gkit_file, gkit):
 
 class HooqAliases(dict):
     """
-    Un dict spécialisé pour stocker des alias.
+    A specialized dict for aliases.
     """
     def __setitem__(self, name, value):
         if name in self:
@@ -78,8 +78,7 @@ class HooqAliases(dict):
     @classmethod
     def from_file(cls, path, gkit_file=None, gkit='default'):
         """
-        Créé une instance de :class:`HooqAliases` depuis un fichier
-        texte
+        Create an instance of :class:`HooqAliases` from a text file.
         """
         self = cls()
         if gkit_file:
