@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from setuptools import setup, Command
 from setuptools.command.install import install as _install
 from setuptools.command.develop import develop as _develop
@@ -6,7 +7,11 @@ import subprocess
 import shutil
 import os
 import re
+import sys
 import platform
+
+if sys.version_info < (2, 7) or sys.version_info > (3,):
+    sys.exit("Python version must be > 2.7 and < 3 currently")
 
 IS_WINDOWS = platform.system() == 'Windows'
 
@@ -101,6 +106,9 @@ class develop(_develop):
 
 setup(
     name='funq-server',
+    author="Julien Pagès",
+    author_email="j.parkouss@gmail.com",
+    url="https://github.com/parkouss/funq",
     description="write FUNctional tests for Qt applications (server)",
     long_description=read("README"),
     version=version,

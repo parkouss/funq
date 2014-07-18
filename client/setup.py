@@ -1,5 +1,9 @@
+# -*- coding: utf-8 -*-
 from setuptools import find_packages, setup
-import os, re
+import os, re, sys
+
+if sys.version_info < (2, 7) or sys.version_info > (3,):
+    sys.exit("Python version must be > 2.7 and < 3 currently")
 
 def read(*paths):
 	this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -13,6 +17,9 @@ install_requires = ['nose']
 
 setup(
 	name="funq",
+    author="Julien Pagès",
+    author_email="j.parkouss@gmail.com",
+    url="https://github.com/parkouss/funq",
     description="write FUNctional tests for Qt applications (client)",
     long_description=read("README"),
 	version=version,
