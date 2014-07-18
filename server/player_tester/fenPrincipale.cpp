@@ -76,8 +76,8 @@ fenPrincipale::fenPrincipale(QWidget *parent) :
 }
 
 void fenPrincipale::btnClicked() {
-    qDebug() << "Bouton clicked";
-    QMessageBox::information(this, "Bouton clicked", "Bouton clicked");
+    qDebug() << "Button clicked";
+    QMessageBox::information(this, "Button clicked", "Button clicked");
 }
 
 fenPrincipale::~fenPrincipale()

@@ -87,7 +87,7 @@ terminal must look like this::
 
 .. note::
   
-  The option **--with-funq** given to nosetests allow to use the funq plugin
+  The option ``--with-funq`` given to nosetests allow to use the funq plugin
   that will read the configuration file and execute your tests.
 
 .. note::
@@ -130,7 +130,7 @@ section::
 Do something with the widgets
 -----------------------------
 
-Let's write a second test, **test_widgets.py**:
+Let's write another tests in a new file, **test_widgets.py**:
 
 .. literalinclude:: tutorial_test_widgets.py
   :language: python
@@ -147,8 +147,8 @@ Now you can start tests again:
 
 .. note::
   
-  This time, 3 tests are launched! It's normal because you have written
-  3 tests divided up in 2 files.
+  This time, 5 tests are launched! It's normal because you have written
+  5 tests divided up in 2 files.
   
   To launch the tests of one file only, name it on the command line:
   

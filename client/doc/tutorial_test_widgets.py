@@ -27,26 +27,32 @@ class TestCase2(FunqTestCase):
         """
         Test that a dialog is open when user click on the test button.
         """
-        def dialog1_is_closed():
-            """helper function"""
-            try:
-                self.funq.widget('dialog1_btn_ok')
-            except FunqError:
-                return True
-            else:
-                return False
+        self.funq.widget('btnTest').click()
+        dlg_label = self.funq.widget('dialog1_label')
         
-        self.assertTrue(dialog1_is_closed(),
-                        'The widget `dialog1_btn_ok` is opened, but it must not')
+        self.assertEquals(dlg_label.properties()['text'], "Button clicked")
+    
+    def test_tableview_content(self):
+        """
+        Test the data in tableview.
+        """
+        view = self.funq.widget('tableview')
+        items = list(view.model_items().iter())
+        self.assertEquals(len(items), 16)
         
-        btn_test = self.funq.widget('btnTest')
-        btn_test.click()
+        for item in items:
+            text = "row {r}, column {c}".format(r=item.row,
+                                                c=item.column)
+            self.assertEquals(item.value, text)
+
+    def test_some_treeview_content(self):
+        """
+        test some data in the treeview
+        """
+        model = self.funq.widget('treeview').model_items()
         
-        self.assertFalse(dialog1_is_closed(),
-                         'The widget `dialog1_btn_ok` est closed, but i must not')
+        item = model.item_by_named_path([u"item 1", u"item 1-2"])
+        parent_item = model.item_by_named_path([u"item 1"])
         
-        btn_dlg = self.funq.widget('dialog1_btn_ok')
-        btn_dlg.click()
-        
-        self.assertTrue(dialog1_is_closed(),
-                        'The widget `dialog1_btn_ok` is opened, but it must not')
+        self.assertEquals(item.value, u"item 1-2")
+        self.assertIn(item, parent_item.items)

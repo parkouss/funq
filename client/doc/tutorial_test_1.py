@@ -14,7 +14,7 @@ class MyTestCase(FunqTestCase):
     # identify the configuration
     __app_config_name__ = 'applitest'
 
-    def test_mon_premier_test(self):
+    def test_my_first_test(self):
         """
          --------- Test method documentation ---------
         """
