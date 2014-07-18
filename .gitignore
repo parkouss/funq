@@ -1,6 +1,8 @@
 *.pyc
 *.egg-info
 _build
+build
+dist
 
 server/Makefile
 server/libFunq/Makefile

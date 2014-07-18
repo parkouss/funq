@@ -1,0 +1,11 @@
+include funq.pro run_tests_lcov.sh
+
+include libFunq/*.cpp libFunq/*.h libFunq/libFunq.pro
+exclude libFunq/moc_*.cpp
+
+include protocole/*.cpp protocole/*.h protocole/protocole.pri
+
+include player_tester/*.cpp player_tester/*.h player_tester/*.ui player_tester/player_tester.pro
+exclude player_tester/ui_*.h player_tester/moc_*.cpp
+
+recursive-include tests *.pri *.pro *.cpp *.h
