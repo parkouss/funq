@@ -392,7 +392,7 @@ class ApplicationContext(object): # pylint: disable=R0903
         cmd.extend(appconfig.args)
         
         LOG.info("The tested application will be launched in the"
-                 " directory %r with th command %r", appconfig.cwd, cmd)
+                 " directory %r with the command %r", appconfig.cwd, cmd)
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,

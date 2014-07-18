@@ -1,9 +1,9 @@
-Plusieurs applications de tests en même temps
-=============================================
+Test multiple applications at the same time
+===========================================
 
-Il est possible de gérer plusieurs applications de tests en même temps.
-Pour cela, il faut déclarer plusieurs sections dans le fichier de conf
-**funq.conf**.
+It is possible to test multiple applications in one test method. For
+this you will have to write multiple sections in the **funq.conf**
+configuration file.
 
 .. code-block:: ini
   
@@ -18,33 +18,32 @@ Pour cela, il faut déclarer plusieurs sections dans le fichier de conf
 
 .. important::
   
-  Attention à spécifier des ports différents pour chaque application !
+  Be careful to specify different ports for each application !
 
-Maintenant, voyons le code de test::
+Let's see the test code now::
   
   from funq.testcase import MultiFunqTestCase
   
   class MyTestCase(MultiFunqTestCase):
-      # recuperation des configs voulues
+      # wanted configurations
       __app_config_names__ = ('applitest', 'applitest2')
   
-      def test_mon_premier_test(self):
-          # les objets FunqClient seront accessibles avec un dictionnaire:
-          # - self.funq['applitest'] pour contrôler l'appli "applitest"
-          # - self.funq['applitest2'] pour contrôler l'appli "applitest2"
+      def test_my_first_test(self):
+          # FunqClient objects will then be accessible with a dict:
+          # - self.funq['applitest'] to interact with "applitest"
+          # - self.funq['applitest2'] to interact with "applitest2"
           pass
 
 .. note::
   
-  Il faut remarquer quelques différences par rapport au contrôle d'une
-  seule application::
+  There is some differences when interacting with multiples applications
+  at the same time::
   
-   - utilisation de la classe :class:`funq.testcase.MultiFunqTestCase`
-   - utilisation de **__app_config_names__** au lieu de **__app_config_name__**
-   - **self.funq** devient un dictionnaire dont la clé est le nom de la
-     configuration est la valeur l'instance de :class:`funq.client.FunqClient`
-     associée.
+   - using :class:`funq.testcase.MultiFunqTestCase`
+   - using **__app_config_names__** instead of **__app_config_name__**
+   - **self.funq** becomes a dict where keys are configuration names
+     and associated values are instances of :class:`funq.client.FunqClient`.
 
 .. note::
   
-  Le nombre d'applications testables en même temps n'est pas limité.
+  The number testables applications at the same time is not limited.

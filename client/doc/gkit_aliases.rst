@@ -1,30 +1,29 @@
 .. _gkit-aliases:
 
-Alias prédéfinis selon le kit graphique
-=======================================
+Predifined graphical kit aliases
+================================
 
-QT nomme différemment certains objets graphiques selon le gestionnaire
-de fenêtre utilisé. Des alias sont prédéfinis pour ne pas avoir à différencier
-le fichier aliases en fonction des toolkits.
+QT is naming some graphical objects differently given the window manager
+used. Some aliases are predefined to point to the same objects for multiple
+window managers.
 
-Le fichier de définitions de ces toolkits est ainsi défini:
+Here is the file content that defines these aliases:
 
 .. literalinclude:: ../funq/aliases-gkits.conf
   :language: ini
 
-Chaque section définit un toolkit particulier, **default** étant le toolkit
-utilisé par défaut.
+Each section defines a particular graphical kit (window manager),
+**default** being the kit used by default.
 
-Il suffit d'utiliser ces alias dans le fichier d'alias de manière
-conventionnelle (entre {}) pour les utiliser.
+You can use these aliases in the aliases file in a standard way (between {}).
 
 .. note::
   
-  Actuellement le framework ne dispose pas de moyen pour détecter le
-  kit graphique - **default** est toujours utilisé.
+  Currently the famework does not identify automatically which window
+  manager is used - **default** is always used.
   
-  Pour utiliser un autre kit graphique, il faut le spécifier via l'option
-  *funq-gkit*. Exemple:
+  To use another graphical kit, you have to specify it with the *funq-gkit*
+  nose option. Example:
   
   .. code-block:: bash
     

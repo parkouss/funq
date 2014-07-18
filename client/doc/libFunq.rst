@@ -1,25 +1,26 @@
 .. _disable-attach:
 
-Précompiler son application avec **libFunq**
-=============================================
+Compile the application with **libFunq**
+========================================
 
 .. note::
   
-  Préférer la méthode standard (utilisation de **funq**).
-  L'astuce indiquée sur cette page ne doit être utilisée que si la méthode
+  Always prefer the standard approach (use **funq** executable) when
+  possible. This part of the documentation is only useful when the
+  standard approach is not working. ne doit être utilisée que si la méthode
   standard pose problème.
 
-**funq** permet de s'intégrer dans une application précompilée
-*sans besoin de modifier le code source*, grâce à l'injection de code
-dynamique effectuée par **funq**. C'est la méthode préférée
-puisqu'elle n'induit aucune modification du code source.
+**libFunq** can be integrated in an already compiled application with
+the code injection done by the **funq** executable. It is the preferred
+way since this does not require to modify the source code of the tested
+application.
 
-Toutefois, il est possible d'intégrer directement libFunq dans une application,
-si le besoin s'en fait sentir. Il faudra alors modifier son projet comme suit::
+But it is also possible to integrate directly libFunq in an application
+if you need it. You will then need to modify your .pro file like this::
   
-  include(../libFunq/libFunq.pri)
+  include(/path/to/libFunq/libFunq.pri)
 
-Ensuite, dans le main() du programme:
+Then, in the main of your program:
 
 .. code-block:: cpp
   
@@ -29,7 +30,7 @@ Ensuite, dans le main() du programme:
   int main(int argc, char *argv[]) {
       QApplication a(argc, argv);
       
-      // activation de libFunq
+      // libFunq activation
       Funq::activate(true);
       
       /* ... */
@@ -37,29 +38,29 @@ Ensuite, dans le main() du programme:
       return a.exec();
   }
 
-Il faudra ensuite modifier le fichier de configuration **funq.conf**:
+You will then need to adapt the **funq.conf** configuration file:
 
 .. code-block:: ini
   
-  [mon_appli]
+  [my_application]
   executable = mon_executable
   
-  # desactive l'utilisation de funq
+  # does not use funq executable to inject libFunq
   attach = no
 
-Une fois intégré dans la compilation, libFunq devient une
-**faille de sécurité importante** puisqu'il permet la manipulation de
-l'application depuis l'extérieur via le serveur TCP intégré.
+Once integrated in the compiled application, libFunq becomes a **security hole**
+as it allows to interact with the application by using the integrated TCP
+server.
 
-La variable d'environnement **FUNQ_ACTIVATION** si elle est définie
-à 1 lance le serveur TCP au lancement entrainant la faille de sécurité.
+The environment variable **FUNQ_ACTIVATION** if defined to 1 starts the
+TCP server at applcation startup and will allow funq clients to interact
+with the application.
 
-Pour outrepasser cette contrainte, il est recommandé d'utiliser des
-options de compilation (#define) pour ne pas livrer aux clients un outil
-intégrant **libFunq**, et au contraire de n'intégrer **libFunq** que
-pour les applications testables qui restent en interne dans l'entreprise.
+To bypass this constraint, it is recommended to use #define in your code
+to integrate libFunq only for testing purpose and not deliver to final users
+an application with funq included.
 
 .. important::
   
-  La meilleure alternative étant si possible d'utiliser l'injection dynamique
-  de code via l'exécutable **funq**.
+  The best alternative is to use the dynamic injection provided by the
+  executable **funq** when possible.

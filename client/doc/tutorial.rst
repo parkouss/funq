@@ -1,146 +1,145 @@
 Tutorial
 ========
 
-Cette section a pour but de montrer par l'exemple comment mettre en
-place des tests **funq** sur un projet.
+This section aims to show by the example how to setup first **funq** tests
+on a project.
 
-Prérequis
----------
+Requirements
+------------
 
-Ce tutoriel s'appuie sur l'application de test livrée disponible
-à côté de **funq**, **player_tester**.
+This tutorial is based on a sample QT application that you can find here:
+https://github.com/parkouss/funq/tree/master/server/player_tester.
 
-Cette application doit être compilée pour obtenir un exécutable
-nommé **player_tester**.
+This sample application must be compiled to an executable binary file,
+**player_tester**.
 
-Le package python **funq** doit être installé. Pour vérifier, la
-commande suivante doit afficher une ligne:
+The two packages **funq** and **funq-server** must be installed. You
+can check that funq-server is installed by running:
+
+.. code-block:: bash
+  
+  funq -h
+
+And that funq is installed with:
 
 .. code-block:: bash
   
   nosetests -h | grep 'with-funq'
 
-Création de l'arborescence des tests
-------------------------------------
+Tests file tree
+---------------
 
-L'arborescence d'un projet **funq** est basiquement un répertoire
-contenant des fichiers test\*.py, ainsi qu'un fichier de configuration
-nommé **funq.conf**.
+The file tree of a **funq** project is basically a folder that contains
+test files and a funq configuration file, **funq.conf**.
 
-Créer un dossier *tutorial* à côté de l'exécutable **player_tester** et
-se déplacer dedans.
+First, create a *tutorial* folder next to the **player_tester** binary file:
 
 .. code-block:: bash
   
   mkdir tutorial
   cd tutorial
 
-Maintenant il faut écrire le fichier de configuration, **funq.conf**.
-Voici un fichier de configuration minimaliste:
+Now you have to write the configuration file **funq.conf**.
+Here is the most minimalistic configuration file:
 
 .. literalinclude:: tutorial_funq.conf
   :language: ini
   
 
-Créer un premier test
+Write your first test
 ---------------------
 
-L'écriture d'un test est maintenant possible. Placer le contenu suivant
-dans un fichier nommé test_1.py:
+You can now write your first test. Put the following content in a file
+called test_1.py:
 
 .. literalinclude:: tutorial_test_1.py
   :language: python
 
-Ce fichier contient un seul test, qui ne fait rien sauf attendre trois
-secondes.
+This file contains one test, that do nothing except wait for 3 seconds.
 
 .. note::
   
-  la configuration "applitest" est décrite dans le fichier de conf par
-  la section du même nom.
+  The "applitest" configuration is described in the funq configuration
+  file by the section of the same name.
 
 .. note::
   
-  Hériter de :class:`funq.testcase.FunqTestCase` permet d'assurer pour chaque
-  méthode de test le lancement de l'application au début de l'exécution et sa
-  fermeture à la fin de l'exécution.
+  Subclass :class:`funq.testcase.FunqTestCase` ensure that each test method
+  will start the application and close it properly.
 
-Exécution des tests
--------------------
+Test execution
+--------------
 
-Bien ! Exécutons ce premier test. Lancer la commande suivante:
+Well done ! Let's run this first test. Type the following command:
 
 .. code-block:: bash
   
   nosetests --with-funq
 
-Une fenêtre devrait apparaître, et au bout de quelques secondes elle va
-se fermer. La sortie de la commande doit ressembler à cela::
+One window must appear, and close after a few seconds. The output on the
+terminal must look like this::
   
   .
   ----------------------------------------------------------------------
-  Ran 1 test in 4.012s
+  Ran 1 test in 3.315s
   
   OK
 
 .. note::
   
-  L'option **--with-funq** passée à nosetests indique d'utiliser le
-  plugin nommé *funq* qui va lire la configuration avant d'exécuter les
-  tests.
+  The option **--with-funq** given to nosetests allow to use the funq plugin
+  that will read the configuration file and execute your tests.
 
 .. note::
   
-  L'outil **nosetests** dispose de multiples options permettant par exemple
-  l'export au format xunit des résultats de test. Voir **nosetests -h**.
+  **nosetests** has multiples options to allow for example the generation
+  of an xml file to format tests result. See **nosetests -h**.
 
-Et voilà pour le premier test ! Maintenant complexifions l'exemple avec
-l'ajout de deux tests et l'utilisation d'un fichier d'alias.
+And voilà! You have written and launched your first funq test. Now let's
+go a bit further by adding two tests and use an aliases file.
 
-Tout d'abord, créons le fichier d'alias.
+Let's first create the aliases file.
 
-Fichier d'alias
----------------
+Aliases file
+------------
 
-Un tel fichier associe un nom arbitraire à des objets graphiques
-identifiés par leur arborescence (objectName() des objets QT). 
-Cette fonctionnalité permet de conserver les tests écrits facilement
-lors de déplacement de widgets ou de refactoring de code en permettant
-de modifier les chemins qui ont bougé à un seul endroit.
+This file associate a name (an alias) to graphical objects identified by
+their path. This behavior allow to keep running the written tests even if
+the widgets moves in the tested application or if the code of the tested
+application is refactored.
 
-Fichier **applitest.aliases**:
+**applitest.aliases** file:
 
 .. literalinclude:: tutorial_aliases
 
 .. note::
   
-  Le fichier supporte la substitution de variables par l'utilisation des
-  accolades, ce qui permet d'éviter le copié/collé...
+  This file support variables substitution by using brackets, allowing
+  to avoid useless and dangerous copy/paste.
 
 .. note::
   
-  Il existe des alias prédéfinis dont la valeur change selon le
-  gestionnaire de fenêtre utilisé. Voir :ref:`gkit-aliases`.
+  Some aliases are predefined. See :ref:`gkit-aliases`.
 
-Il reste à modifier le fichier de configuration **funq.conf** pour
-indiquer l'emplacement du fichier d'alias. Rajouter la ligne suivante
-dans la section **applitest**::
+Now you need to modify the **funq.conf** configuration file to indicate
+the use of this aliases file. Add the following line in the **applitest**
+section::
   
   aliases = applitest.aliases
 
-Intérargir avec des widgets
----------------------------
+Do something with the widgets
+-----------------------------
 
-Ecrivons un deuxième fichier de test, **test_widgets.py**:
+Let's write a second test, **test_widgets.py**:
 
 .. literalinclude:: tutorial_test_widgets.py
   :language: python
 
-On remarque que la variable membre **self.funq** passée dans les fonctions est le
-point d'entrée de l'API pour communiquer avec l'application testée.
-C'est un objet dont la classe est :class:`funq.client.FunqClient`.
+You can see that the member variable **self.funq** is the entry point
+to manipulate the tested application. It is an instance of
+:class:`funq.client.FunqClient`.
 
-Et voilà! Le fichier est assez explicite. Relancer les tests:
+Now you can start tests again:
 
 .. code-block:: bash
   
@@ -148,10 +147,10 @@ Et voilà! Le fichier est assez explicite. Relancer les tests:
 
 .. note::
   
-  Avec la commande suivante, 3 tests sont lancés! Et oui, c'est normal car
-  l'on a écrit 3 tests, répartis sur deux fichiers.
+  This time, 3 tests are launched! It's normal because you have written
+  3 tests divided up in 2 files.
   
-  pour lancer les tests d'un seul fichier, utiliser la commande:
+  To launch the tests of one file only, name it on the command line:
   
   .. code-block:: bash
     
@@ -159,16 +158,14 @@ Et voilà! Le fichier est assez explicite. Relancer les tests:
 
 .. important::
   
-  Il est important même pour du test fonctionnel d'écrire des tests qui ne
-  nécessitent pas d'autres tests lancés au préalables - en d'autres termes,
-  *l'ordre d'exécution des tests ne doit pas être important*. Ceci permet
-  de limiter les effets de bords et ainsi de cibler plus rapidement la
-  source d'un bug lors d'échec des tests. Par ailleurs, l'ordre d'exécution
-  des tests **nosetests** n'est pas assuré (actuellement c'est le nom
-  des fonctions qui influence l'ordre).
+  It is really important even for functional tests to not write tests
+  that depends on others tests. In other words, the
+  *order of test execution must not be important*. This allow to limit
+  side effects and to find quickly why a test failed. This being said,
+  **nosetests** does not assure any order in test execution.
 
-Aller plus loin
----------------
+Going further
+-------------
 
-Voilà, le tutorial arrive à sa fin. Pour aller plus loin, il faut regarder
-la documentation de l'API!
+This is the end of this tutorial. To go further, you must look at the
+API documentation!

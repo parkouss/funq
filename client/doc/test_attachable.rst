@@ -1,12 +1,11 @@
-Se rattacher à une application de test déjà lancée
-==================================================
+Attach to an already started application
+========================================
 
-Il est possible de **se rattacher à une application déjà lancée** au
-lieu de laisser les tests démarrer/terminer l'application.
+It is possible to **attach to an already started application** instead
+of letting funq start and shutdown the application.
 
-Pour cela, il suffit dans le fichier de config **funq.conf** de
-spécifier "socket://" suivi de l'adresse IP dans le champ "executable"
-de la section désirée.
+For this you need to specify in the **funq.conf** configuration file
+"socket://" followed by the IP address in the "executable" field.
 
 .. code-block:: ini
   
@@ -16,6 +15,6 @@ de la section désirée.
 
 .. important::
   
-  Dans ce cas, le framework de test n'est pas responsable du lancement
-  et de l'arrêt de l'application. Elle doit être démarrée par ailleurs,
-  avec le serveur libFunq intégré.
+  In this case, funq is not responsible for starting and stopping the
+  tested application. This must be done somewhere else, with the libFunq
+  server integrated.

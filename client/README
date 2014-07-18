@@ -1,60 +1,56 @@
-Le projet *funq*
-----------------
+*funq* project
+--------------
 
-**funq** est un outil développé en interne chez SCLE SFE permettant
-de tester des applications graphiques écrites en QT depuis python.
+**funq** is a tool to write FUNctional tests for Qt applications
+using python.
 
-Il est distribué sous licence CeCILL (proche de la GPL). Voir le fichier
-LICENCE.txt distribué dans les sources pour plus d'information.
+It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
+See the LICENCE.txt file distributed in the sources for more information.
 
-L'outil se veut minimaliste pour tester certaines fonctionnalités propres
-aux application SCLE SFE. Le but n'est pas de couvrir l'ensemble du
-toolkit QT.
+How does *funq* works
+---------------------
 
-Fonctionnement de *funq*
-------------------------
+**funq** is divided in two parts:
 
-**funq** est divisé en deux parties:
+- **funq-server** is the server part of the project, composed of an
+  executable called **funq** and a dynamic library **libFunq**. The
+  **funq** executable allows to inject some code in a QT application
+  to start a TCP server that will allow to interact with the application.
 
-- **server** est la partie serveur du projet, composé d'un executable
-  **funq** et d'une librairie dynamique "libFunq". funq permet de
-  lancer une application QT existante et d'y intégrer dynamiquement
-  un serveur TCP pour en permettre le contrôle avec des requêtes.
+- **funq** is a python package that offers an API to interact with a
+  **libFunq** TCP server. It is the client side of the project, and uses
+  nosetests to launch FUNctional Qt tests.
 
-- **funq** est aussi un package python offrant une API pour la
-  communication avec le serveur TCP de l'application testée. Il utilise
-  **nosetests** comme framework efficace de tests.
+Installation
+------------
 
-Installation de *funq*
-----------------------
-
-La partie serveur contient du code c++ à compiler, ce qui peut se faire de manière
-transparente via::
+**funq-server** contains c++ code that need compilation. You can install it
+with python like this::
   
   cd server
   sudo python setup.py install
 
-Ou pour les développeurs du framework funq::
+Or for the framework developers::
   
   cd server
   sudo python setup.py develop
   
-  # la commande `sudo python setup.py develop` sera à relancer chaque fois
-  # que le code C++ changera
+  # the command `sudo python setup.py develop` must be launched each time
+  # the C++ code will change
 
 .. note::
   
-  Sous windows, actuellement seule la compilation avec mingw-32 est possible
-  depuis le script setup.py. En attente de contribution !
+  **funq-server** needs some work under windows. It appears that it may currently
+  works with mingw-32 under windows xp, but it's waiting for contributors
+  to help !
 
-Le package **funq** en python s'installe de manière conventionnelle
-pour les outils python. Ainsi, il suffit de récupérer les sources et
-de lancer la commande suivante::
+The **funq** package is a pure python package and install can be easily
+done with the following command::
   
   cd client
   python setup.py install
 
-Ou pour les développeurs du framework funq::
+Or for the framework developers::
   
   cd client
   python setup.py develop

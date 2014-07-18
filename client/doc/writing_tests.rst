@@ -1,18 +1,18 @@
-Ecriture de tests
-=================
+Writing tests
+=============
 
 Nomenclature
 ------------
 
- - Les tests doivent être écrits dans des fichiers python correspondant au motif **test\*.py**.
- - Les tests peuvent être placés dans des dossiers correspondant au motif **test\***
- - Les tests doivent être écrits dans des classes héritants de :class:`funq.testcase.FunqTestCase`
-   ou :class:`funq.testcase.MultiFunqTestCase`.
- - Les tests doivent être des méthodes dans ces classes, dont le nom correspond au motif **test\***.
+ - Tests must be written in python files named **test\*.py**
+ - Tests may be placed in folders like **test\***
+ - Tests must be written as methods of subclasses of :class:`funq.testcase.FunqTestCase`
+   or :class:`funq.testcase.MultiFunqTestCase`
+ - Tests methods must be named **test\***.
 
-Exemple:
+Example:
 
-*fichier test_something.py*:
+*file test_something.py*:
 
 .. code-block:: python
   
@@ -20,33 +20,33 @@ Exemple:
   
   class MyClass(object):
       """
-      Une classe standard (non test).
+      A standard class (not a test one).
       """
   
   class MyTest(FunqTestCase):
       """
-      Une classe de test.
+      A test class.
       """
-      __app_config_name__ = 'ma_conf'
+      __app_config_name__ = 'my_conf'
       
       def test_something(self):
           """
-          une méthode de test
+          A test method.
           """
       
       def something(self):
           """
-          une méthode non considérée comme un test
+          A method that is not a test method.
           """
 
-Utilisation des méthodes **assert\***
--------------------------------------
+Using **assert\*** methods
+--------------------------
 
-Dans les méthodes de test, il est très fortement recommandé d'utiliser les méthodes
-**assert\*** pour détecter les échecs de test.
+Inside test methods, it is highly recommended to use **assert\*** methods
+to detect test failures.
 
-La liste complète de ces méthodes est accessible dans la documentation de
-:class:`unittest.TestCase`. Voici quelques-unes de ces méthodes:
+The complete list of these methods is availables in the documentation
+for :class:`unittest.TestCase`. Here are some of these methods:
 
 - :meth:`unittest.TestCase.assertTrue`
 - :meth:`unittest.TestCase.assertFalse`
@@ -63,27 +63,27 @@ La liste complète de ces méthodes est accessible dans la documentation de
 - :meth:`unittest.TestCase.assertRaisesRegexp`
 - ...
 
-Exemple::
+Example::
   
   from funq.testcase import FunqTestCase
   
   class MyTest(FunqTestCase):
-      __app_config_name__ = 'ma_conf'
+      __app_config_name__ = 'my_conf'
       
       def test_something(self):
-          self.assertEqual(1, 1, "Message d'erreur")
+          self.assertEqual(1, 1, "Error message")
 
-Tests todo ou skippés
+Skipped or todo tests
 ---------------------
 
-Il est pratique de ne pas lancer de tests dans certains cas (skip) ou encore
-de les déclarer "à finir" (todo). pour cela, il existe des décorateurs pratiques:
+It is useful to not start tests in some cases, or to mark them "uncomplete"
+(todo). For this, there are some decorators:
 
 - :func:`unittest.skip`, :func:`unittest.skipIf`, :func:`unittest.skipUnless`
 - :func:`unittest.expectedFailure`
 - :func:`funq.testcase.todo`
 
-Exemple::
+Example::
   
   from funq.testcase import FunqTestCase, todo
   from unittest import skipIf
@@ -92,26 +92,26 @@ Exemple::
   class MyTest(FunqTestCase):
       __app_config_name__ = 'ma_conf'
       
-      @todo("En attente de fonctionnement !")
+      @todo("Waiting for this to work !")
       def test_something(self):
-          self.assertEqual(1, 1, "Message d'erreur")
+          self.assertEqual(1, 2, "Error message")
       
       @skipIf(sys.platform.startswith("win"), "requires Windows")
       def test_other_thing(self):
           ....
 
-Tests paramétrés
-----------------
+Parameterized tests
+-------------------
 
-Il existe un moyen inclus dans **funq** de générer des fonctions de test à partir
-d'une autre méthode et de paramètres. Cela fonctionne pour les classes de test
-héritant de :class:`funq.testcase.BaseTestCase` (:class:`funq.testcase.FunqTestCase`
-ou :class:`funq.testcase.MultiFunqTestCase`), et en utilisant les décorateurs adaptés:
+**Funq** offer a way to generate test methods given a base method and some data.
+This works for methods of subclasses of :class:`funq.testcase.BaseTestCase`
+(:class:`funq.testcase.FunqTestCase` or :class:`funq.testcase.MultiFunqTestCase`),
+and by using appropriate decorators:
 
 - :func:`funq.testcase.parameterized`
 - :func:`funq.testcase.with_parameters`
 
-Exemple::
+Example::
   
   from funq.testcase import FunqTestCase, parameterized, with_parameters
   
@@ -121,7 +121,7 @@ Exemple::
   ]
   
   class MyTest(FunqTestCase):
-      __app_config_name__ = 'ma_conf'
+      __app_config_name__ = 'my_conf'
       
       @parameterized('2', 2)
       @parameterized('3', 3)

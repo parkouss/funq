@@ -1,7 +1,7 @@
-# référence le widget principal
+# the main central widget
 mainWidget = fenPrincipale::widgetCentral
 
-# et quelques autres widgets
+# and some other widgets
 
 btnTest = {mainWidget}::btnTest
 

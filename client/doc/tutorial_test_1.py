@@ -2,21 +2,21 @@
 # -*- coding: utf-8 -*-
 
 """
- --------- Documentation du module ---------
-Ce fichier fait partie du tutorial de **funq**. Il définit
-actuellement une seule fonction de test.
+ --------- Module's documentation ---------
+This file is part of the funq tutorial. It currently defines
+one test method.
 """
 
 from funq.testcase import FunqTestCase
 import time
 
 class MyTestCase(FunqTestCase):
-    # recuperation de la config adéquate pour l'application concernée
+    # identify the configuration
     __app_config_name__ = 'applitest'
 
     def test_mon_premier_test(self):
         """
-         --------- Documentation de la fonction ---------
+         --------- Test method documentation ---------
         """
-        # ne fait rien pendant 3 secondes.
+        # do nothing for 3 seconds
         time.sleep(3)

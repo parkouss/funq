@@ -276,7 +276,7 @@ class FunqTestCase(BaseTestCase):
     the configuration of the application (:class:`funq.client.ApplicationConfig`).
     
     :var funq: instance of :class:`funq.client.FunqClient`, allowing to manipulate
-    the application.
+               the application.
     """
     __app_config_name__ = None
 
@@ -303,7 +303,7 @@ class MultiFunqTestCase(BaseTestCase):
     names).
     
     :var funq: a dict that contains :class:`funq.client.FunqClient`, allowing to
-    manipulate the application. Keys are configuration names.
+               manipulate the application. Keys are configuration names.
     """
     __app_config_names__ = None
     

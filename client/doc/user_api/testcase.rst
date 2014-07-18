@@ -1,13 +1,12 @@
-TestCases et helpers
-====================
+TestCases and helpers
+=====================
 
 .. currentmodule:: funq.testcase
 
 TestCases
 ---------
 
-Les classe de test héritent de :class:`unittest.TestCase` et sont le fondement
-pour l'écriture des tests avec **funq**.
+Test classes in **funq** are subclasses of :class:`unittest.TestCase`.
 
 .. inheritance-diagram:: BaseTestCase
 
@@ -21,8 +20,8 @@ pour l'écriture des tests avec **funq**.
 
 .. autoclass:: MultiFunqTestCase
 
-Helpers divers
----------------
+Helpers
+-------
 
 .. autofunction:: todo
 

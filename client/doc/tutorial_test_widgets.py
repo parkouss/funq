@@ -2,22 +2,22 @@
 # -*- coding: utf-8 -*-
 
 """
-Ce fichier fait partie du tutorial de **funq**. Il montre brièvement
-l'intéraction avec des widget.
+This file is part of the funq tutorial. It briefly shows widget
+interaction.
 """
 
 from funq.testcase import FunqTestCase
 from funq.client import FunqError
 
 class TestCase2(FunqTestCase):
-    # recuperation de la config adéquate pour l'application concernée
+    # identify the configuration
     __app_config_name__ = 'applitest'
 
     def test_libelle_btn_test(self):
         """
-        Teste le libellé du bouton de test.
+        Test the test button libelle
         """
-        # utilisation de l'alias "btnTest"
+        # use  the "btnTest" alias
         btn_test = self.funq.widget('btnTest')
         properties = btn_test.properties()
         
@@ -25,11 +25,10 @@ class TestCase2(FunqTestCase):
 
     def test_open_dialog(self):
         """
-        Teste l'ouverture de la boite de dialogue
-        lors de click sur le bouton test.
+        Test that a dialog is open when user click on the test button.
         """
         def dialog1_is_closed():
-            """fonction helper"""
+            """helper function"""
             try:
                 self.funq.widget('dialog1_btn_ok')
             except FunqError:
@@ -38,16 +37,16 @@ class TestCase2(FunqTestCase):
                 return False
         
         self.assertTrue(dialog1_is_closed(),
-                        'Le widget `dialog1_btn_ok` est ouvert, il ne devrait pas.')
+                        'The widget `dialog1_btn_ok` is opened, but it must not')
         
         btn_test = self.funq.widget('btnTest')
         btn_test.click()
         
         self.assertFalse(dialog1_is_closed(),
-                         'Le widget `dialog1_btn_ok` est fermé, il ne devrait pas.')
+                         'The widget `dialog1_btn_ok` est closed, but i must not')
         
         btn_dlg = self.funq.widget('dialog1_btn_ok')
         btn_dlg.click()
         
         self.assertTrue(dialog1_is_closed(),
-                        'Le widget `dialog1_btn_ok` est ouvert, il ne devrait pas.')
+                        'The widget `dialog1_btn_ok` is opened, but it must not')

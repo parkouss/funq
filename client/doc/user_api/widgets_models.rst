@@ -1,16 +1,16 @@
-Widgets et autres classes pour manipuler les composants graphiques
-==================================================================
+Widgets and other classes to interact with tested application
+=============================================================
 
 .. currentmodule:: funq.models
 
-Classe de base Widget
+The Widget base class
 ---------------------
 
-Un widget est récupéré depuis la méthode :meth:`funq.client.FunqClient.widget` .
+A Widget is often obtained with :meth:`funq.client.FunqClient.widget` .
 
-Exemple::
+Example::
   
-  mon_widget = self.funq.widget('mon_widget')
+  my_widget = self.funq.widget('my_widget')
 
 .. autoclass:: Widget
   
@@ -36,17 +36,17 @@ Exemple::
   
   .. automethod:: Widget.call_slot
 
-Manipulation des données du framework Model/View de QT
-------------------------------------------------------
+Interacting with the data of QT Model/View framework
+----------------------------------------------------
 
-Pour manipuler des item provenants de QAbstractTableModel, il faut récupérer
-la vue adéquate (QAbstractItemView). L'instance retournée héritera de
-:class:`AbstractItemView` et les données du modèle rattaché seront accessibles
-via la méthode :meth:`AbstractItemView.model_items`.
+To interact with items in QAbstractTableModel, it is needed to get the
+associated view (QAbstractItemView). The returned instance will be of type
+:class:`AbstractItemView` and the data will then be retrievable with
+the :meth:`AbstractItemView.model_items` method.
 
-Exemple::
+Example::
   
-  view = self.funq.widget('ma_tableview')
+  view = self.funq.widget('my_tableview')
   assert isinstance(view, AbstractItemView)
   
   model_items = view.model_items()
@@ -87,24 +87,24 @@ Exemple::
   
   .. automethod:: ModelItem.is_checked
 
-Manipulation des données du framework Graphics View de QT
----------------------------------------------------------
+Interacting with the data of QT Graphics View framework
+-------------------------------------------------------
 
-La manipulation des QGraphicsItem depuis le framework de test est assez
-similiaire à la manipulation des données du framework Model/View de QT.
+Handling QGraphicsItems data is quite similar to handling data of
+the Models/Views framework.
 
-Il faut récupérer la vue adéquate, héritant de QGraphicsView. L'instance
-python retournée sera une instance de :class:`GraphicsView` et les items
-graphiques seront accessibles via la méthode :meth:`GraphicsView.gitems`.
+It requires the associated view (an instance of QGraphicsView). In funq
+the widget will be an instance of :class:`GraphicsView` and the data will
+be available with the :meth:`GraphicsView.gitems` method.
 
-Exemple::
+Example::
   
-  gview = self.funq.widget('ma_gview')
+  gview = self.funq.widget('my_gview')
   
   gitems = gview.gitems()
   
   for item in gitems.iter():
-      # faire quelque chose sur les items
+      # do something with item
 
 
 .. inheritance-diagram:: GraphicsView
@@ -130,8 +130,8 @@ Exemple::
   
   .. automethod:: GItem.dclick
 
-Autres widgets
---------------
+Other widgets
+-------------
 
 .. inheritance-diagram:: TabBar
 

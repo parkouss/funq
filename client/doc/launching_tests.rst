@@ -1,37 +1,36 @@
-Lancement de tests (nose)
-=========================
+Launching tests (nose)
+======================
 
-Les tests sont lancés par `nose <https://nose.readthedocs.org/en/latest/>`_, auquel il faut
-indiquer d'utiliser le plugin **funq**.
+Tests are launched by `nose <https://nose.readthedocs.org/en/latest/>`_,
+and you have to tell it to use the **funq** plugin.
 
-Lancement manuel
+Manual launching
 ----------------
 
-Basiquement::
+Basically::
   
   nosetests --with-funq
 
-lancé dans le répertoire contenant les tests et le fichier de configuration
-**funq.conf**.
+The command must be started from the folder containing tests files and
+the **funq.conf** configuration file.
 
 .. note::
   
-  Il existe de nombreuses options pour nose, et certaines spécifiques au plugin
-  **funq**. Voir la commande **nosetests --help** pour une liste exhaustive.
+  There are many options for nose, and some specifics to the **funq**
+  plugin. See ``nosetests --help`` for an exhaustive list.
 
-Exemple::
+Example::
   
-  # lancer les tests avec l'affichage des print et stopper lors de la première
-  # erreur
+  # launch tests with all stdout/stderr output and stop on the first error
   nosetests --with-funq -s -x
 
-Options de nose par défaut
---------------------------
+Defining default options
+------------------------
 
-Toutes les options de nose peuvent être spécifiées par défaut dans un fichier
-nommé **setup.cfg**. Voir la documentation de nose à ce sujet.
+Every nose option may be specified by default in a file named **setup.cfg**.
+You can look at the nose documentation for more informations.
 
-Exemple:
+Example:
 
 .. code-block:: ini
   
@@ -41,47 +40,51 @@ Exemple:
 
 .. note::
   
-  La configuration ci-dessous est recommandée par simplicitée, et le reste
-  de cette documentation supposera que les commande nose l'utilisent.
+  This configuration is very useful, and allow to type only **nosetests**
+  on the command line instead of ``nosetests --with-funq -vv``. I highly
+  recommend this configuration and I will use it in the following
+  documentation.
 
-Sélection de tests à lancer
----------------------------
+Selecting tests to launch
+-------------------------
 
-Il est possible de sélectionner les tests lancés lors de l'appel de nose.
-Voir la documentation de nose à ce sujet.
+It s possible to select tests to launch using nose.
 
-Exemple::
+Example::
   
-  # tous les tests d'un fichier
+  # every tests in a given file
   nosetests test_export.py
   
-  # tous les tests d'une classe d'un fichier
+  # every tests of a given class in a test file
   nosetests test_export.py:TestExportElectre
   
-  # sélection d'un test en particulier
+  # just one test (one method)
   nosetests test_export.py:TestExportElectre.test_export_b6
 
 .. note::
   
-  Si l'option verbosity de nose vaut 2, les tests affichés lors de l'exécution
-  apparaissent sous le même format. Il suffit alors de copier/collé le nom du
-  test pour le relancer.
+  See the nose documeation fo more information.
+  
+  If the verbosity option is equal to 2, the tests execution will show
+  test names with the same format. This means that you can then copy/paste
+  a test name to restart it.
 
-Aller plus loin
----------------
+Going further
+-------------
 
-**nose** dispose de nombreux plugins qui peuvent être utiles !
+**nose** got plenty of usefuls plugins !
 
-Certains sont intégrés dans nose, d'autres nécessitent une installation.
+Some are integrated in nose, others are third-party plugins and need a
+proper installation.
 
-Parmi les plugins de nose intéressants (et fournis par défaut), on peut lister:
+Som of the interesting nose plugins are listed here:
 
-- **xunit**: formatage des résultats au format xunit.
-- **attributeselector**: selection des tests selon leurs attributs
-- **collect-only**: permet de lister les tests sans les exécuter réellement.
+- **xunit**: format tests output using xunit
+- **attributeselector**: select tests given their attributes
+- **collect-only**: allow to only list tests without really execute them
 
-Voir la documentation de nose, et google pour découvrir des plugins intéressants !
+See the nose documentation, and google to find others usefuls plugins !
 
 .. note::
   
-  Il est aussi possible d'écrire facilement des `plugins pour nose <http://nose.readthedocs.org/en/latest/plugins/writing.html>`_.
+  It is also easy to write your own `nose plugins <http://nose.readthedocs.org/en/latest/plugins/writing.html>`_.

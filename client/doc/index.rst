@@ -1,10 +1,10 @@
-Documentation de **funq**
-=========================
+**funq**'s documentation
+========================
 
 .. include:: ../README
 
-Plan de documentation
-=====================
+Documentation
+=============
 
 .. toctree::
    :maxdepth: 2
@@ -21,8 +21,8 @@ Plan de documentation
    user_api
 
 
-Indices et références
-=====================
+Indices and references
+======================
 
 * :ref:`genindex`
 * :ref:`modindex`

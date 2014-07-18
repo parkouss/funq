@@ -1,5 +1,5 @@
-API pour les utilisateurs du framework funq
-===========================================
+API of funq (client side)
+=========================
 
 .. toctree::
    :maxdepth: 2

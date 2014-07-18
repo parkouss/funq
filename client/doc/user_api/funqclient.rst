@@ -1,25 +1,25 @@
-Point d'entrée de communication avec un serveur libFunc : FunqClient
-====================================================================
+Entry point to communicate with a libFunq server : FunqClient
+=============================================================
 
 .. currentmodule:: funq.client
 
-Une instance de :class:`FunqClient` est généralement récupérée par les membres de
-:attr:`funq.testcase.FunqTestcase.app_config` ou de
-:attr:`funq.testcase.MultiFunqTestcase.app_config`
+A :class:`FunqClient` instance is generally retrieved with
+:attr:`funq.testcase.FunqTestcase.funq` or
+:attr:`funq.testcase.MultiFunqTestcase.funq`.
 
-Exemple::
+Example::
   
   from funq.testcase import FunqTestCase
   
-  class MonTestCase(FunqTestCase):
-      __app_config_name__ = 'ma_conf'
+  class MyTestCase(FunqTestCase):
+      __app_config_name__ = 'my_conf'
   
-      def test_qquechose(self):
-          """Documentation de la fonction"""
+      def test_something(self):
+          """Method documentation"""
     
-          mon_widget = self.funq.widget('mon_widget')
+          my_widget = self.funq.widget('mon_widget')
     
-          mon_widget.click()
+          my_widget.click()
     
           self.funq.take_screenshot()
 

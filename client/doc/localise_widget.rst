@@ -1,25 +1,26 @@
-Localiser facilement des widgets
-================================
+How to find widget's paths
+==========================
 
-Il existe actuellement deux techniques pour localiser des widgets, qui
-sont présentées dans cette section.
+Currently there is two ways fo ind widget's paths, and it is explained
+in this section.
 
-Avec **funq**
------------------------
+With **funq**
+-------------
 
-La technique la plus simple est de lancer **funq** en *mode pick*.
+The easiest way is to start **funq** executable (from *funq-server*
+package) in *pick mode*.
 
-Par exemple, pour localiser les widgets de l'application qtcreator:
+For example, to find widgets from qtcreator application:
 
 .. code-block:: bash
   
   funq --pick qtcreator
   
-Ensuite, il suffit de cliquer sur un widget en maintenant les touches
-*Ctrl* et *Shift* appuyées. Cela affiche sur la sortie standard le chemin
-complet du widget et certaines de ses propriétés.
+Then you need to pick on a widget while pressing *Ctrl* and *Shift*.
+This will print on stdout the complete widget path and the available
+properties. 
 
-Voici un exemple de sortie lorsque je clique sur le menu "Fichier" de qtcreator::
+Here is an example of output when clicking on the "File" menu in qtcreator::
   
   WIDGET: `Core:_:Internal:_:MainWindow-0::QtCreator.MenuBar` (pos: 42, 12)
   	objectName: QtCreator.MenuBar
@@ -54,19 +55,17 @@ Voici un exemple de sortie lorsque je clique sur le menu "Fichier" de qtcreator:
   	defaultUp: false
   	nativeMenuBar: false
 
-Dump xml des widget
--------------------
+Xml dump of all widgets
+-----------------------
 
-Il est aussi possible de faire un *dump complet* de l'arborescence des widgets
-à un moment donné. Cette fonctionnalité ne peut être utilisée que dans un test.
-
-Voici un exemple d'utilisation::
+It is also possible to dump widgets of the running application. This may
+only be used in a test::
   
   from funq.testcase import FunqTestCase
   
   class MyTestCase(FunqTestCase):
       __app_config_name__ = 'applitest'
   
-      def test_mon_premier_test(self):
-          # ecriture du dump dans le fichier "dump.json"
+      def test_my_first_test(self):
+          # this will write a "dump.json" file
           self.funq.dump_widgets_list('dump.json')

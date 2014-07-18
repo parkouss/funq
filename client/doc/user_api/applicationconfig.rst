@@ -1,4 +1,4 @@
-Configuration des application testées
-=====================================
+Configuration of tested applications
+====================================
 
 .. autoclass:: funq.client.ApplicationConfig
