@@ -13,6 +13,11 @@ https://github.com/parkouss/funq/tree/master/server/player_tester.
 This sample application must be compiled to an executable binary file,
 **player_tester**.
 
+.. important::
+  
+  Please keep in mind that funq-server currently does only works with
+  QT4 - be careful to not compile player_tester with QT5 !
+
 The two packages **funq** and **funq-server** must be installed. You
 can check that funq-server is installed by running:
 
