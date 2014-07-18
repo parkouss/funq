@@ -63,13 +63,12 @@ class Runner(object):
     def _parse_args(self, argv=None):
         parser = argparse.ArgumentParser(version=funq_server.__version__,
                                          description=u"""
-        Démarre une application avec un serveur funq intégré.
+        Start a QT application with a libFunq server injected.
         """)
         parser.add_argument('--pick', action='store_true',
-                            help="Passe funq en mode pick, pour localiser"
-                                 " les widgets.")
+                            help="Use PICK MODE, to find widget's paths")
         parser.add_argument('--port', type=int,
-                            help="Specifie le port d'ecoute de funq.")
+                            help="Specify funq port.")
         parser.add_argument('command', nargs=argparse.REMAINDER)
         return parser.parse_args(argv)
     
