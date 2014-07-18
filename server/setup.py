@@ -85,7 +85,11 @@ class build_libfunq(Command):
         print 'running %s' % make_cmd
         subprocess.check_call(make_cmd, shell=True)
         
-        shutil.copy2(os.path.join('bin', self.funqlib_name), self.funqlib_out_path())
+        lib_path = self.funqlib_out_path()
+        lib_dir = os.path.dirname(lib_path)
+        if not os.path.isdir(lib_dir):
+            os.makedirs(lib_dir)
+        shutil.copy2(os.path.join('bin', self.funqlib_name), lib_path)
 
     def get_outputs(self):
         return [self.funqlib_out_path()]
