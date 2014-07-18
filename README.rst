@@ -65,3 +65,15 @@ Getting started and documentation
 =================================
 
 Look at the documentation on readthedocs: http://funq.readthedocs.org/en/latest/
+
+Thanks to
+=========
+
+Thanks to Yann De Poulpiquet <yann_de_poulpiquet@bestmail.us> and
+Riad Lezzar <rlezzar@gmail.com> to have contributed by writing the firsts
+functional tests with **funq**.
+
+Thanks also to Jean-Luc Rouzoul, Dominique Constant and Mickaël Guérin for
+having supported this project.
+
+Without them, **funq** would never have become a free software !
