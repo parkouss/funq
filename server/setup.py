@@ -100,7 +100,7 @@ class develop(_develop):
         _develop.run(self)
 
 setup(
-    name='funq_server',
+    name='funq-server',
     version=version,
     packages=['funq_server'],
     entry_points = {
