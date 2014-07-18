@@ -101,6 +101,8 @@ class develop(_develop):
 
 setup(
     name='funq-server',
+    description="write FUNctional tests for Qt applications (server)",
+    long_description=read("README"),
     version=version,
     packages=['funq_server'],
     entry_points = {

@@ -1,10 +1,14 @@
 **funq**'s documentation
 ========================
 
-.. include:: ../README
+**funq** is a tool to write FUNctional tests for Qt applications
+using python.
 
-Documentation
-=============
+It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
+See the LICENCE.txt file distributed in the sources for more information.
+
+Look at the github repository to see how to install funq:
+https://github.com/parkouss/funq.
 
 .. toctree::
    :maxdepth: 2

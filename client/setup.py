@@ -13,6 +13,8 @@ install_requires = ['nose']
 
 setup(
 	name="funq",
+    description="write FUNctional tests for Qt applications (client)",
+    long_description=read("README"),
 	version=version,
 	packages=find_packages(),
     zip_safe=False,

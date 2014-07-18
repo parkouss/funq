@@ -1,7 +1,7 @@
-About **funq**
-==============
+About **funq-server**
+=====================
 
-This package is the client part of the **funq** project, a tool to write
+This package is the server part of the **funq** project, a tool to write
 FUNctional tests for Qt applications using python.
 
 It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
