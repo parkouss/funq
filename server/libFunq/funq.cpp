@@ -67,17 +67,17 @@ void Funq::funqInit() {
         m_server = new QTcpServer(this);
         connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
         if (!m_server->listen(QHostAddress::LocalHost, m_port)) {
-            qDebug() << "Impossible d'initialiser Funq. Erreur:\n\t"
+            qDebug() << "Unable to initialize funq. Error:\n\t"
                      << m_server->errorString();
         } else {
-            qDebug() << "Funq est initialisé sur le port " << m_port << ".";
+            qDebug() << "funq is initialized on port " << m_port << ".";
         }
     } else {
         m_pick = new Pick(new PickFormatter);
         if (registerPick()) {
-            qDebug() << "Funq mode PICK en action !";
+            qDebug() << "Funq mode PICK in action !";
         } else {
-            qDebug() << "Erreur interne, impossible d'utiliser le mode PICK de Funq";
+            qDebug() << "Internal error, unable to use the PICK funq mode.";
         }
     }
 }
