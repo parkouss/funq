@@ -1,0 +1,15 @@
+*.pyc
+*.egg-info
+_build
+
+server/Makefile
+server/libFunq/Makefile
+server/bin
+server/funq_server/libFunq.so
+moc_*.cpp
+ui_*.h
+*.o
+
+server/player_tester/Makefile
+server/player_tester/player_tester
+server/player_tester/tutorial
