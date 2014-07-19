@@ -2,6 +2,6 @@ language: python
 python:
   - "2.7"
 # command to install dependencies
-install: "pip install ./client"
+install: "{envpython} setup.py develop"
 # command to run tests
-script: "nosetests -w client"
+script: "nosetests -w client/"
