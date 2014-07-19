@@ -13,6 +13,8 @@ install:
   - "cd server && python setup.py develop && cd .."
   # use a wheel version of PySide for functiona tests
   - pip install --find-links https://parkin.github.io/python-wheelhouse/ --use-wheel PySide;
+  # Travis CI servers use virtualenvs, so we need to finish the install by the following
+  - python ~/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/pyside_postinstall.py -install
 # command to run tests
 script:
   - "nosetests -w client/"
