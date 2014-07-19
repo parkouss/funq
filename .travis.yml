@@ -10,7 +10,9 @@ before_install:
 install:
   - "cd client && python setup.py develop && cd .."
   - "cd server/tests && qmake-qt4 && make -j4 && cd ../.."
+  - "cd server && python setup.py develop && cd .."
 # command to run tests
 script:
   - "nosetests -w client/"
   - "make -C server/tests/ check"
+  - "cd tests-functionnal && nosetests && cd .."
