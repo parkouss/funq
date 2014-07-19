@@ -7,6 +7,19 @@ using python.
 It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
 See the LICENCE.txt file distributed in the sources for more information.
 
+Travis-ci build:
+
+.. image:: https://travis-ci.org/parkouss/funq.svg?branch=master
+    :target: https://travis-ci.org/parkouss/funq
+
+Get funq on PyPi (server and client packages):
+
+.. image:: https://pypip.in/version/funq-server/badge.png
+    :target: https://pypi.python.org/pypi/funq-server/
+
+.. image:: https://pypip.in/version/funq/badge.png
+    :target: https://pypi.python.org/pypi/funq/
+
 How does *funq* works
 =====================
 
