@@ -7,6 +7,11 @@ using python.
 It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
 See the LICENCE.txt file distributed in the sources for more information.
 
+Tutorial and documentation:
+
+.. image:: https://readthedocs.org/projects/funq/badge/?version=latest
+    :target: http://funq.readthedocs.org
+
 Travis-ci build:
 
 .. image:: https://travis-ci.org/parkouss/funq.svg?branch=master
@@ -73,11 +78,6 @@ You can instead get the sources and install it with setup.py::
   
   For contributors, you may want to use **python setup.py develop**
   instead of **python setup.py install** commands.
-
-Getting started and documentation
-=================================
-
-Look at the documentation on readthedocs: http://funq.readthedocs.org/en/latest/
 
 Thanks to
 =========
