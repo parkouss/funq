@@ -96,6 +96,7 @@ public slots:
     QtJson::JsonObject call_slot(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_list(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_click(const QtJson::JsonObject & command);
+    QtJson::JsonObject headerview_path_from_view(const QtJson::JsonObject & command);
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
 

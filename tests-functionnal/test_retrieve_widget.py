@@ -35,7 +35,7 @@
 from base import AppTestCase
 from funq.testcase import parameterized
 
-from funq.models import Widget, ComboBox
+from funq.models import Widget, ComboBox, HeaderView
 from funq.client import FunqClient
 from funq.errors import HooqAliasesKeyError, FunqError
 
@@ -97,3 +97,9 @@ class TestRetrieve(AppTestCase):
         self.start_dialog('table')
         header = self.funq.widget(path='mainWindow::TableDialog::QTableWidget::' + orientation)
         self.assertEquals(header.header_texts(), texts)
+
+    def test_header_from_table(self):
+        self.start_dialog('table')
+        table = self.funq.widget(path='mainWindow::TableDialog::QTableWidget')
+        self.assertIsInstance(table.horizontal_header(), HeaderView)
+        self.assertIsInstance(table.vertical_header(), HeaderView)

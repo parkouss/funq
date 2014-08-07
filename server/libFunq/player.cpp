@@ -41,6 +41,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QMouseEvent>
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
+#include <QTableView>
+#include <QTreeView>
 #include <QBuffer>
 #include <QDesktopWidget>
 #include <QGraphicsView>
@@ -595,6 +597,33 @@ QtJson::JsonObject Player::headerview_click(const QtJson::JsonObject & command) 
     }
     mouse_click(ctx.widget->viewport(), mousePos);
     QtJson::JsonObject result;
+    return result;
+}
+
+QtJson::JsonObject Player::headerview_path_from_view(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    
+    QHeaderView * header = NULL;
+    QTableView * tview = qobject_cast<QTableView *>(ctx.widget);
+    if (tview) {
+        if (command["orientation"] == "vertical") {
+            header = tview->verticalHeader();
+        } else {
+            header = tview->horizontalHeader();
+        }
+    } else {
+        QTreeView * trview = qobject_cast<QTreeView *>(ctx.widget);
+        if (trview) {
+            header = trview->header();
+        }
+    }
+    
+    if (! header) {
+        return createError("InvalidHeaderView", QString::fromUtf8("No header view found for the view (id:%1)").arg(ctx.id));
+    }
+    QtJson::JsonObject result;
+    result["headerpath"] = objectPath(header);
     return result;
 }
 

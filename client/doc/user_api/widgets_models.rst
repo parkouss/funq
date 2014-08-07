@@ -64,6 +64,21 @@ Example::
   .. automethod:: AbstractItemView.current_editor
 
 
+.. inheritance-diagram:: TableView
+
+.. autoclass:: TableView
+  
+  .. automethod:: TableView.horizontal_header
+  
+  .. automethod:: TableView.vertical_header
+
+
+.. inheritance-diagram:: TreeView
+
+.. autoclass:: TreeView
+  
+  .. automethod:: TreeView.header
+
 .. autoclass:: ModelItems
   
   .. automethod:: ModelItems.iter

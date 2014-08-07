@@ -450,6 +450,66 @@ class AbstractItemView(Widget):
         raise FunqError("MissingEditor", 'Unable to find an editor.'
                     ' Possible editors: %s' % repr(self.editor_class_names))
 
+class TableView(AbstractItemView):
+    """
+    Specific widget to manipulate a QTableView widget.
+    """
+    CPP_CLASS = 'QTableView'
+    
+    def vertical_header(self,
+                        timeout=2.0, timeout_interval=0.1, wait_active=True):
+        """
+        Return the vertical :class:`HeaderView` associated to this
+        tableview.
+        
+        Each optionnal parameter is passed to
+        :meth:`funq.client.FunqClient.widget`.
+        """
+        headerdata = self.client.send_command('headerview_path_from_view',
+                                              oid=self.oid,
+                                              orientation='vertical')
+        return self.client.widget(path=headerdata['headerpath'],
+                                  timeout=timeout,
+                                  timeout_interval=timeout_interval,
+                                  wait_active=wait_active)
+
+    def horizontal_header(self,
+                          timeout=2.0, timeout_interval=0.1, wait_active=True):
+        """
+        Return the horizontal :class:`HeaderView` associated to this
+        tableview.
+        
+        Each optionnal parameter is passed to
+        :meth:`funq.client.FunqClient.widget`.
+        """
+        headerdata = self.client.send_command('headerview_path_from_view',
+                                              oid=self.oid,
+                                              orientation='horizontal')
+        return self.client.widget(path=headerdata['headerpath'],
+                                  timeout=timeout,
+                                  timeout_interval=timeout_interval,
+                                  wait_active=wait_active)
+
+class TreeView(AbstractItemView):
+    """
+    Specific widget to manipulate a QTreeView widget.
+    """
+    CPP_CLASS = 'QTreeView'
+    
+    def header(self, timeout=2.0, timeout_interval=0.1, wait_active=True):
+        """
+        Return the :class:`HeaderView` associated to this treeview.
+        
+        Each optionnal parameter is passed to
+        :meth:`funq.client.FunqClient.widget`.
+        """
+        headerdata = self.client.send_command('headerview_path_from_view',
+                                              oid=self.oid)
+        return self.client.widget(path=headerdata['headerpath'],
+                                  timeout=timeout,
+                                  timeout_interval=timeout_interval,
+                                  wait_active=wait_active)
+
 class TabBar(Widget):
     """
     Allow to manipulate a QTabBar Widget.
