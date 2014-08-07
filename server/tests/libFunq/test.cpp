@@ -48,6 +48,9 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QHBoxLayout>
 #include <QSignalSpy>
 #include <QBuffer>
+#include <QTableWidget>
+#include <QTableWidgetItem>
+#include <QHeaderView>
 #include "objectpath.h"
 #include "player.h"
 #include "shortcutresponse.h"
@@ -620,6 +623,128 @@ private slots:
          QtJson::JsonObject result = player.tabbar_list(command);
          
          QCOMPARE(tabtexts, result["tabtexts"].toStringList());
+     }
+     
+     void test_player_headerview_list() {
+         QTableWidget table;
+         QStringList columns = QStringList() << "C1" << "C2" << "C3";
+         QStringList rows = QStringList() << "R1" << "R2";
+         table.setColumnCount(columns.count());
+         table.setRowCount(rows.count());
+         table.setHorizontalHeaderLabels(columns);
+         table.setVerticalHeaderLabels(rows);
+         for (int i=0; i<columns.count(); i++) {
+             for (int j=0; j<rows.count(); j++) {
+                 table.setItem(i, j, new QTableWidgetItem(""));
+             }
+         }
+         table.horizontalHeader()->setObjectName("H");
+         table.verticalHeader()->setObjectName("V");
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath, resultPath, command, result;
+         
+         commandPath["path"] = "QTableWidget::H";
+         resultPath = player.widget_by_path(commandPath);
+         command["oid"] = resultPath["oid"];
+         result = player.headerview_list(command);
+         QCOMPARE(result["headertexts"].toStringList(), columns);
+         
+         commandPath["path"] = "QTableWidget::V";
+         resultPath = player.widget_by_path(commandPath);
+         command["oid"] = resultPath["oid"];
+         result = player.headerview_list(command);
+         QCOMPARE(result["headertexts"].toStringList(), rows);
+     }
+     
+     void test_player_headerview_click() {
+         QTableWidget table;
+         QStringList columns = QStringList() << "C1" << "C2" << "C3";
+         QStringList rows = QStringList() << "R1" << "R2";
+         table.setColumnCount(columns.count());
+         table.setRowCount(rows.count());
+         table.setHorizontalHeaderLabels(columns);
+         table.setVerticalHeaderLabels(rows);
+         for (int i=0; i<columns.count(); i++) {
+             for (int j=0; j<rows.count(); j++) {
+                 table.setItem(i, j, new QTableWidgetItem(""));
+             }
+         }
+         table.horizontalHeader()->setObjectName("H");
+         table.verticalHeader()->setObjectName("V");
+         
+         table.resize(800, 600);
+         
+         table.show();
+         QTest::qWaitForWindowShown(&table);
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath, resultPath, command, result;
+         
+         for (int i=0; i < columns.count(); i++) {
+             QSignalSpy hspy(table.horizontalHeader(), SIGNAL(sectionClicked(int)));
+             commandPath["path"] = "QTableWidget::H";
+             resultPath = player.widget_by_path(commandPath);
+             command["oid"] = resultPath["oid"];
+             command["indexOrName"] = i;
+             result = player.headerview_click(command);
+             qApp->processEvents();
+             QCOMPARE(hspy.count(), 1);
+             QCOMPARE(hspy.first().first().toInt(), i);
+         }
+         
+         for (int i=0; i < rows.count(); i++) {
+             QSignalSpy vspy(table.verticalHeader(), SIGNAL(sectionClicked(int)));
+             commandPath["path"] = "QTableWidget::V";
+             resultPath = player.widget_by_path(commandPath);
+             command["oid"] = resultPath["oid"];
+             command["indexOrName"] = i;
+             result = player.headerview_click(command);
+             qApp->processEvents();
+             QCOMPARE(vspy.count(), 1);
+             QCOMPARE(vspy.first().first().toInt(), i);
+         }
+     }
+     
+     void test_player_headerview_click_by_name() {
+         QTableWidget table;
+         QStringList columns = QStringList() << "C1" << "C2" << "C3";
+         QStringList rows = QStringList() << "R1" << "R2";
+         table.setColumnCount(columns.count());
+         table.setRowCount(rows.count());
+         table.setHorizontalHeaderLabels(columns);
+         table.setVerticalHeaderLabels(rows);
+         for (int i=0; i<columns.count(); i++) {
+             for (int j=0; j<rows.count(); j++) {
+                 table.setItem(i, j, new QTableWidgetItem(""));
+             }
+         }
+         table.horizontalHeader()->setObjectName("H");
+         table.verticalHeader()->setObjectName("V");
+         
+         table.resize(800, 600);
+         
+         table.show();
+         QTest::qWaitForWindowShown(&table);
+         
+         QBuffer buffer;
+         Player player(&buffer);
+         
+         QtJson::JsonObject commandPath, resultPath, command, result;
+         
+         QSignalSpy hspy(table.horizontalHeader(), SIGNAL(sectionClicked(int)));
+         commandPath["path"] = "QTableWidget::H";
+         resultPath = player.widget_by_path(commandPath);
+         command["oid"] = resultPath["oid"];
+         command["indexOrName"] = "C2";
+         result = player.headerview_click(command);
+         qApp->processEvents();
+         QCOMPARE(hspy.count(), 1);
+         QCOMPARE(hspy.first().first().toInt(), 1);
      }
      
      void test_player_model_items() {

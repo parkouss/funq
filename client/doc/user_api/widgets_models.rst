@@ -87,6 +87,13 @@ Example::
   
   .. automethod:: ModelItem.is_checked
 
+
+.. autoclass:: HeaderView
+  
+  .. automethod:: HeaderView.header_texts
+  
+  .. automethod:: HeaderView.header_click
+
 Interacting with the data of QT Graphics View framework
 -------------------------------------------------------
 

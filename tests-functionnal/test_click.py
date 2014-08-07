@@ -56,3 +56,12 @@ class TestClick(AppTestCase):
         line = self.funq.widget(path='mainWindow::KeyClickDialog::QLineEdit')
         line.keyclick(text)
         self.assertEquals(self.get_status_text(), text)
+
+    @parameterized('R1', 'H', 0, 0)
+    @parameterized('R1_by_name', 'H', 'C1', 0)
+    @parameterized('V2', 'V', 1, 1)
+    def test_click_header(self, orientation, index_or_name, result_index):
+        self.start_dialog('table')
+        header = self.funq.widget(path='mainWindow::TableDialog::QTableWidget::' + orientation)
+        header.header_click(index_or_name)
+        self.assertEquals(self.get_status_text(), orientation + " Header clicked: " + str(result_index))

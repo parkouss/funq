@@ -47,6 +47,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QGraphicsItem>
 #include <QTimer>
 #include <QTime>
+#include <QHeaderView>
 #include "dragndropresponse.h"
 #include "shortcutresponse.h"
 
@@ -533,6 +534,67 @@ QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
     }
     QtJson::JsonObject result;
     result["tabtexts"] = texts;
+    return result;
+}
+
+QtJson::JsonObject Player::headerview_list(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QHeaderView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QAbstractItemModel * model = ctx.widget->model();
+    if (!model) {
+        return createError("MissingModel", QString::fromUtf8("The header view (id:%1) has no associated model").arg(ctx.id));
+    }
+    QStringList texts;
+    int nbItems = ctx.widget->orientation() == Qt::Vertical ? model->rowCount() : model->columnCount();
+    for (int i=0; i<nbItems; i++) {
+        texts << model->headerData(i, ctx.widget->orientation()).toString();
+    }
+    QtJson::JsonObject result;
+    result["headertexts"] = texts;
+    return result;
+}
+
+QtJson::JsonObject Player::headerview_click(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QHeaderView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    int logicalIndex;
+    QVariant indexOrName = command["indexOrName"];
+    if (indexOrName.type() == QVariant::String) {
+        QString name = indexOrName.toString();
+        QAbstractItemModel * model = ctx.widget->model();
+        if (!model) {
+            return createError("MissingModel", QString::fromUtf8("The header view (id:%1) has no associated model").arg(ctx.id));
+        }
+        bool found = false;
+        int nbItems = ctx.widget->orientation() == Qt::Horizontal ? model->rowCount() : model->columnCount();
+        for (int i=0; i<nbItems; i++) {
+            if (name == model->headerData(i, ctx.widget->orientation()).toString()) {
+                logicalIndex = i;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            return createError("MissingHeaderViewText", QString::fromUtf8("The header view (id:%1) has no text column `%2`").arg(ctx.id).arg(name));
+        }
+    } else {
+        logicalIndex = ctx.widget->logicalIndex(command["indexOrName"].toInt());
+    }
+    
+    int pos = ctx.widget->sectionPosition(logicalIndex);
+    if (pos == -1) {
+        return createError("InvalidHeaderViewIndex", QString::fromUtf8("The header view (id:%1) has no index %2 or it is hidden").arg(ctx.id).arg(logicalIndex));
+    }
+    QPoint mousePos;
+    if (ctx.widget->orientation() == Qt::Horizontal) {
+        mousePos.setY(ctx.widget->height()/2);
+        mousePos.setX(pos + ctx.widget->offset() + 5);
+    } else {
+        mousePos.setX(ctx.widget->width()/2);
+        mousePos.setY(pos + ctx.widget->offset() + 5);
+    }
+    mouse_click(ctx.widget->viewport(), mousePos);
+    QtJson::JsonObject result;
     return result;
 }
 

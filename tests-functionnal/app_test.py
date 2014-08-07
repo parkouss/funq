@@ -117,6 +117,26 @@ class ShortcutDialog(SimpleDialog):
         self.shortcuts = shortcuts
         return []
 
+class TableDialog(SimpleDialog):
+    def on_hheader_clicked(self, index):
+        self.showResult("H Header clicked: " + str(index))
+    
+    def on_vheader_clicked(self, index):
+        self.showResult("V Header clicked: " + str(index))
+    
+    def _create_widgets(self):
+        view = QtGui.QTableWidget(2, 3)
+        view.setHorizontalHeaderLabels(['C1', 'C2', 'C3'])
+        view.setVerticalHeaderLabels(['R1', 'R2'])
+        for i in range(2):
+            for j in range(3):
+                view.setItem(i, j, QtGui.QTableWidgetItem(''))
+        view.horizontalHeader().setObjectName('H')
+        view.horizontalHeader().sectionClicked.connect(self.on_hheader_clicked)
+        view.verticalHeader().setObjectName('V')
+        view.verticalHeader().sectionClicked.connect(self.on_vheader_clicked)
+        yield view
+
 def main():
     dialogs = {
         "click": ClickDialog,
@@ -124,6 +144,7 @@ def main():
         'keyclick': KeyClickDialog,
         'retrieve': RetrieveWidget,
         'shortcut': ShortcutDialog,
+        'table': TableDialog,
     }
     
     app = QtGui.QApplication(sys.argv)

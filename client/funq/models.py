@@ -598,3 +598,25 @@ class ComboBox(Widget):
         assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
                              % (text, self.path))
         self.set_property('currentIndex', index)
+
+class HeaderView(Widget):
+    """
+    Allow to manipulate a QHeaderView.
+    """
+    CPP_CLASS = 'QHeaderView'
+    
+    def header_texts(self):
+        """
+        Returns the list of texts in the headerview.
+        """
+        data = self.client.send_command('headerview_list', oid=self.oid)
+        return data["headertexts"]
+
+    def header_click(self, index_or_name):
+        """
+        Click on the given header, identified by a visual index or
+        a displayed name.
+        """
+        return self.client.send_command('headerview_click',
+                                        oid=self.oid,
+                                        indexOrName=index_or_name)

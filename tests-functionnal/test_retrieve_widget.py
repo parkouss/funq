@@ -90,4 +90,10 @@ class TestRetrieve(AppTestCase):
         self.funq.widget(path='mainWindow::RetrieveWidget') # wait for the dialog to be shown
         active = self.funq.active_widget('modal')
         self.assertEquals(active.path, 'mainWindow::RetrieveWidget')
-        
+    
+    @parameterized('V', 'V', ['R1', 'R2'])
+    @parameterized('H', 'H', ['C1', 'C2', 'C3'])
+    def test_headertexts(self, orientation, texts):
+        self.start_dialog('table')
+        header = self.funq.widget(path='mainWindow::TableDialog::QTableWidget::' + orientation)
+        self.assertEquals(header.header_texts(), texts)
