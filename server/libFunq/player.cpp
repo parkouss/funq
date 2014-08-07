@@ -274,7 +274,7 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     QObject * o = findObject(path);
     qulonglong id = registerObject(o);
     if (id == 0) {
-        return createError("InvalidWidgetPath", QString("Le widget est introuvable pour le path `%1`").arg(path));
+        return createError("InvalidWidgetPath", QString("Unable to find widget with path `%1`").arg(path));
     }
     QtJson::JsonObject result;
     result["oid"] = id;
@@ -297,7 +297,7 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
     if (! active) {
         type = "window";
         return createError("NoActiveWindow",
-                            QString::fromUtf8("Il n'y a pas de widget (%1) actif").arg(type));
+                            QString::fromUtf8("There is no active widget (%1)").arg(type));
     }
     qulonglong id = registerObject(active);
     QtJson::JsonObject result;
@@ -313,7 +313,7 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
     obj = player->registeredObject(id);
     if (!obj) {
         lastError = player->createError("NotRegisteredObject",
-                           QString::fromUtf8("L'objet (id:%1) n'est pas enregistré ou a été détruit").arg(id));
+                           QString::fromUtf8("The object (id:%1) is not registered or has been destroyed").arg(id));
     }
 }
 
@@ -411,7 +411,7 @@ QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
     QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
+        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
     }
     bool recursive = ! (model->inherits("QTableModel") || ctx.widget->inherits("QTableView") || ctx.widget->inherits("QListView"));
     dump_items_model(model, result, QModelIndex(), ctx.id, recursive);
@@ -423,11 +423,11 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     if (ctx.hasError()) { return ctx.lastError; }
     QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
+        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
     }
     QModelIndex index = get_model_item(model, command["itempath"].toString(), command["row"].toInt(), command["column"].toInt());
     if (!index.isValid()) {
-        return createError("MissingModelItem", QString::fromUtf8("Impossible de trouver l'item identifié par %1").arg(command["itempath"].toString()));
+        return createError("MissingModelItem", QString::fromUtf8("Unable to find an item identified by %1").arg(command["itempath"].toString()));
     }
     ctx.widget->scrollTo(index); // item visible
     QString itemaction = command["itemaction"].toString();
@@ -442,7 +442,7 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
         QRect visualRect = ctx.widget->visualRect(index);
         mouse_dclick(ctx.widget->viewport(), visualRect.center());
     } else {
-        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 inconnue").arg(itemaction));
+        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }
     QtJson::JsonObject result;
     return result;
@@ -462,9 +462,9 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
     if (ctx.hasError()) { return ctx.lastError; }
     QGraphicsItem * item = graphicsItemFromPath(ctx.widget, command["stackpath"].toString());
     if (!item) {
-        return createError("MissingModel", QString::fromUtf8("La vue (id:%1) ne possède pas de modèle.").arg(ctx.id));
+        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
     }
-    ctx.widget->ensureVisible(item); // pour rendre l'item visible
+    ctx.widget->ensureVisible(item); // be sure item is visible
     QString itemaction = command["itemaction"].toString();
 
     QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
@@ -479,7 +479,7 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
         }
         mouse_dclick(ctx.widget->viewport(), viewPos);
     } else {
-        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 inconnue").arg(itemaction));
+        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }
     QtJson::JsonObject result;
     return result;
@@ -556,12 +556,12 @@ QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) 
     QString stackpath = command["stackpath"].toString();
     QGraphicsItem * item = graphicsItemFromPath(ctx.widget, stackpath);
     if (!item) {
-        return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 introuvable sur la vue %2")
+        return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 is not in view %2")
                            .arg(stackpath).arg(ctx.id));
     }
     QObject * object = dynamic_cast<QObject *>(item);
     if (!object) {
-        return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 sur la vue %2 n'hérite pas de QObject")
+        return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 in view %2 does not inherit from QObject")
                            .arg(stackpath).arg(ctx.id));
     }
     QtJson::JsonObject result;
@@ -583,7 +583,7 @@ QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
                                       Q_RETURN_ARG(QVariant, result_slot),
                                       Q_ARG(QVariant, command["params"]));
     if (!invokedMeth) {
-        return createError("NoMethodInvoked", QString::fromUtf8("Le slot %1 n'a pas pu être appelé")
+        return createError("NoMethodInvoked", QString::fromUtf8("The slot %1 could not be called")
                            .arg(slot_name));
     }
 
