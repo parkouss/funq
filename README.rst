@@ -32,7 +32,7 @@ How does *funq* works
 
 - **funq-server** is the server part of the project, composed of an
   executable called **funq** and a dynamic library **libFunq**. The
-  **funq** executable allows to inject some code in a QT application
+  **funq** executable allows to inject some code in a Qt application
   to start a TCP server that will allow to interact with the application.
 
 - **funq** is a python package that offers an API to interact with a
@@ -42,13 +42,13 @@ How does *funq* works
 Known restrictions
 ==================
 
-Funq currently only works with python2.7, QT4, and on GNU/Linux.
+Funq currently only works with python2.7, Qt4, and on GNU/Linux.
 
 It may work under Windows XP and some other versions but this has
 not been really tested.
 
 There are plans to make it work under windows, support python 3
-and also support QT5. Contributors are welcome to help in these tasks !
+and also support Qt5. Contributors are welcome to help in these tasks !
 
 Installation
 ============
