@@ -434,16 +434,46 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     }
     ctx.widget->scrollTo(index); // item visible
     QString itemaction = command["itemaction"].toString();
+    
+    QPoint cursorPosition;
+
+    if (itemaction == "click" || itemaction == "doubleclick") {
+        QString origin = command["origin"].toString();
+        int offsetX = command["offset_x"].toInt();
+        int offsetY = command["offset_y"].toInt();
+        QRect visualRect = ctx.widget->visualRect(index);
+        cursorPosition = visualRect.center();
+        if (origin == "left") {
+            cursorPosition.setX(visualRect.x());
+        } else if (origin == "right") {
+            cursorPosition.setX(visualRect.width() - 1);
+        }
+        int newX = cursorPosition.x() + offsetX;
+        int newY = cursorPosition.y() + offsetY;
+
+        /* The new coordinates have to be within the bounds */
+        if (newX < visualRect.x())
+            newX = visualRect.x() + 2;
+        else if (newX > visualRect.x() + visualRect.width())
+            newX = visualRect.x() + visualRect.width() - 2;
+
+        if (newY < visualRect.y())
+            newY = visualRect.y() + 2;
+        else if (newY > visualRect.y() + visualRect.height())
+            newY = visualRect.y() + visualRect.height() - 2;
+
+        cursorPosition.setX(newX);
+        cursorPosition.setY(newY);
+    }
+
     if (itemaction == "select") {
         emit emit_model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "edit") {
         emit emit_model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "click") {
-        QRect visualRect = ctx.widget->visualRect(index);
-        mouse_click(ctx.widget->viewport(), visualRect.center());
+        mouse_click(ctx.widget->viewport(), cursorPosition);
     } else if (itemaction == "doubleclick") {
-        QRect visualRect = ctx.widget->visualRect(index);
-        mouse_dclick(ctx.widget->viewport(), visualRect.center());
+        mouse_dclick(ctx.widget->viewport(), cursorPosition);
     } else {
         return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }

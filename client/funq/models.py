@@ -298,12 +298,15 @@ class ModelItem(TreeItem):
     itempath = None
     check_state = None
     
-    def _action(self, itemaction):
+    def _action(self, itemaction, origin=None, offset_x=None, offset_y=None):
         """ Send the 'model_item_action' action """
         self.client.send_command('model_item_action',
                                  oid=self.viewid,
                                  itemaction=itemaction,
                                  row=self.row, column=self.column,
+                                 origin=origin,
+                                 offset_x=offset_x,
+                                 offset_y=offset_y,
                                  itempath=self.itempath)
     
     def is_checkable(self):
@@ -326,17 +329,32 @@ class ModelItem(TreeItem):
         """
         self._action("edit")
     
-    def click(self):
+    def click(self, origin="center", offset_x=0, offset_y=0):
         """
         Click on this item.
+        :param origin: Origin of the cursor coordinates of the ModelItem object.
+                       Availables values: "center", "left" or "right".
+        :param offset_x: x position relative to the origin. 
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin. 
+                         Negative value allowed.
         """
-        self._action("click")
+        self._action(
+            "click", origin=origin, offset_x=offset_x, offset_y=offset_y
+        )
 
-    def dclick(self):
+    def dclick(self, origin="center", offset_x=0, offset_y=0):
         """
         Double click on this item.
+        :param origin: Origin of the cursor coordinates of the ModelItem object.
+        :param offset_x: x position relative to the origin. 
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin. 
+                         Negative value allowed.
         """
-        self._action("doubleclick")
+        self._action(
+            "doubleclick", origin=origin, offset_x=offset_x, offset_y=offset_y
+        )
 
 class ModelItems(TreeItems):
     """
