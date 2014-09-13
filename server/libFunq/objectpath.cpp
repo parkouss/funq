@@ -153,7 +153,11 @@ QObject* ObjectPath::findObject(const QString& path)
 
 int ObjectPath::graphicsItemPos(QGraphicsItem *item) {
     if (item->parentItem()) {
+        #if QT_VERSION >= 0x050000
+        return item->parentItem()->childItems().indexOf(item);
+        #else
         return item->parentItem()->children().indexOf(item);
+        #endif
     }
     QGraphicsScene * scene = item->scene();
     int pos = 0;
@@ -211,7 +215,11 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
             return NULL;
         }
         path.removeFirst();
+        #if QT_VERSION >= 0x050000
+        root = root->childItems().at(index);
+        #else
         root = root->children().at(index);
+        #endif
     }
 
     return root;

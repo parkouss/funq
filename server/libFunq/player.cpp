@@ -220,7 +220,11 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
             outitem["classes"] = classes;
             outitem["objectname"] = itemObject->objectName();
         }
+        #if QT_VERSION >= 0x050000
+        dump_graphics_items(item->childItems(), viewid, outitem);
+        #else
         dump_graphics_items(item->children(), viewid, outitem);
+        #endif
         outitems << outitem;
     }
     out["items"] = outitems;
@@ -264,7 +268,11 @@ QtJson::JsonObject Player::list_actions(const QtJson::JsonObject &) {
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
         QMetaMethod method = metaObject->method(i);
         if (method.methodType() == QMetaMethod::Slot) {
+            #if QT_VERSION >= 0x050000
+            methods << QString(metaObject->method(i).methodSignature());
+            #else
             methods << QString::fromLatin1(metaObject->method(i).signature());
+            #endif
         }
     }
     QtJson::JsonObject result;
@@ -545,7 +553,7 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
     QString text = command["text"].toString();
     for (int i=0; i<text.count(); ++i) {
         QChar ch = text[i];
-        int key = (int) ch.toAscii();
+        int key = (int) ch.toLatin1();
         qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyPress, key, Qt::NoModifier, ch));
         qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyRelease, key, Qt::NoModifier, ch));
     }

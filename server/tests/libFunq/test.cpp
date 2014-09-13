@@ -386,7 +386,11 @@ private slots:
          QMainWindow w;
          
          w.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&w);
+         #else
          QTest::qWaitForWindowShown(&w);
+         #endif
          QApplication::setActiveWindow(&w); // required with Xvfb
          QBuffer buffer;
          
@@ -493,7 +497,11 @@ private slots:
      void test_player_widget_close() {
          QMainWindow mw;
          mw.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&mw);
+         #else
          QTest::qWaitForWindowShown(&mw);
+         #endif
          
          QBuffer buffer;
          Player player(&buffer);
@@ -567,7 +575,11 @@ private slots:
          QMainWindow mw;
          QShortcut shortcut(Qt::Key_F2, &mw, 0, 0, Qt::ApplicationShortcut);
          mw.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&mw);
+         #else
          QTest::qWaitForWindowShown(&mw);
+         #endif
          QSignalSpy spy(&shortcut, SIGNAL(activated()));
          
          QBuffer buffer;
@@ -678,7 +690,11 @@ private slots:
          table.resize(800, 600);
          
          table.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&table);
+         #else
          QTest::qWaitForWindowShown(&table);
+         #endif
          
          QBuffer buffer;
          Player player(&buffer);
@@ -729,7 +745,11 @@ private slots:
          table.resize(800, 600);
          
          table.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&table);
+         #else
          QTest::qWaitForWindowShown(&table);
+         #endif
          
          QBuffer buffer;
          Player player(&buffer);
@@ -783,7 +803,11 @@ private slots:
          TestDragNDropWidget dndwidget;
          
          dndwidget.show();
+         #if QT_VERSION >= 0x050000
+         QTest::qWaitForWindowExposed(&dndwidget);
+         #else
          QTest::qWaitForWindowShown(&dndwidget);
+         #endif
          
          dndwidget.m_lineEditDrag->setText("HELLO, I HOPE I WILL BE DRAGGED AND DROPPED !");
          dndwidget.m_lineEditDrag->selectAll();
