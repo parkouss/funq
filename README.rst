@@ -42,13 +42,16 @@ How does *funq* works
 Known restrictions
 ==================
 
-Funq currently only works with python2.7, Qt4, and on GNU/Linux.
+Funq currently only works with python >= 2.7, Qt4, and on GNU/Linux.
 
-It may work under Windows XP and some other versions but this has
+The server is currently not compatible with python3, but the client is
+and so tests may be written in python 3.
+
+Funq may work under Windows XP and some other versions but this has
 not been really tested.
 
-There are plans to make it work under windows, support python 3
-and also support Qt5. Contributors are welcome to help in these tasks !
+There are plans to make it work under windows and also support Qt5.
+Contributors are welcome to help in these tasks !
 
 Installation
 ============
