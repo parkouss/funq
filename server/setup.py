@@ -10,10 +10,13 @@ import re
 import sys
 import platform
 
+IS_WINDOWS = platform.system() == 'Windows'
+
 if sys.version_info < (2, 7):
     sys.exit("Python version must be > 2.7")
-
-IS_WINDOWS = platform.system() == 'Windows'
+elif sys.version_info > (3,) and IS_WINDOWS:
+    sys.exit('funq server under windows require winappdbg'
+             ' which is not available under python 3 currenly.')
 
 install_requires = []
 if IS_WINDOWS:
