@@ -73,12 +73,12 @@ class TestAliasesFromFile:
         if gkit_data:
             fgkit = NamedTemporaryFile(delete=False)
             pathgkit = fgkit.name
-            fgkit.write(gkit_data)
+            fgkit.write(gkit_data.encode('utf-8'))
             fgkit.close()
         else:
             pathgkit = None
         try:
-            f.write(data)
+            f.write(data.encode('utf-8'))
             f.close()
             
             aliases = HooqAliases.from_file(path, pathgkit, gkit)

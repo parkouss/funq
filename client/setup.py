@@ -26,6 +26,7 @@ setup(
 	packages=find_packages(),
     zip_safe=False,
     use_2to3 = True,
+    test_suite='funq.tests.create_test_suite',
 	install_requires=install_requires,
     package_data={'funq': ['aliases-gkits.conf']},
 	entry_points = {

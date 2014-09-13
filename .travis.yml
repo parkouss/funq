@@ -17,6 +17,6 @@ install:
   - python ~/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/pyside_postinstall.py -install
 # command to run tests
 script:
-  - "nosetests -w client/"
+  - "cd client && python setup.py test; cd .."
   - "make -C server/tests/ check"
   - "cd tests-functionnal && nosetests && cd .."
