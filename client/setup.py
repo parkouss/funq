@@ -2,8 +2,8 @@
 from setuptools import find_packages, setup
 import os, re, sys
 
-if sys.version_info < (2, 7) or sys.version_info > (3,):
-    sys.exit("Python version must be > 2.7 and < 3 currently")
+if sys.version_info < (2, 7):
+    sys.exit("Python version must be > 2.7")
 
 def read(*paths):
 	this_dir = os.path.dirname(os.path.realpath(__file__))
@@ -25,6 +25,7 @@ setup(
 	version=version,
 	packages=find_packages(),
     zip_safe=False,
+    use_2to3 = True,
 	install_requires=install_requires,
     package_data={'funq': ['aliases-gkits.conf']},
 	entry_points = {

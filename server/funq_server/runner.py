@@ -61,10 +61,10 @@ class Runner(object):
         self.system = platform.system()
     
     def _parse_args(self, argv=None):
-        parser = argparse.ArgumentParser(version=funq_server.__version__,
-                                         description=u"""
-        Start a QT application with a libFunq server injected.
-        """)
+        desc = u"""Start a QT application with a libFunq server injected."""
+        parser = argparse.ArgumentParser(description=desc)
+        parser.add_argument('-v', '--version', action='version',
+                            version=funq_server.__version__)
         parser.add_argument('--pick', action='store_true',
                             help="Use PICK MODE, to find widget's paths")
         parser.add_argument('--port', type=int,

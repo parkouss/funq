@@ -10,8 +10,8 @@ import re
 import sys
 import platform
 
-if sys.version_info < (2, 7) or sys.version_info > (3,):
-    sys.exit("Python version must be > 2.7 and < 3 currently")
+if sys.version_info < (2, 7):
+    sys.exit("Python version must be > 2.7")
 
 IS_WINDOWS = platform.system() == 'Windows'
 
@@ -77,12 +77,12 @@ class build_libfunq(Command):
         qmake_cmd = [self.qmake_path, 'CONFIG+=%s' % buildtype, '-r']
         if IS_WINDOWS:
             qmake_cmd += ['-spec', 'win32-g++']
-        print 'running %s' % qmake_cmd
+        print('running %s' % qmake_cmd)
         subprocess.check_call(qmake_cmd)
         make_cmd = [self.make_path]
         if IS_WINDOWS:
             make_cmd += ['debug' if self.debug else 'release']
-        print 'running %s' % make_cmd
+        print('running %s' % make_cmd)
         subprocess.check_call(make_cmd, shell=True)
         
         lib_path = self.funqlib_out_path()

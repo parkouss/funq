@@ -55,7 +55,7 @@ class MainWindow(QtGui.QMainWindow):
         statusbar.insertPermanentWidget(0, self.statuslabel)
         self.setStatusBar(statusbar)
         self.centralWidget().setLayout(layout)
-        for name, dlgclass in dialogs.iteritems():
+        for name, dlgclass in dialogs.items():
             btn = QtGui.QPushButton(name)
             btn.setObjectName(name)
             btn.clicked.connect(exec_dlg(self, dlgclass))

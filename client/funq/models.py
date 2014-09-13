@@ -96,16 +96,17 @@ class TreeItems(object):
             items = item.items + items
             yield item
 
+CPP_CLASSES = {}
 class WidgetMetaClass(type):
     """
     Saves a dict of accessible classes to handle inheritance of Widgets.
     """
-    cpp_classes = {}
     def __new__(mcs, name, bases, attrs):
+        global CPP_CLASSES
         cls = super(WidgetMetaClass, mcs).__new__(mcs, name, bases, attrs)
         qt_name = getattr(cls, 'CPP_CLASS', None)
         if qt_name:
-            mcs.cpp_classes[qt_name] = cls
+            CPP_CLASSES[qt_name] = cls
         return cls
 
 class Widget(object):
@@ -133,10 +134,10 @@ class Widget(object):
         decoded json.
         """
         # recherche la classe appropriee
-        cpp_classes = cls.__metaclass__.cpp_classes
+        global CPP_CLASSES
         for cppcls in data['classes']:
-            if cppcls in cpp_classes:
-                cls = cpp_classes[cppcls]
+            if cppcls in CPP_CLASSES:
+                cls = CPP_CLASSES[cppcls]
                 break
         
         self = cls()

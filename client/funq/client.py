@@ -87,7 +87,7 @@ class FunqClient(object):
                 return e
         
         wait_for(connect, timeout_connection, 0.2)
-        self._fsocket = self._socket.makefile()
+        self._fsocket = self._socket.makefile(mode="rw")
 
 
     def duplicate(self):
