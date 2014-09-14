@@ -42,7 +42,8 @@ How does *funq* works
 Known restrictions
 ==================
 
-Funq currently only works with python >= 2.7, Qt4, and on GNU/Linux.
+Funq currently only works with python >= 2.7, Qt4 (Qt5 support is
+experimental but seems to work pretty well), and on GNU/Linux.
 
 The server is currently not compatible with python3, but the client is
 and so tests may be written in python 3.
@@ -50,7 +51,7 @@ and so tests may be written in python 3.
 Funq may work under Windows XP and some other versions but this has
 not been really tested.
 
-There are plans to make it work under windows and also support Qt5.
+There are plans to make it work under windows and also fully support Qt5.
 Contributors are welcome to help in these tasks !
 
 Installation
@@ -81,6 +82,16 @@ You can instead get the sources and install it with setup.py::
   
   For contributors, you may want to use **python setup.py develop**
   instead of **python setup.py install** commands.
+
+.. note::
+  
+  To install funq for qt5, first create a server/setup.cfg file with
+  the following content::
+    
+    [build_libfunq]
+    qmake_path = /usr/bin/qmake-qt5
+  
+  before running the *python setup.py install* command.
 
 Thanks to
 =========
