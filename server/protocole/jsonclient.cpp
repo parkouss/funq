@@ -71,13 +71,16 @@ void JsonClient::onMessageReceived() {
     // localise la méthode
     success = false;
     QMetaMethod method;
-    const char * action_str = action.toAscii().data();
-    size_t len_signature = strlen(action_str);
+    QByteArray action_str = action.toLatin1();
+    size_t len_signature = strlen(action_str.data());
     for (int i = metaObject()->methodOffset(); i < metaObject()->methodCount(); ++i) {
         method = metaObject()->method(i);
-        const char * signature = method.signature();
-        if ((strncmp(action_str, signature, len_signature) == 0)
-                        && (signature[len_signature] == '(')) {
+        #if QT_VERSION >= 0x050000
+        if (strcmp(action_str.data(), method.name().data()) == 0) {
+        #else
+        if ((strncmp(action_str.data(), method.signature(), len_signature) == 0)
+                        && (method.signature()[len_signature] == '(')) {
+        #endif
             success = true;
             break;
         }

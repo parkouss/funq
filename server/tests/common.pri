@@ -8,3 +8,5 @@ unix {
         QMAKE_LFLAGS_DEBUG += --coverage
     }
 }
+
+greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
