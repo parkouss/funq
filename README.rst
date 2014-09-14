@@ -54,6 +54,11 @@ not been really tested.
 There are plans to make it work under windows and also fully support Qt5.
 Contributors are welcome to help in these tasks !
 
+.. note::
+  
+  note that python 3 and Qt5 support is only available in github sources -
+  not provided for now from PyPi, until a new release is made.
+
 Installation
 ============
 
