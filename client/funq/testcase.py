@@ -33,7 +33,7 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-Module d'intégration de funq comme TestCase.
+funq integration in TestCase subclasses.
 """
 
 import unittest
@@ -85,14 +85,8 @@ def todo(skip_message, exception_cls=AssertionError):
                           handled to skip a test.
     """
     def wrapped(func):
-        """
-        Fonction surchargée
-        """
         @wraps(func)
         def wrapper(*args, **kwargs):
-            """
-            Fonction à surcharger
-            """
             try:
                 func(*args, **kwargs)
             except exception_cls as err:

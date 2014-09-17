@@ -362,7 +362,7 @@ class ApplicationContext(object): # pylint: disable=R0903
             stdout = open(stdout, 'a')
         
         if not appconfig.attach:
-            # le process integre libFunq dans le code compilé.
+            # libFunq is compiled inside the tested application binary
             if env is None:
                 env = os.environ
             
@@ -374,7 +374,7 @@ class ApplicationContext(object): # pylint: disable=R0903
                 env['FUNQ_PORT'] = str(funq_port)
             
         else:
-            # injection de dll par l'utilisation de funq
+            # inject libFunq with funq executable
             if not appconfig.global_options.funq_attach_exe:
                 raise RuntimeError("To use funq, you have to specify the"
                                     " nose option --funq-attach-exe"
@@ -402,16 +402,16 @@ class ApplicationContext(object): # pylint: disable=R0903
     
     def _kill_process(self):
         """
-        Tue le process de l'application de test
+        Kill the application tested process
         """
         if self._process:
-            # attente de fermeture gentille
+            # wait for a nice exit
             try:
                 wait_for(lambda: self._process.poll() is not None, 10, 0.05)
             except TimeOutError:
                 pass
             if self._process.returncode is None:
-                # application bloquée ! pas le choix ...
+                # application seems blocked ! try to terminate it ...
                 LOG.warn("The tested application [%s] can not be stopped"
                          " nicely.", self._process.pid)
                 self._process.terminate()
@@ -424,7 +424,7 @@ class ApplicationContext(object): # pylint: disable=R0903
         """
         if self.funq:
             if self._process is not None:
-                # le process peut être mort, et ne pas nous l'avoir signalé
+                # the process may be already dead
                 try:
                     wait_for(lambda: self._process.poll() is not None,
                              0.05,
@@ -432,15 +432,15 @@ class ApplicationContext(object): # pylint: disable=R0903
                 except TimeOutError:
                     pass
                 if self._process.returncode is not None:
-                    # process fini de manière innatendue (-11: SegFault)
-                    LOG.critical("L'application testée [%s] s'est terminée de"
-                                 " manière innatendue (code retour: %s)",
+                    # process terminated unexpectedly (-11: SegFault)
+                    LOG.critical("The tested application [%s] has terminated"
+                                 " unexpectedly (return code: %s)",
                                  self._process.pid, self._process.returncode)
                     self._process = None
                 else:
-                    # mode attache, on doit gerer la fin du process
-                    # demande de fermeture, gentiment (qApp->quit()).
-                    LOG.info("Fermeture de l'application testée [%s].",
+                    # try to exit nicely the tested application process
+                    # with a call to qApp->quit().
+                    LOG.info("Closing tested application [%s].",
                              self._process.pid)
                     try:
                         self.funq.quit()
@@ -545,7 +545,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
         if conf.has_option(section, 'funq_port'):
             kwargs['funq_port'] = conf.getint(section, 'funq_port')
             if kwargs['funq_port'] == 0 and not executable.startswith('socket://'):
-                # recupere un port disponible
+                # take an available port
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.bind(('', 0))
                 kwargs['funq_port'] = sock.getsockname()[1]
@@ -566,7 +566,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
                 if basedir and not os.path.isabs(kwargs[optname]):
                     kwargs[optname] = os.path.join(basedir, kwargs[optname])
         
-        # devnull si NULL spécifié dans le fichier de conf
+        # devnull if NULL specified in the config file
         for optname in ('executable_stdout', 'executable_stderr'):
             if conf.has_option(section, optname) and \
                             conf.get(section, optname) == 'NULL':

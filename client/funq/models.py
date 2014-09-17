@@ -416,8 +416,8 @@ class ModelItems(TreeItems):
             part = parts.pop(0)
             for item_ in item.items:
                 if match_column == item_.column and item_.value == part:
-                    # on a trouvé l'item que l'on veut
-                    # si c'est le dernier, ramassons toutes les colonnes
+                    # we found the item
+                    # if it is the last part name, just return the columns
                     if not parts:
                         row = [ it for it in item.items
                                 if it.row == item_.row ]
@@ -649,15 +649,14 @@ class ComboBox(Widget):
         """
         Returns the items  (:class:`ModelItems`) associated to this combobox.
         """
-        # création et affichage de QComboBoxListView
+        # create and show QComboBoxListView
         self.click()
-        # recuperation de ce widget QComboBoxListView
+        # get this QComboBoxListView widget
         internal_qt_name = '::QComboBoxPrivateContainer::QComboBoxListView'
         combo_edit_view = self.client.widget(path=self.path + internal_qt_name)
         model_items = combo_edit_view.model_items()
-        # on cache la QComboBoxListView
-        #combo_edit_view.set_property('visible', False)
-        combo_edit_view.click() # Permet de fermer la combobox proprement
+        # This properly close the QComboBoxListView widget
+        combo_edit_view.click()
         return model_items
     
     def set_current_text(self, text):

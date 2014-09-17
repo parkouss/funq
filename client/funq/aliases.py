@@ -58,21 +58,21 @@ class HooqAliases(dict):
     """
     def __setitem__(self, name, value):
         if name in self:
-            raise HooqAliasesKeyError("L'alias `%s` existe deja."
+            raise HooqAliasesKeyError("The alias `%s` already exists."
                                        % name)
         try:
             # pylint: disable=W0142
             value = value.format(**self)
         except KeyError, msg:
-            raise HooqAliasesKeyError("Substitution impossible dans"
-                                       " l'alias %s: %s" % (name, msg))
+            raise HooqAliasesKeyError("Impossible substitution in"
+                                       " the alias %s: %s." % (name, msg))
         dict.__setitem__(self, name, value)
     
     def __getitem__(self, name):
         try:
             return dict.__getitem__(self, name)
         except KeyError:
-            raise HooqAliasesKeyError("L'alias `%s` n'existe pas."
+            raise HooqAliasesKeyError("The alias `%s` does not exists."
                                        % name)
     
     @classmethod
@@ -95,8 +95,8 @@ class HooqAliases(dict):
                         key, value = line.split('=', 1)
                     except ValueError:
                         raise HooqAliasesInvalidLineError(
-                                "Le fichiers d'alias `%s` contient une"
-                                " erreur de syntaxe ligne %d."
+                                "The alias file `%s` contains a"
+                                " syntax error on line %d."
                                 % (path, num_line))
                 self[key.strip()] = value.strip()
         return self
