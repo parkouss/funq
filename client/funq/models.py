@@ -234,6 +234,12 @@ class Widget(object):
         self.client.send_command('widget_click',
                                  oid=self.oid,
                                  mouseAction='doubleclick')
+
+    def activate_focus(self):
+        """
+        Activate the widget then set focus on.
+        """
+        self.client.send_command('widget_activate_focus', oid=self.oid)
     
     def keyclick(self, text):
         """

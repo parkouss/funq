@@ -94,6 +94,7 @@ public slots:
     QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
     QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);
     QtJson::JsonObject call_slot(const QtJson::JsonObject & command);
+    QtJson::JsonObject widget_activate_focus(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_list(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_click(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_path_from_view(const QtJson::JsonObject & command);

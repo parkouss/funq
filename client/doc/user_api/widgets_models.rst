@@ -35,6 +35,8 @@ Example::
   .. automethod:: Widget.close
   
   .. automethod:: Widget.call_slot
+  
+  .. automethod:: Widget.activate_focus
 
 Interacting with the data of QT Model/View framework
 ----------------------------------------------------

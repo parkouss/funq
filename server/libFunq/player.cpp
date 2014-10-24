@@ -84,6 +84,11 @@ void mouse_dclick(QWidget * w, const QPoint & pos) {
                         Qt::NoModifier));
 }
 
+void activate_focus(QWidget * w) {
+    w->activateWindow();
+    w->setFocus(Qt::MouseFocusReason);
+}
+
 void dump_properties(QObject * object, QtJson::JsonObject & out) {
     const QMetaObject * metaobject = object->metaObject();
     for (int i = 0; i < metaobject->propertyCount(); ++i) {
@@ -220,7 +225,7 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
             outitem["classes"] = classes;
             outitem["objectname"] = itemObject->objectName();
         }
-        #if QT_VERSION >= 0x050000
+        #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
         dump_graphics_items(item->childItems(), viewid, outitem);
         #else
         dump_graphics_items(item->children(), viewid, outitem);
@@ -268,11 +273,11 @@ QtJson::JsonObject Player::list_actions(const QtJson::JsonObject &) {
     for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
         QMetaMethod method = metaObject->method(i);
         if (method.methodType() == QMetaMethod::Slot) {
-            #if QT_VERSION >= 0x050000
-            methods << QString(metaObject->method(i).methodSignature());
-            #else
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+            methods << QString::fromLatin1(metaObject->method(i).methodSignature());
+#else
             methods << QString::fromLatin1(metaObject->method(i).signature());
-            #endif
+#endif
         }
     }
     QtJson::JsonObject result;
@@ -718,5 +723,14 @@ QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
 
     QtJson::JsonObject result;
     result["result_slot"] = result_slot;
+    return result;
+}
+
+QtJson::JsonObject Player::widget_activate_focus(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    activate_focus(ctx.widget);
+
+    QtJson::JsonObject result;
     return result;
 }
