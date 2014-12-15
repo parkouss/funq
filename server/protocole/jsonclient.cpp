@@ -75,12 +75,13 @@ void JsonClient::onMessageReceived() {
     size_t len_signature = strlen(action_str.data());
     for (int i = metaObject()->methodOffset(); i < metaObject()->methodCount(); ++i) {
         method = metaObject()->method(i);
-        #if QT_VERSION >= 0x050000
-        if (strcmp(action_str.data(), method.name().data()) == 0) {
-        #else
-        if ((strncmp(action_str.data(), method.signature(), len_signature) == 0)
-                        && (method.signature()[len_signature] == '(')) {
-        #endif
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        QString signature = method.methodSignature();
+#else
+        QString signature = method.signature();
+#endif
+        if (    signature.startsWith(action) &&
+                signature.at(action.length()) == '(') {
             success = true;
             break;
         }
