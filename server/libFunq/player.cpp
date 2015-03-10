@@ -176,7 +176,7 @@ void dump_items_model(QAbstractItemModel * model,
             QModelIndex index = model->index(i, j, parent);
             QtJson::JsonObject item;
             dump_item_model_attrs(model, item, index, viewid);
-            if (recursive && model->hasChildren(index)) {
+            if (j == 0 && recursive && model->hasChildren(index)) {
                 dump_items_model(model, item, index, viewid);
             }
             items << item;
