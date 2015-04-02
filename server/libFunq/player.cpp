@@ -84,6 +84,23 @@ void mouse_dclick(QWidget * w, const QPoint & pos) {
                         Qt::NoModifier));
 }
 
+void mouse_move(QWidget * w, const QPoint & srcpos, const QPoint & destpos) {
+    QList<QPoint> moves;
+    QPoint globalsrcpos = w->mapToGlobal(srcpos);
+    QPoint globaldestpos = w->mapToGlobal(destpos);
+    calculate_drag_n_drop_moves(moves, globalsrcpos, globaldestpos, 4);
+    foreach (const QPoint & move, moves) {
+        qApp->postEvent(w,
+            new QMouseEvent(QEvent::MouseMove,
+                            w->mapFromGlobal(move),
+                            move,
+                            Qt::NoButton,
+                            Qt::NoButton,
+                            Qt::NoModifier));
+    }
+    mouse_click(w, destpos);
+}
+
 void dump_properties(QObject * object, QtJson::JsonObject & out) {
     const QMetaObject * metaobject = object->metaObject();
     for (int i = 0; i < metaobject->propertyCount(); ++i) {
@@ -394,6 +411,32 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     } else {
         mouse_click(ctx.widget, pos);
     }
+    QtJson::JsonObject result;
+    return result;
+}
+
+QtJson::JsonObject Player::widget_mouse_move(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QAbstractScrollArea> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+
+    QPoint srcPos;
+    if (command.contains("srcpos") && ! command["srcpos"].isNull()) {
+        srcPos = pointFromString(command["srcpos"].toString());
+    } else {
+        srcPos = ctx.widget->rect().center();
+    }
+
+    QPoint destPos;
+    if (command.contains("destpos") && ! command["destpos"].isNull()) {
+        destPos = pointFromString(command["destpos"].toString());
+        destPos.setX(srcPos.x() + destPos.x());
+        destPos.setY(srcPos.y() + destPos.y());
+    } else {
+        destPos = ctx.widget->rect().center();
+    }
+
+    mouse_move(ctx.widget->viewport(), srcPos, destPos);
+
     QtJson::JsonObject result;
     return result;
 }

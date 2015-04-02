@@ -38,6 +38,9 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "delayedresponse.h"
 #include <QWidget>
 
+void calculate_drag_n_drop_moves(QList<QPoint> & moves, const QPoint & globalSourcePos, const QPoint & globalDestPos, int deltaFactor=4);
+QPoint pointFromString(const QString & data);
+
 class DragNDropResponse : public DelayedResponse
 {
 public:

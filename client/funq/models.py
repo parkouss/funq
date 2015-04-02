@@ -76,35 +76,9 @@ class TreeItems(object):
         Allow to create an instance of the class given some data coming from
         decoded json.
         """
-
-        def get_recursive_items(data):
-            """
-            Recursively iterate throught the data to extract every item.
-            """
-            if not data:
-                return []
-
-            return [
-                x for subx in [
-                    [
-                        cls.ITEM_CLASS.create(client, v1)
-                        for v1 in items['items']
-                    ] + get_recursive_items(items['items'])
-                    for items in data
-                ] for x in subx
-            ]
-
-            return []
-
         self = cls()
         self.client = client
-
-        if cls.ITEM_CLASS == GItem:
-            self.items = get_recursive_items([data])
-        else:
-            self.items = [
-                cls.ITEM_CLASS.create(client, v1) for v1 in data['items']
-            ]
+        self.items = [cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
         return self
     
     def iter(self):
@@ -297,6 +271,21 @@ class Widget(object):
         """
         self.client.drag_n_drop(self, src_pos=src_pos, dest_widget=dest_widget,
                                 dest_pos=dest_pos)
+
+    def mouse_move(self, src_pos=None, dest_pos=None):
+        """
+        
+        Simulate a mouse move event.
+        :param src_pos: starting position for the drag. If None, the center
+                        of `self` will be used, else it must be a
+                        tuple (x, y) in widget coordinates.
+        :param dest_pos: ending position for the drop. If None, the center
+                         of `self` will be used, else it must be a
+                         tuple (x, y) in widget coordinates.
+        """
+        self.client.mouse_move(ref_widget=self,
+                               src_pos=src_pos,
+                               dest_pos=dest_pos)
 
     def close(self):
         """

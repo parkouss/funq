@@ -313,6 +313,31 @@ class FunqClient(object):
                           srcpos=src_pos,
                           destpos=dest_pos)
 
+    def mouse_move(self, ref_widget, src_pos=None, dest_pos=None,
+                   key_press=False):
+        """
+        Simulate a mouse move event.
+
+        :param ref_widget: widget source
+        :param src_pos: starting position for the drag. If None, the center
+                        of `ref_widget` will be used, else it must be a
+                        tuple (x, y) in widget coordinates.
+        :param dest_pos: ending position for the drop. If None, the center
+                         of `ref_widget` will be used, else it must be a
+                         tuple (x, y) in widget coordinates.
+        """
+
+        if src_pos is not None:
+            src_pos = ','.join(map(str, src_pos))
+        if dest_pos is not None:
+            dest_pos = ','.join(map(str, dest_pos))
+
+        self.send_command("widget_mouse_move",
+                          oid=ref_widget.oid,
+                          srcpos=src_pos,
+                          destpos=dest_pos,
+                          keypress=key_press)
+
 class ApplicationContext(object): # pylint: disable=R0903
     """
     This is the context of a tested application.
