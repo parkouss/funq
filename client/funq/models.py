@@ -76,9 +76,35 @@ class TreeItems(object):
         Allow to create an instance of the class given some data coming from
         decoded json.
         """
+
+        def get_recursive_items(data):
+            """
+            Recursively iterate throught the data to extract every item.
+            """
+            if not data:
+                return []
+
+            return [
+                x for subx in [
+                    [
+                        cls.ITEM_CLASS.create(client, v1)
+                        for v1 in items['items']
+                    ] + get_recursive_items(items['items'])
+                    for items in data
+                ] for x in subx
+            ]
+
+            return []
+
         self = cls()
         self.client = client
-        self.items = [cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
+
+        if cls.ITEM_CLASS == GItem:
+            self.items = get_recursive_items([data])
+        else:
+            self.items = [
+                cls.ITEM_CLASS.create(client, v1) for v1 in data['items']
+            ]
         return self
     
     def iter(self):
