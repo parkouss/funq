@@ -339,6 +339,7 @@ class ModelItem(TreeItem):
     def click(self, origin="center", offset_x=0, offset_y=0):
         """
         Click on this item.
+
         :param origin: Origin of the cursor coordinates of the ModelItem object.
                        Availables values: "center", "left" or "right".
         :param offset_x: x position relative to the origin. 
@@ -353,6 +354,7 @@ class ModelItem(TreeItem):
     def dclick(self, origin="center", offset_x=0, offset_y=0):
         """
         Double click on this item.
+
         :param origin: Origin of the cursor coordinates of the ModelItem object.
         :param offset_x: x position relative to the origin. 
                          Negative value allowed.
