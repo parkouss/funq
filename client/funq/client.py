@@ -2,22 +2,22 @@
 
 # Copyright: SCLE SFE
 # Contributor: Julien Pagès <j.parkouss@gmail.com>
-# 
+#
 # This software is a computer program whose purpose is to test graphical
 # applications written with the QT framework (http://qt.digia.com/).
-# 
+#
 # This software is governed by the CeCILL v2.1 license under French law and
-# abiding by the rules of distribution of free software.  You can  use, 
+# abiding by the rules of distribution of free software.  You can  use,
 # modify and/ or redistribute the software under the terms of the CeCILL
 # license as circulated by CEA, CNRS and INRIA at the following URL
-# "http://www.cecill.info". 
-# 
+# "http://www.cecill.info".
+#
 # As a counterpart to the access to the source code and  rights to copy,
 # modify and redistribute granted by the license, users are provided only
 # with a limited warranty  and the software's author,  the holder of the
 # economic rights,  and the successive licensors  have only  limited
-# liability. 
-# 
+# liability.
+#
 # In this respect, the user's attention is drawn to the risks associated
 # with loading,  using,  modifying and/or developing or reproducing the
 # software by the user in light of its specific status of free software,
@@ -25,10 +25,10 @@
 # therefore means  that it is reserved for developers  and  experienced
 # professionals having in-depth computer knowledge. Users are therefore
 # encouraged to load and test the software's suitability as regards their
-# requirements in conditions enabling the security of their systems and/or 
-# data to be ensured and,  more generally, to use and operate it in the 
-# same conditions as regards security. 
-# 
+# requirements in conditions enabling the security of their systems and/or
+# data to be ensured and,  more generally, to use and operate it in the
+# same conditions as regards security.
+#
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
@@ -51,12 +51,12 @@ LOG = logging.getLogger('funq.client')
 class FunqClient(object):
     """
     Allow to communicate with a libFunq server.
-    
+
     This is the main class used to manipulate tested application.
     """
     DEFAULT_HOST = 'localhost'
     DEFAULT_PORT = 9999
-    
+
     def __init__(self, host=None, port=None, aliases=None,
                        timeout_connection=10):
         if host is None:
@@ -75,7 +75,7 @@ class FunqClient(object):
         self.aliases = aliases
 
         self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        
+
         def connect():
             """ try to connect """
             try:
@@ -85,7 +85,7 @@ class FunqClient(object):
                 if e.errno != errno.ECONNREFUSED:
                     raise
                 return e
-        
+
         wait_for(connect, timeout_connection, 0.2)
         self._fsocket = self._socket.makefile(mode="rw")
 
@@ -93,11 +93,11 @@ class FunqClient(object):
     def duplicate(self):
         """
         Allow to manipulate the application in another thread.
-        
+
         Returns a new instance of :class:`FunqClient` with a new socket.
 
         Example::
-          
+
           # `client_copy` may be used in concurrence with `client`.
           client_copy = client.duplicate()
         """
@@ -107,12 +107,12 @@ class FunqClient(object):
     def close(self):
         """
         Close the libFunq socket.
-        
+
         The instance become useless after this method is called. This
         method is automatically called on the object destruction.
         """
         self._socket.close()
-    
+
     def __del__(self):
         self.close()
 
@@ -131,7 +131,7 @@ class FunqClient(object):
         """
         Send a message to the libFunq server and returns the decoded
         answer.
-        
+
         :raises: :class:`funq.errors.FunqError` on error
         """
         self._raw_send(action, kwargs)
@@ -152,17 +152,17 @@ class FunqClient(object):
         Ask the tested application to quit by calling qApp->quit().
         """
         self._raw_send('quit', {})
-    
+
     def widget(self, alias=None, path=None, # pylint:disable=R0913
                      timeout=10.0, timeout_interval=0.1, wait_active=True):
         """
         Returns an instance of a :class:`funq.models.Widget` or derived
         identified with an alias or with its complete path.
-        
+
         Example::
-          
+
           widget = client.widget('my_alias')
-        
+
         :param alias: alias defined in the aliases file.
         :param path: complete path for the widget
         :param timeout: if > 0, tries to get the widget until timeout
@@ -189,30 +189,30 @@ class FunqClient(object):
                     raise
                 return err
         wait_for(get_widget, timeout, timeout_interval)
-        
+
         widget = Widget.create(self, wdata[0])
         if wait_active:
             widget.wait_for_properties({'enabled': True, 'visible': True})
         return widget
-    
+
     def active_widget(self, widget_type='window', timeout=10.0, timeout_interval=0.1,
                       wait_active=True):
         """
         Returns an instance of a :class:`funq.models.Widget` or derived
         that is the active widget of the application, or the widget that
         got the focus.
-        
+
         Be careful, this method acts weidly under Xvfb.
-        
+
         Example::
-          
+
           my_dialog = client.active_window('modal')
-        
+
         :param widget_type: kind of widget. ('window', 'modal', 'popup'
                             ou 'focus'
                             -> see the QT documentation about
                             QApplication::activeWindow,
-                            QApplication::activeModalWidget, 
+                            QApplication::activeModalWidget,
                             QApplication::activePopupWidget or
                             QApplication::focusWidget respectively)
         :param timeout: if > 0, tries to get the widget until timeout
@@ -233,19 +233,19 @@ class FunqClient(object):
                     raise
                 return err
         wait_for(get_widget, timeout, timeout_interval)
-        
+
         widget = Widget.create(self, wdata[0])
         if wait_active:
             widget.wait_for_properties({'enabled': True, 'visible': True})
         return widget
-    
+
     def widgets_list(self, with_properties=False):
         """
         Returns a dict with every widgets in the application.
         """
         return self.send_command('widgets_list',
                                   with_properties=with_properties)
-    
+
     def dump_widgets_list(self, stream='widgets_list.json',
                                  with_properties=False):
         """
@@ -265,32 +265,32 @@ class FunqClient(object):
             stream = open(stream, 'wb')
         raw = base64.standard_b64decode(data['data'])
         stream.write(raw) #pylint: disable=E1103
-    
+
     def keyclick(self, text):
         """
         Simulate keyboard entry by sending keypress and keyrelease events
         for each character of the given text.
         """
         self.send_command('widget_keyclick', text=text)
-    
+
     def shortcut(self, key_sequence):
         """
         Send a shortcut defined with a text sequence. The format of this
         text sequence is defined with QKeySequence::fromString (see QT
         documentation for more details).
-        
+
         Example::
-          
+
           client.shortcut('F2')
-        
+
         """
         self.send_command('shortcut', keysequence=key_sequence)
-    
+
     def drag_n_drop(self, src_widget, src_pos=None,
                           dest_widget=None, dest_pos=None):
         """
         Do a drag and drop.
-        
+
         :param src_widget: source widget
         :param src_pos: starting position for the drag. If None, the center
                         of `src_widget` will be used, else it must be a
@@ -316,43 +316,43 @@ class FunqClient(object):
 class ApplicationContext(object): # pylint: disable=R0903
     """
     This is the context of a tested application.
-    
+
     Instanciate this class may launch the tested application with funq
     (if appconfig.executable does not starts with "socket://").
-    
+
     Then it will try to connect to the libFunq server with a
     :class:`FunqClient` accessible from the member **funq**.
-    
+
     When the instance is garbage collected, :meth:`terminate` is
     automatically called to close the **funq** member and terminate
     the tested application process.
     """
     def __init__(self, appconfig, client_class=FunqClient):
         self._process, self.funq = None, None
-        
+
         if not appconfig.executable.startswith('socket://'):
             self._start_test_process(appconfig)
             host = None # means localhost
         else:
             host = appconfig.executable[9:]
-        
+
         self.funq = client_class(host=host,
                                port=appconfig.funq_port,
                                aliases=appconfig.create_aliases(),
                                timeout_connection=appconfig.timeout_connection)
-    
+
     def _start_test_process(self, appconfig):
         """
         Start the process of the tested application.
         """
-        
+
         env = appconfig.env
         cmd = []
         funq_port = appconfig.funq_port
-        
+
         stdout = appconfig.executable_stdout
         stderr = appconfig.executable_stderr
-        
+
         if stderr:
             if stderr == stdout:
                 stderr = subprocess.STDOUT
@@ -360,19 +360,19 @@ class ApplicationContext(object): # pylint: disable=R0903
                 stderr = open(stderr, 'a')
         if stdout:
             stdout = open(stdout, 'a')
-        
+
         if not appconfig.attach:
             # libFunq is compiled inside the tested application binary
             if env is None:
                 env = os.environ
-            
+
             # copy env
             env = dict(env.items())
-            
+
             env['FUNQ_ACTIVATION'] = '1'
             if funq_port:
                 env['FUNQ_PORT'] = str(funq_port)
-            
+
         else:
             # inject libFunq with funq executable
             if not appconfig.global_options.funq_attach_exe:
@@ -383,14 +383,14 @@ class ApplicationContext(object): # pylint: disable=R0903
             if funq_port:
                 cmd.append('--port')
                 cmd.append(str(funq_port))
-        
+
         if appconfig.with_valgrind:
             cmd.append('valgrind')
             cmd.extend(appconfig.valgrind_args)
         cmd.append(appconfig.executable)
-        
+
         cmd.extend(appconfig.args)
-        
+
         LOG.info("The tested application will be launched in the"
                  " directory %r with the command %r", appconfig.cwd, cmd)
         self._process = subprocess.Popen(cmd,
@@ -399,7 +399,7 @@ class ApplicationContext(object): # pylint: disable=R0903
                                          stderr=stderr,
                                          env=env)
         LOG.info("Launching tested application [%s].", self._process.pid)
-    
+
     def _kill_process(self):
         """
         Kill the application tested process
@@ -417,7 +417,7 @@ class ApplicationContext(object): # pylint: disable=R0903
                 self._process.terminate()
                 self._process.wait()
             self._process = None
-    
+
     def terminate(self):
         """
         Try to kill the process and close the **funq** object.
@@ -452,7 +452,7 @@ class ApplicationContext(object): # pylint: disable=R0903
                 pass
             self.funq = None
         self._kill_process()
-    
+
     def __del__(self):
         self.terminate()
 
@@ -460,11 +460,11 @@ class ApplicationConfig(object): # pylint: disable=R0902
     """
     This object hold the configuration of the application to test, mostly
     retrieved from the funq configuration file.
-    
+
     Each parameter is accessible on the instance, allowing to retrieve
     the tested application path for example with *config.executable*,
     or its exeution path with *config.cwd*.
-    
+
     :param executable: complete path to the tested application
     :param args: executable arguments
     :param funq_port: socket port number for the libFunq connection
@@ -513,7 +513,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
         self.with_valgrind = with_valgrind
         self.valgrind_args = valgrind_args
         self.global_options = global_options
-    
+
     def create_aliases(self):
         """
         Create and returns and aliases object.
@@ -523,21 +523,21 @@ class ApplicationConfig(object): # pylint: disable=R0902
         return HooqAliases.from_file(self.aliases,
                     self.global_options.funq_gkit_file,
                     self.global_options.funq_gkit)
-    
+
     @classmethod
     def from_conf(cls, conf, section, global_options): # pylint:disable=R0912
         """
         Create an instance of :class:`ApplicationConfig` from a
         funq configuration section.
         """
-        
+
         basedir = os.path.dirname(global_options.funq_conf)
-        
+
         executable = conf.get(section, 'executable')
         if not executable.startswith('socket://') and (
                         basedir and not os.path.isabs(executable)):
             executable = os.path.join(basedir, executable)
-        
+
         kwargs = {'global_options': global_options}
         if conf.has_option(section, 'args'):
             kwargs['args'] = shlex.split(conf.get(section, 'args'))
@@ -555,34 +555,34 @@ class ApplicationConfig(object): # pylint: disable=R0902
         if conf.has_option(section, 'timeout_connection'):
             kwargs['timeout_connection'] = conf.getint(section,
                                              'timeout_connection')
-        
+
         if conf.has_option(section, 'attach'):
             kwargs["attach"] = conf.getboolean(section, 'attach')
-        
+
         for optname in ('cwd', 'aliases', 'executable_stdout',
                          'executable_stderr'):
             if conf.has_option(section, optname):
                 kwargs[optname] = conf.get(section, optname)
                 if basedir and not os.path.isabs(kwargs[optname]):
                     kwargs[optname] = os.path.join(basedir, kwargs[optname])
-        
+
         # devnull if NULL specified in the config file
         for optname in ('executable_stdout', 'executable_stderr'):
             if conf.has_option(section, optname) and \
                             conf.get(section, optname) == 'NULL':
                 kwargs[optname] = os.devnull
-        
+
         if conf.has_option(section, 'with_valgrind'):
             kwargs["with_valgrind"] = conf.getboolean(section, 'with_valgrind')
-        
+
         if conf.has_option(section, 'valgrind_args'):
             kwargs['valgrind_args'] = shlex.split(
                                             conf.get(section, 'valgrind_args'))
-        
+
         if conf.has_option(section, 'screenshot_on_error'):
             kwargs["screenshot_on_error"] = conf.getboolean(section,
                                                         'screenshot_on_error')
-        
+
         return cls(executable, **kwargs) # pylint: disable=W0142
 
 class ApplicationRegistry(object):
@@ -593,7 +593,7 @@ class ApplicationRegistry(object):
     """
     def __init__(self):
         self.confs = defaultdict(dict)
-    
+
     def register_from_conf(self, conf, global_options):
         """
         Save configurations given a funq config.
@@ -605,15 +605,15 @@ class ApplicationRegistry(object):
                 app = section
             appconf = ApplicationConfig.from_conf(conf, section, global_options)
             self.register_config(app, appconf)
-    
+
     def register_config(self, name, conf):
         """ Save the config *name* """
         self.confs[name] = conf
-    
+
     def config(self, name):
         """
         Returns the :class:`ApplicationConfig` associated to *name*.
-        
+
         :param name: name of the configuration
         """
         return self.confs[name]
