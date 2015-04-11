@@ -37,7 +37,7 @@ Let's see the test code now::
 .. note::
   
   There is some differences when interacting with multiples applications
-  at the same time::
+  at the same time:
   
    - using :class:`funq.testcase.MultiFunqTestCase`
    - using **__app_config_names__** instead of **__app_config_name__**
