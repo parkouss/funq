@@ -39,7 +39,9 @@ from funq.tools import wait_for
 from funq.errors import FunqError
 import json
 
-class TreeItem(object): # pylint: disable=R0903
+
+class TreeItem(object):  # pylint: disable=R0903
+
     """
     Defines an abstract item that contains subitems
     """
@@ -56,10 +58,12 @@ class TreeItem(object): # pylint: disable=R0903
         for k, v in data.iteritems():
             if k != 'items':
                 setattr(self, k, v)
-        self.items = [cls.create(client, d) for d in data.get('items', []) ]
+        self.items = [cls.create(client, d) for d in data.get('items', [])]
         return self
 
+
 class TreeItems(object):
+
     """
     Abstract class to manipulate data that contains :class:`TreeItem`. Used
     by modelitems and graphicsitems.
@@ -78,7 +82,8 @@ class TreeItems(object):
         """
         self = cls()
         self.client = client
-        self.items = [cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
+        self.items = [
+            cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
         return self
 
     def iter(self):
@@ -97,7 +102,10 @@ class TreeItems(object):
             yield item
 
 CPP_CLASSES = {}
+
+
 class WidgetMetaClass(type):
+
     """
     Saves a dict of accessible classes to handle inheritance of Widgets.
     """
@@ -109,7 +117,9 @@ class WidgetMetaClass(type):
             CPP_CLASSES[qt_name] = cls
         return cls
 
+
 class Widget(object):
+
     """
     Allow to manipulate a QWidget or derived.
 
@@ -177,7 +187,7 @@ class Widget(object):
 
           widget.set_property('text', "My beautiful text")
         """
-        self.set_properties(**{name: value}) # pylint:disable=W0142
+        self.set_properties(**{name: value})  # pylint:disable=W0142
 
     def wait_for_properties(self, props, timeout=10.0, timeout_interval=0.1):
         """
@@ -199,7 +209,8 @@ class Widget(object):
     def click(self, wait_for_enabled=10.0):
         """
         Click on the widget. If wait_for_enabled is > 0 (default), it will wait
-        until the widget become active (enabled and visible) before sending click.
+        until the widget become active (enabled and visible) before sending
+        click.
         """
         if wait_for_enabled > 0.0:
             self.wait_for_properties({'enabled': True, 'visible': True},
@@ -220,13 +231,18 @@ class Widget(object):
         :param params: parameters (must be json serialisable) that will be send
                        to the tested application as a QVariant.
         """
-        return self.client.send_command('call_slot', slot_name=slot_name,
-                                    params=params, oid=self.oid)['result_slot']
+        return self.client.send_command(
+            'call_slot',
+            slot_name=slot_name,
+            params=params,
+            oid=self.oid
+        )['result_slot']
 
     def dclick(self, wait_for_enabled=10.0):
         """
-        Double click on the widget. If wait_for_enabled is > 0 (default), it will wait
-        until the widget become active (enabled and visible) before sending click.
+        Double click on the widget. If wait_for_enabled is > 0 (default), it
+        will wait until the widget become active (enabled and visible) before
+        sending click.
         """
         if wait_for_enabled > 0.0:
             self.wait_for_properties({'enabled': True, 'visible': True},
@@ -243,8 +259,8 @@ class Widget(object):
 
     def keyclick(self, text):
         """
-        Simulate keypress and keyrelease events for every character in the given
-        text. Example::
+        Simulate keypress and keyrelease events for every character in the
+        given text. Example::
 
           widget.keyclick("my text")
         """
@@ -256,22 +272,23 @@ class Widget(object):
         QKeySequence::fromString to see the documentation of the format needed
         for the text sequence.
 
-        :param text: text sequence of the shortcut (see QKeySequence::fromString
-                     documentation)
+        :param text: text sequence of the shortcut (see
+                     QKeySequence::fromString documentation)
         """
         self.client.send_command('shortcut',
                                  keysequence=key_sequence,
                                  oid=self.oid)
 
     def drag_n_drop(self, src_pos=None,
-                          dest_widget=None, dest_pos=None):
+                    dest_widget=None, dest_pos=None):
         """
         Do a drag and drop from this widget.
 
         :param src_pos: starting position of the drag. Must be a tuple (x, y)
                         in widget coordinates or None (the center of the widget
                         will then be used)
-        :param dest_widget: destination widget. If None, src_widget will be used.
+        :param dest_widget: destination widget. If None, src_widget will be
+                            used.
         :param dest_pos: ending position (the drop). Must be a tuple (x, y)
                          in widget coordinates or None (the center of the dest
                          widget will then be used)
@@ -285,7 +302,9 @@ class Widget(object):
         """
         self.client.send_command('widget_close', oid=self.oid)
 
+
 class ModelItem(TreeItem):
+
     """
     Allow to manipulate a modelitem in a QAbstractModelItem or derived.
 
@@ -340,8 +359,8 @@ class ModelItem(TreeItem):
         """
         Click on this item.
 
-        :param origin: Origin of the cursor coordinates of the ModelItem object.
-                       Availables values: "center", "left" or "right".
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object. Availables values: "center", "left" or "right".
         :param offset_x: x position relative to the origin.
                          Negative value allowed.
         :param offset_y: y position relative to the origin.
@@ -355,7 +374,8 @@ class ModelItem(TreeItem):
         """
         Double click on this item.
 
-        :param origin: Origin of the cursor coordinates of the ModelItem object.
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object.
         :param offset_x: x position relative to the origin.
                          Negative value allowed.
         :param offset_y: y position relative to the origin.
@@ -365,7 +385,9 @@ class ModelItem(TreeItem):
             "doubleclick", origin=origin, offset_x=offset_x, offset_y=offset_y
         )
 
+
 class ModelItems(TreeItems):
+
     """
     Allow to manipulate all modelitems in a QAbstractModelItem or derived.
 
@@ -374,7 +396,8 @@ class ModelItems(TreeItems):
 
     ITEM_CLASS = ModelItem
 
-    def item_by_named_path(self, named_path, match_column=0, sep='/', column=0):
+    def item_by_named_path(self, named_path, match_column=0, sep='/',
+                           column=0):
         """
         Returns the item (:class:`ModelItem`) that match the arborescence
         defined by `named_path` and in the given column.
@@ -387,8 +410,8 @@ class ModelItems(TreeItems):
         :param column: the column of the desired item
         """
         items = self.row_by_named_path(named_path,
-                                         match_column=match_column,
-                                         sep=sep)
+                                       match_column=match_column,
+                                       sep=sep)
         if items:
             return items[column]
 
@@ -399,8 +422,8 @@ class ModelItems(TreeItems):
 
         .. important::
 
-          Use unicode characters in `named_path` to match elements with non-ascii
-          characters.
+          Use unicode characters in `named_path` to match elements with
+          non-ascii characters.
 
         Example::
 
@@ -427,15 +450,17 @@ class ModelItems(TreeItems):
                     # we found the item
                     # if it is the last part name, just return the columns
                     if not parts:
-                        row = [ it for it in item.items
-                                if it.row == item_.row ]
+                        row = [it for it in item.items
+                               if it.row == item_.row]
                         return sorted(row, key=lambda it: it.column)
                     else:
                         next_item = item_
             item = next_item
         return None
 
+
 class AbstractItemView(Widget):
+
     """
     Specific Widget to manipulate QAbstractItemView or derived.
     """
@@ -467,17 +492,20 @@ class AbstractItemView(Widget):
         qt_path = '::qt_scrollarea_viewport::%s'
         if editor_class_name:
             return self.client.widget(path=self.path
-                                  + qt_path % editor_class_name)
+                                      + qt_path % editor_class_name)
         for editor_class_name in self.editor_class_names:
             try:
                 return self.client.widget(path=self.path
-                                      + qt_path % editor_class_name)
+                                          + qt_path % editor_class_name)
             except FunqError:
                 pass
         raise FunqError("MissingEditor", 'Unable to find an editor.'
-                    ' Possible editors: %s' % repr(self.editor_class_names))
+                        ' Possible editors: %s'
+                        % repr(self.editor_class_names))
+
 
 class TableView(AbstractItemView):
+
     """
     Specific widget to manipulate a QTableView widget.
     """
@@ -517,7 +545,9 @@ class TableView(AbstractItemView):
                                   timeout_interval=timeout_interval,
                                   wait_active=wait_active)
 
+
 class TreeView(AbstractItemView):
+
     """
     Specific widget to manipulate a QTreeView widget.
     """
@@ -537,7 +567,9 @@ class TreeView(AbstractItemView):
                                   timeout_interval=timeout_interval,
                                   wait_active=wait_active)
 
+
 class TabBar(Widget):
+
     """
     Allow to manipulate a QTabBar Widget.
     """
@@ -563,7 +595,9 @@ class TabBar(Widget):
             index = tabnames.index(tab_index_or_name)
         self.set_property('currentIndex', index)
 
+
 class GItem(TreeItem):
+
     """
     Allow to manipulate a QGraphicsItem.
 
@@ -573,8 +607,8 @@ class GItem(TreeItem):
                     [type: str]
     :var objectname: value of the "objectName" property if it inherits
                      from QObject. [type: unicode or None]
-    :var classes: list of names of class inheritance if it inherits from QObject.
-                  [type: list(str) or None]
+    :var classes: list of names of class inheritance if it inherits from
+                  QObject. [type: list(str) or None]
     :var items: list of subitems [type: :class:`GItem`]
     """
     viewid = None
@@ -584,7 +618,7 @@ class GItem(TreeItem):
 
     def is_qobject(self):
         """ Returns True if this GItem inherits QObject """
-        return self.objectname != None
+        return self.objectname is not None
 
     def properties(self):
         """
@@ -592,8 +626,8 @@ class GItem(TreeItem):
         QObject.
         """
         return self.client.send_command('gitem_properties',
-                                         oid=self.viewid,
-                                         stackpath=self.stackpath)
+                                        oid=self.viewid,
+                                        stackpath=self.stackpath)
 
     def _action(self, itemaction):
         """ Send the command 'model_gitem_action' """
@@ -614,7 +648,9 @@ class GItem(TreeItem):
         """
         self._action("doubleclick")
 
+
 class GItems(TreeItems):
+
     """
     Allow to manipulate a group of QGraphicsItems.
 
@@ -623,7 +659,9 @@ class GItems(TreeItems):
     """
     ITEM_CLASS = GItem
 
+
 class GraphicsView(Widget):
+
     """
     Allow to manipulate an instance of QGraphicsView.
     """
@@ -647,7 +685,9 @@ class GraphicsView(Widget):
         json.dump(data,
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
 
+
 class ComboBox(Widget):
+
     """
     Allow to manipulate a QCombobox.
     """
@@ -673,7 +713,7 @@ class ComboBox(Widget):
         """
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
-                             ' - got %s' % type(text))
+                            ' - got %s' % type(text))
         model_items = self.model_items()
         column = self.properties()['modelColumn']
         index = -1
@@ -682,10 +722,12 @@ class ComboBox(Widget):
                 index = int(item.row)
                 break
         assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
-                             % (text, self.path))
+                            % (text, self.path))
         self.set_property('currentIndex', index)
 
+
 class HeaderView(Widget):
+
     """
     Allow to manipulate a QHeaderView.
     """

@@ -33,11 +33,17 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 """
-This module allow to communicate with a libFunq server with :class:`FunqClient`.
+This module allow to communicate with a libFunq server with
+:class:`FunqClient`.
 """
 
-import socket, json, errno, os, shlex, subprocess, base64
-from functools import wraps
+import socket
+import json
+import errno
+import os
+import shlex
+import subprocess
+import base64
 from collections import defaultdict
 import logging
 
@@ -48,7 +54,9 @@ from funq.errors import FunqError, TimeOutError
 
 LOG = logging.getLogger('funq.client')
 
+
 class FunqClient(object):
+
     """
     Allow to communicate with a libFunq server.
 
@@ -58,7 +66,7 @@ class FunqClient(object):
     DEFAULT_PORT = 9999
 
     def __init__(self, host=None, port=None, aliases=None,
-                       timeout_connection=10):
+                 timeout_connection=10):
         if host is None:
             host = self.DEFAULT_HOST
         if port is None:
@@ -70,7 +78,7 @@ class FunqClient(object):
             aliases = HooqAliases.from_file(aliases)
         elif not isinstance(aliases, HooqAliases):
             raise TypeError("aliases must be None or str or an"
-                             " instance of HooqAliases")
+                            " instance of HooqAliases")
 
         self.aliases = aliases
 
@@ -88,7 +96,6 @@ class FunqClient(object):
 
         wait_for(connect, timeout_connection, 0.2)
         self._fsocket = self._socket.makefile(mode="rw")
-
 
     def duplicate(self):
         """
@@ -143,7 +150,7 @@ class FunqClient(object):
                             u" probablement un crash.")
         to_read = int(header)
         response = json.loads(f.read(to_read))
-        if response.get('success') == False:
+        if response.get('success') is False:
             raise FunqError(response["errName"], response["errDesc"])
         return response
 
@@ -153,8 +160,8 @@ class FunqClient(object):
         """
         self._raw_send('quit', {})
 
-    def widget(self, alias=None, path=None, # pylint:disable=R0913
-                     timeout=10.0, timeout_interval=0.1, wait_active=True):
+    def widget(self, alias=None, path=None, timeout=10.0,
+               timeout_interval=0.1, wait_active=True):
         """
         Returns an instance of a :class:`funq.models.Widget` or derived
         identified with an alias or with its complete path.
@@ -179,6 +186,7 @@ class FunqClient(object):
             path = self.aliases[alias]
 
         wdata = [None]
+
         def get_widget():
             """ Try to get the widget """
             try:
@@ -195,8 +203,8 @@ class FunqClient(object):
             widget.wait_for_properties({'enabled': True, 'visible': True})
         return widget
 
-    def active_widget(self, widget_type='window', timeout=10.0, timeout_interval=0.1,
-                      wait_active=True):
+    def active_widget(self, widget_type='window', timeout=10.0,
+                      timeout_interval=0.1, wait_active=True):
         """
         Returns an instance of a :class:`funq.models.Widget` or derived
         that is the active widget of the application, or the widget that
@@ -223,6 +231,7 @@ class FunqClient(object):
                             become visible and enabled.
         """
         wdata = [None]
+
         def get_widget():
             """ Try to get the widget """
             try:
@@ -244,10 +253,10 @@ class FunqClient(object):
         Returns a dict with every widgets in the application.
         """
         return self.send_command('widgets_list',
-                                  with_properties=with_properties)
+                                 with_properties=with_properties)
 
     def dump_widgets_list(self, stream='widgets_list.json',
-                                 with_properties=False):
+                          with_properties=False):
         """
         Write in a file the result of :meth:`widgets_list`.
         """
@@ -264,7 +273,7 @@ class FunqClient(object):
         if isinstance(stream, basestring):
             stream = open(stream, 'wb')
         raw = base64.standard_b64decode(data['data'])
-        stream.write(raw) #pylint: disable=E1103
+        stream.write(raw)  # pylint: disable=E1103
 
     def keyclick(self, text):
         """
@@ -287,7 +296,7 @@ class FunqClient(object):
         self.send_command('shortcut', keysequence=key_sequence)
 
     def drag_n_drop(self, src_widget, src_pos=None,
-                          dest_widget=None, dest_pos=None):
+                    dest_widget=None, dest_pos=None):
         """
         Do a drag and drop.
 
@@ -313,7 +322,9 @@ class FunqClient(object):
                           srcpos=src_pos,
                           destpos=dest_pos)
 
-class ApplicationContext(object): # pylint: disable=R0903
+
+class ApplicationContext(object):  # pylint: disable=R0903
+
     """
     This is the context of a tested application.
 
@@ -327,19 +338,22 @@ class ApplicationContext(object): # pylint: disable=R0903
     automatically called to close the **funq** member and terminate
     the tested application process.
     """
+
     def __init__(self, appconfig, client_class=FunqClient):
         self._process, self.funq = None, None
 
         if not appconfig.executable.startswith('socket://'):
             self._start_test_process(appconfig)
-            host = None # means localhost
+            host = None  # means localhost
         else:
             host = appconfig.executable[9:]
 
-        self.funq = client_class(host=host,
-                               port=appconfig.funq_port,
-                               aliases=appconfig.create_aliases(),
-                               timeout_connection=appconfig.timeout_connection)
+        self.funq = client_class(
+            host=host,
+            port=appconfig.funq_port,
+            aliases=appconfig.create_aliases(),
+            timeout_connection=appconfig.timeout_connection
+        )
 
     def _start_test_process(self, appconfig):
         """
@@ -377,8 +391,8 @@ class ApplicationContext(object): # pylint: disable=R0903
             # inject libFunq with funq executable
             if not appconfig.global_options.funq_attach_exe:
                 raise RuntimeError("To use funq, you have to specify the"
-                                    " nose option --funq-attach-exe"
-                                    " or put the funq executable in PATH")
+                                   " nose option --funq-attach-exe"
+                                   " or put the funq executable in PATH")
             cmd = [appconfig.global_options.funq_attach_exe]
             if funq_port:
                 cmd.append('--port')
@@ -456,7 +470,9 @@ class ApplicationContext(object): # pylint: disable=R0903
     def __del__(self):
         self.terminate()
 
-class ApplicationConfig(object): # pylint: disable=R0902
+
+class ApplicationConfig(object):  # pylint: disable=R0902
+
     """
     This object hold the configuration of the application to test, mostly
     retrieved from the funq configuration file.
@@ -484,21 +500,22 @@ class ApplicationConfig(object): # pylint: disable=R0902
     :param valgrind_args: valgrind arguments
     :param global_options: options from the funq nose plugin.
     """
-    def __init__(self, executable, # pylint: disable=R0913
-                       args=(),
-                       funq_port=None,
-                       cwd=None,
-                       env=None,
-                       timeout_connection=10,
-                       aliases=None,
-                       executable_stdout=None,
-                       executable_stderr=None,
-                       attach=True,
-                       screenshot_on_error=False,
-                       with_valgrind=False,
-                       valgrind_args=('--leak-check=full',
-                                      '--show-reachable=yes'),
-                       global_options=None):
+
+    def __init__(self, executable,  # pylint: disable=R0913
+                 args=(),
+                 funq_port=None,
+                 cwd=None,
+                 env=None,
+                 timeout_connection=10,
+                 aliases=None,
+                 executable_stdout=None,
+                 executable_stderr=None,
+                 attach=True,
+                 screenshot_on_error=False,
+                 with_valgrind=False,
+                 valgrind_args=('--leak-check=full',
+                                '--show-reachable=yes'),
+                 global_options=None):
         self.executable = executable
         self.args = args
         self.funq_port = funq_port
@@ -521,11 +538,11 @@ class ApplicationConfig(object): # pylint: disable=R0902
         if not self.aliases:
             return None
         return HooqAliases.from_file(self.aliases,
-                    self.global_options.funq_gkit_file,
-                    self.global_options.funq_gkit)
+                                     self.global_options.funq_gkit_file,
+                                     self.global_options.funq_gkit)
 
     @classmethod
-    def from_conf(cls, conf, section, global_options): # pylint:disable=R0912
+    def from_conf(cls, conf, section, global_options):
         """
         Create an instance of :class:`ApplicationConfig` from a
         funq configuration section.
@@ -535,7 +552,7 @@ class ApplicationConfig(object): # pylint: disable=R0902
 
         executable = conf.get(section, 'executable')
         if not executable.startswith('socket://') and (
-                        basedir and not os.path.isabs(executable)):
+                basedir and not os.path.isabs(executable)):
             executable = os.path.join(basedir, executable)
 
         kwargs = {'global_options': global_options}
@@ -544,7 +561,8 @@ class ApplicationConfig(object): # pylint: disable=R0902
 
         if conf.has_option(section, 'funq_port'):
             kwargs['funq_port'] = conf.getint(section, 'funq_port')
-            if kwargs['funq_port'] == 0 and not executable.startswith('socket://'):
+            if kwargs['funq_port'] == 0 and \
+                    not executable.startswith('socket://'):
                 # take an available port
                 sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
                 sock.bind(('', 0))
@@ -554,13 +572,13 @@ class ApplicationConfig(object): # pylint: disable=R0902
 
         if conf.has_option(section, 'timeout_connection'):
             kwargs['timeout_connection'] = conf.getint(section,
-                                             'timeout_connection')
+                                                       'timeout_connection')
 
         if conf.has_option(section, 'attach'):
             kwargs["attach"] = conf.getboolean(section, 'attach')
 
         for optname in ('cwd', 'aliases', 'executable_stdout',
-                         'executable_stderr'):
+                        'executable_stderr'):
             if conf.has_option(section, optname):
                 kwargs[optname] = conf.get(section, optname)
                 if basedir and not os.path.isabs(kwargs[optname]):
@@ -569,28 +587,32 @@ class ApplicationConfig(object): # pylint: disable=R0902
         # devnull if NULL specified in the config file
         for optname in ('executable_stdout', 'executable_stderr'):
             if conf.has_option(section, optname) and \
-                            conf.get(section, optname) == 'NULL':
+                    conf.get(section, optname) == 'NULL':
                 kwargs[optname] = os.devnull
 
         if conf.has_option(section, 'with_valgrind'):
-            kwargs["with_valgrind"] = conf.getboolean(section, 'with_valgrind')
+            kwargs["with_valgrind"] = \
+                conf.getboolean(section, 'with_valgrind')
 
         if conf.has_option(section, 'valgrind_args'):
-            kwargs['valgrind_args'] = shlex.split(
-                                            conf.get(section, 'valgrind_args'))
+            kwargs['valgrind_args'] = \
+                shlex.split(conf.get(section, 'valgrind_args'))
 
         if conf.has_option(section, 'screenshot_on_error'):
-            kwargs["screenshot_on_error"] = conf.getboolean(section,
-                                                        'screenshot_on_error')
+            kwargs["screenshot_on_error"] = \
+                conf.getboolean(section, 'screenshot_on_error')
 
-        return cls(executable, **kwargs) # pylint: disable=W0142
+        return cls(executable, **kwargs)
+
 
 class ApplicationRegistry(object):
+
     """
     Handle multiple :class:`ApplicationConfig`. A global instance is
     used in :mod:`funq.noseplugin` to keep every configuration defined
     in the funq configuration file.
     """
+
     def __init__(self):
         self.confs = defaultdict(dict)
 
@@ -603,7 +625,8 @@ class ApplicationRegistry(object):
                 app, mode = section.split(':', 1)
             else:
                 app = section
-            appconf = ApplicationConfig.from_conf(conf, section, global_options)
+            appconf = ApplicationConfig.from_conf(
+                conf, section, global_options)
             self.register_config(app, appconf)
 
     def register_config(self, name, conf):

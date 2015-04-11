@@ -44,7 +44,9 @@ import os
 import re
 import inspect
 
+
 class AssertionSuccessError(AssertionError):
+
     """
     Exception which will be raised if method decorated with :func:`todo`
     pass (it is not expected).
@@ -92,7 +94,8 @@ def todo(skip_message, exception_cls=AssertionError):
             except exception_cls as err:
                 err = u"%s" % err
                 if isinstance(err, unicode):
-                    err = err.encode('utf-8', errors='ignore')  # pylint: disable=E1103
+                    err = err.encode(
+                        'utf-8', errors='ignore')  # pylint: disable=E1103
                 skip_msg = skip_message.encode('utf-8', errors='ignore')
                 raise unittest.SkipTest('\nError: %s\n%s' % (err, skip_msg))
 
@@ -111,8 +114,8 @@ def parameterized(func_suffix, *args, **kwargs):
     are not allowed in normal python function name, these characters will be
     replaced with "_".
 
-    This decorator can be used more than once on a single base method. The class
-    must have a metaclass of :class:`MetaParameterized`.
+    This decorator can be used more than once on a single base method. The
+    class must have a metaclass of :class:`MetaParameterized`.
 
     Example::
 
@@ -174,6 +177,7 @@ def with_parameters(parameters):
 
 def wraps_parameterized(func, func_suffix, args, kwargs):
     """Internal: for MetaParameterized"""
+
     def wrapper(self):
         return func(self, *args, **kwargs)
     wrapper.__name__ = func.__name__ + '_' + func_suffix
@@ -182,42 +186,49 @@ def wraps_parameterized(func, func_suffix, args, kwargs):
 
 
 class MetaParameterized(type):
+
     """
     A metaclass that allow a class to use decorators like :func:`parameterized`
     or :func:`with_parameters` to generate new methods.
     """
     RE_ESCAPE_BAD_CHARS = re.compile(r'[\.\(\) -/]')
+
     def __new__(cls, name, bases, attrs):
         for k, v in attrs.items():
             if callable(v) and hasattr(v, 'parameters'):
                 for func_suffix, args, kwargs in v.parameters:
                     func_suffix = cls.RE_ESCAPE_BAD_CHARS.sub('_', func_suffix)
-                    wrapper = wraps_parameterized(v,func_suffix, args, kwargs)
+                    wrapper = wraps_parameterized(v, func_suffix, args, kwargs)
                     if wrapper.__name__ in attrs:
                         raise KeyError("%s is already a defined method on %s" %
-                                        (wrapper.__name__, name))
+                                       (wrapper.__name__, name))
                     attrs[wrapper.__name__] = wrapper
                 del attrs[k]
 
         return type.__new__(cls, name, bases, attrs)
 
+
 class declared_attr(property):
+
     """
     Allow to write a class method that will be accessible as a class
     attribute.
     """
+
     def __init__(self, fget, *arg, **kw):
         super(declared_attr, self).__init__(fget, *arg, **kw)
         self.__doc__ = fget.__doc__
 
-    def __get__(desc, self, cls): # pylint: disable=E0213
+    def __get__(desc, self, cls):  # pylint: disable=E0213
         return desc.fget(cls)
+
 
 def funq_app_config(confname):
     """
     Returns the config named *confname*.
     """
     return BaseTestCase.__app_registry__.config(confname)
+
 
 def register_funq_app_registry(registry):
     """
@@ -226,15 +237,17 @@ def register_funq_app_registry(registry):
     """
     BaseTestCase.__app_registry__ = registry
 
+
 class BaseTestCase(unittest.TestCase):
+
     """
     Abstract class of a testcase for Funq.
 
     It defines a common behaviour to name tests methods and uses the metaclass
     :class:`MetaParameterized` that allows to generate methods from data.
 
-    It inherits from :class:`unittest.TestCase`, thus allowing to use very useful
-    methods like assertEquals, assertFalse, etc.
+    It inherits from :class:`unittest.TestCase`, thus allowing to use very
+    useful methods like assertEquals, assertFalse, etc.
     """
     __metaclass__ = MetaParameterized
     __app_registry__ = None
@@ -260,22 +273,25 @@ class BaseTestCase(unittest.TestCase):
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
         return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
 
+
 class FunqTestCase(BaseTestCase):
+
     """
     A testcase to launch an application and write tests against it.
 
     The class attribute **__app_config_name__** is required and must contains
     the name of a section in the funq configuration file. A class attribute
     **__app_config__** will then be automatically created to give access to
-    the configuration of the application (:class:`funq.client.ApplicationConfig`).
+    the configuration of the application
+    (:class:`funq.client.ApplicationConfig`).
 
-    :var funq: instance of :class:`funq.client.FunqClient`, allowing to manipulate
-               the application.
+    :var funq: instance of :class:`funq.client.FunqClient`, allowing to
+               manipulate the application.
     """
     __app_config_name__ = None
 
     @declared_attr
-    def __app_config__(cls): # pylint: disable=E0213
+    def __app_config__(cls):  # pylint: disable=E0213
         if cls.__app_config_name__ is not None:
             return cls.__app_registry__.config(cls.__app_config_name__)
 
@@ -284,7 +300,9 @@ class FunqTestCase(BaseTestCase):
         self.funq = weakref.proxy(ctx.funq)
         return ctx
 
+
 class MultiFunqTestCase(BaseTestCase):
+
     """
     A testcase to launch multiple applications at the same time and write tests
     against them.
@@ -296,16 +314,16 @@ class MultiFunqTestCase(BaseTestCase):
     :class:`funq.client.ApplicationConfig`, where the keys are configuration
     names).
 
-    :var funq: a dict that contains :class:`funq.client.FunqClient`, allowing to
-               manipulate the application. Keys are configuration names.
+    :var funq: a dict that contains :class:`funq.client.FunqClient`, allowing
+               to manipulate the application. Keys are configuration names.
     """
     __app_config_names__ = None
 
     @declared_attr
-    def __app_config__(cls): # pylint: disable=E0213
+    def __app_config__(cls):  # pylint: disable=E0213
         if cls.__app_config_names__ is not None:
             return dict([(k, cls.__app_registry__.config(k))
-                          for k in cls.__app_config_names__])
+                         for k in cls.__app_config_names__])
 
     def _create_funq_ctx(self):
         ctx = {}

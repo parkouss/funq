@@ -37,25 +37,32 @@ Module that integrates funq with nosetests.
 """
 
 from funq.client import ApplicationRegistry
-from funq.testcase import MultiFunqTestCase, FunqTestCase, register_funq_app_registry
+from funq.testcase import MultiFunqTestCase, FunqTestCase, \
+    register_funq_app_registry
 from funq.screenshoter import ScreenShoter
 from funq import tools
 from nose.plugins import Plugin
 from ConfigParser import ConfigParser
-import os, codecs, logging
+import os
+import codecs
+import logging
 
 LOG = logging.getLogger('nose.plugins.funq')
+
 
 def message_with_sep(message):
     """Returns a message with a separator."""
     sep = '-' * 70
     return (sep, message, sep)
 
+
 def locate_funq():
     """find the funq executable"""
     return tools.which('funq')
 
+
 class FunqPlugin(Plugin):
+
     """
     Nosetests plugin to integrate funq.
     """
@@ -86,12 +93,13 @@ class FunqPlugin(Plugin):
         parser.add_option('--funq-gkit-file',
                           dest='funq_gkit_file',
                           default=env.get('NOSE_FUNQ_GKIT_FILE') or gkit_file,
-                          help="Override the file that defines graphic toolkits."
-                               " Default: `%s` [NOSE_FUNQ_GKIT_FILE]" % gkit_file)
+                          help="Override the file that defines graphic"
+                               " toolkits. Default: `%s` [NOSE_FUNQ_GKIT_FILE]"
+                               % gkit_file)
         parser.add_option('--funq-attach-exe',
                           dest='funq_attach_exe',
                           default=env.get('NOSE_FUNQ_ATTACH_EXE')
-                                                            or locate_funq(),
+                          or locate_funq(),
                           help="Complete path to the funq executable."
                                " [NOSE_FUNQ_ATTACH_EXE]")
         parser.add_option('--funq-trace-tests',
@@ -102,21 +110,21 @@ class FunqPlugin(Plugin):
         parser.add_option('--funq-trace-tests-encoding',
                           dest='funq_trace_tests_encoding',
                           default=env.get('NOSE_FUNQ_TRACE_TESTS_ENCODING')
-                                    or 'utf-8',
+                          or 'utf-8',
                           help="encoding of the file used in"
                                " --funq-trace-tests."
                                " [NOSE_FUNQ_TRACE_TESTS_ENCODING]")
         parser.add_option('--funq-screenshot-folder',
                           dest="funq_screenshot_folder",
                           default=env.get("NOSE_FUNQ_SCREENSHOT_FOLDER")
-                                    or os.path.realpath("screenshot-errors"),
+                          or os.path.realpath("screenshot-errors"),
                           help="Folder to saves screenshots on error."
                                " Default: screenshot-errors."
                                " [NOSE_FUNQ_SCREENSHOT_FOLDER]")
         parser.add_option('--funq-snooze-factor',
                           dest="funq_snooze_factor",
                           default=env.get("NOSE_FUNQ_SNOOZE_FACTOR")
-                                    or 1.0,
+                          or 1.0,
                           help="Allow to specify a factor on every timeout."
                                " Default: 1.0.  [NOSE_FUNQ_SNOOZE_FACTOR]")
 
@@ -126,39 +134,39 @@ class FunqPlugin(Plugin):
             return
         conf_file = options.funq_conf = os.path.realpath(options.funq_conf)
         if not os.path.isfile(conf_file):
-            raise Exception("Missing configuration file of funq: `%s`" % conf_file)
+            raise Exception(
+                "Missing configuration file of funq: `%s`" % conf_file)
         conf = ConfigParser()
         conf.read([conf_file])
         self.app_registry = ApplicationRegistry()
         self.app_registry.register_from_conf(conf, options)
         register_funq_app_registry(self.app_registry)
-        self.trace_tests = options.funq_trace_tests # pylint: disable=W0201
-        self.trace_tests_encoding = (  # pylint: disable=W0201
-                                     options.funq_trace_tests_encoding)
+        self.trace_tests = options.funq_trace_tests
+        self.trace_tests_encoding = \
+            options.funq_trace_tests_encoding
         self.screenshoter = ScreenShoter(options.funq_screenshot_folder)
         tools.SNOOZE_FACTOR = float(options.funq_snooze_factor)
         FunqPlugin._instance = self
 
-    def beforeTest(self, test): # pylint: disable=C0111,C0103,R0201
+    def beforeTest(self, test):
         message = u"Starting test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
         if self.trace_tests:
             with codecs.open(self.trace_tests, 'a',
-                                            self.trace_tests_encoding) as f:
+                             self.trace_tests_encoding) as f:
                 f.write('\n'.join(lines))
                 f.write('\n')
 
-
-    def afterTest(self, test): # pylint: disable=C0111,C0103,R0201,W0613
+    def afterTest(self, test):
         message = u"Ending test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
         if self.trace_tests:
             with codecs.open(self.trace_tests, 'a',
-                                            self.trace_tests_encoding) as f:
+                             self.trace_tests_encoding) as f:
                 f.write('\n'.join(lines))
                 f.write('\n')
 
@@ -170,8 +178,10 @@ class FunqPlugin(Plugin):
             if test.__app_config__:
                 for k, v in test.__app_config__.iteritems():
                     if v.screenshot_on_error:
-                        self.screenshoter.take_screenshot(test.funq[k],
-                                                    '%s [%s]' % (test.id(), k))
+                        self.screenshoter.take_screenshot(
+                            test.funq[k],
+                            '%s [%s]' % (test.id(), k)
+                        )
         elif isinstance(test, FunqTestCase):
             if test.__app_config__:
                 if test.__app_config__.screenshot_on_error:
@@ -180,9 +190,11 @@ class FunqPlugin(Plugin):
     def prepareTestResult(self, result):
         _addError = result.addError
         _addFailure = result.addFailure
+
         def addError(test, err):
             self.take_screenshot(test.test)
             _addError(test, err)
+
         def addFailure(test, err):
             self.take_screenshot(test.test)
             _addFailure(test, err)

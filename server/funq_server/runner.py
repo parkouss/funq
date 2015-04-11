@@ -39,7 +39,9 @@ import platform
 import argparse
 import funq_server
 
+
 class RunnerInjector(object):
+
     def __init__(self, library_path, args, env):
         self.library_path = library_path
         self.args = args
@@ -56,7 +58,9 @@ class RunnerInjector(object):
     def wait__subprocess(self):
         return self._proc.wait()
 
+
 class Runner(object):
+
     def __init__(self):
         self.system = platform.system()
 
@@ -103,6 +107,7 @@ class Runner(object):
         injector_class = self._create_injector_class()
         injector = injector_class(library_path, opts.command, env)
         return injector.run()
+
 
 def main():
     runner = Runner()

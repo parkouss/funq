@@ -41,6 +41,7 @@ from ConfigParser import ConfigParser
 import collections
 from funq.errors import HooqAliasesInvalidLineError, HooqAliasesKeyError
 
+
 def set_gkit_aliases(funqaliases, gkit_file, gkit):
     """
     Define some aliases in *funqaliases* given the config file *gkit_file*
@@ -52,20 +53,23 @@ def set_gkit_aliases(funqaliases, gkit_file, gkit):
         optname = optname.upper()
         funqaliases[optname] = cfg.get(gkit, optname)
 
+
 class HooqAliases(dict):
+
     """
     A specialized dict for aliases.
     """
+
     def __setitem__(self, name, value):
         if name in self:
             raise HooqAliasesKeyError("The alias `%s` already exists."
-                                       % name)
+                                      % name)
         try:
             # pylint: disable=W0142
             value = value.format(**self)
         except KeyError, msg:
             raise HooqAliasesKeyError("Impossible substitution in"
-                                       " the alias %s: %s." % (name, msg))
+                                      " the alias %s: %s." % (name, msg))
         dict.__setitem__(self, name, value)
 
     def __getitem__(self, name):
@@ -73,7 +77,7 @@ class HooqAliases(dict):
             return dict.__getitem__(self, name)
         except KeyError:
             raise HooqAliasesKeyError("The alias `%s` does not exists."
-                                       % name)
+                                      % name)
 
     @classmethod
     def from_file(cls, path, gkit_file=None, gkit='default'):
@@ -95,8 +99,8 @@ class HooqAliases(dict):
                         key, value = line.split('=', 1)
                     except ValueError:
                         raise HooqAliasesInvalidLineError(
-                                "The alias file `%s` contains a"
-                                " syntax error on line %d."
-                                % (path, num_line))
+                            "The alias file `%s` contains a"
+                            " syntax error on line %d."
+                            % (path, num_line))
                 self[key.strip()] = value.strip()
         return self

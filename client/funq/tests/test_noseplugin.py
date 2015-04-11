@@ -33,9 +33,10 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 from nose.tools import assert_equals, assert_true
-from funq import noseplugin, testcase, tools
+from funq import noseplugin, tools
 from optparse import OptionParser
 import tempfile
+
 
 def configured_plugin(argv=[], env={}):
     plugin = noseplugin.FunqPlugin()
@@ -47,12 +48,15 @@ def configured_plugin(argv=[], env={}):
     plugin.configure(options, None)
     return plugin
 
+
 class FakeTest(object):
+
     def __init__(self, test_id):
         self.test_id = test_id
 
     def id(self):
         return self.test_id
+
 
 def test_simple_configure():
     tools.SNOOZE_FACTOR = 1.0
@@ -64,13 +68,17 @@ def test_simple_configure():
     assert_true(plugin.screenshoter is not None)
     assert_equals(plugin.trace_tests, None)
 
+
 def test_snooze_factor_configure():
     tools.SNOOZE_FACTOR = 1.0
 
     funqconf = tempfile.NamedTemporaryFile()
-    plugin = configured_plugin(["--funq-conf", funqconf.name, '--funq-snooze-factor', '3.2'])
+    configured_plugin(
+        ["--funq-conf", funqconf.name, '--funq-snooze-factor', '3.2']
+    )
 
     assert_equals(3.2, tools.SNOOZE_FACTOR)
+
 
 def test_before_after():
     noseplugin.FunqPlugin._current_test_name = None

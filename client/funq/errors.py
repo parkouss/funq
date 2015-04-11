@@ -36,30 +36,39 @@
 Defines error classes used in funq.
 """
 
+
 class FunqError(Exception):
+
     """
     Exception thrown when the libFunq server send back an error.
 
     The attributes `classname` and `desc` are accessible within an instance
     of the exception.
     """
+
     def __init__(self, classname, desc):
         self.classname = classname
         self.desc = desc
         Exception.__init__(self, u"{classname}: {desc}".format(
-                classname=classname,
-                desc=desc))
+            classname=classname,
+            desc=desc))
+
 
 class TimeOutError(Exception):
+
     """Raised on timeout"""
 
+
 class HooqAliasesInvalidLineError(Exception):
+
     """
     Raised when an error occured during the parsing of the aliases file.
     """
     pass
 
+
 class HooqAliasesKeyError(KeyError):
+
     """
     Raised when two aliases or more have the same name, or when an alias is
     not defined.

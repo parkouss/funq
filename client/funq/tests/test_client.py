@@ -32,20 +32,24 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import *
-from funq import client, testcase
-from unittest import TextTestRunner
-import os, subprocess
+from nose.tools import assert_equals, raises
+from funq import client
+import os
+import subprocess
 
 from ConfigParser import ConfigParser, NoOptionError
+
 
 class ApplicationConfig(client.ApplicationConfig):
     pass
 
+
 class GlobalOptions(object):
+
     def __init__(self, **kwds):
         for k, v in kwds.iteritems():
             setattr(self, k, v)
+
 
 class TestApplicationConfigFromConf:
 
@@ -57,8 +61,10 @@ class TestApplicationConfigFromConf:
         self.conf.set('my', name, value)
 
     def createApplicationConfig(self):
-        return ApplicationConfig.from_conf(self.conf, 'my',
-                GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf')))
+        return ApplicationConfig.from_conf(
+            self.conf, 'my',
+            GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf'))
+        )
 
     @raises(NoOptionError)
     def test_require_executable(self):
@@ -110,7 +116,9 @@ class TestApplicationConfigFromConf:
         appconf = self.createApplicationConfig()
         assert_equals(appconf.executable_stdout, os.devnull)
 
+
 class TestApplicationRegistry:
+
     def setup(self):
         self.reg = client.ApplicationRegistry()
 
@@ -126,14 +134,16 @@ class TestApplicationRegistry:
 
         assert_equals(self.reg.config('example').executable, exe)
 
+
 class FakePopen(object):
+
     @classmethod
     def patch_subprocess_popen(cls, func):
         def patched_subprocess_ctx(*a, **kwa):
             oldpopen = subprocess.Popen
             subprocess.Popen = FakePopen
             try:
-                res = func(*a, **kwa)
+                func(*a, **kwa)
             finally:
                 subprocess.Popen = oldpopen
 
@@ -150,7 +160,9 @@ class FakePopen(object):
     def poll(self):
         return self.returncode
 
+
 class TestApplicationContext:
+
     @FakePopen.patch_subprocess_popen
     def test_start(self):
         class O:
@@ -160,7 +172,8 @@ class TestApplicationContext:
             global_options=O(),
         )
 
-        ctx = client.ApplicationContext(appconf, client_class=lambda *a, **kwa: None)
+        ctx = client.ApplicationContext(
+            appconf, client_class=lambda *a, **kwa: None)
         assert_equals(ctx._process.command, ['funq', 'command'])
 
     @FakePopen.patch_subprocess_popen
@@ -174,5 +187,6 @@ class TestApplicationContext:
             global_options=O(),
         )
 
-        ctx = client.ApplicationContext(appconf, client_class=lambda *a, **kwa: None)
+        ctx = client.ApplicationContext(
+            appconf, client_class=lambda *a, **kwa: None)
         assert_equals(ctx._process.command, ['funq', 'valgrind', 'command'])

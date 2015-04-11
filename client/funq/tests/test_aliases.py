@@ -32,13 +32,15 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import *
+from nose.tools import assert_equals, raises
 from funq.aliases import HooqAliases, HooqAliasesInvalidLineError,\
-                              HooqAliasesKeyError
+    HooqAliasesKeyError
 from tempfile import NamedTemporaryFile
 import os
 
+
 class TestAliases:
+
     def setup(self):
         self.aliases = HooqAliases()
 
@@ -66,7 +68,9 @@ class TestAliases:
     def test_alias_inexistant(self):
         self.aliases['b']
 
+
 class TestAliasesFromFile:
+
     def _parse(self, data, gkit_data=None, gkit='default'):
         f = NamedTemporaryFile(delete=False)
         path = f.name
@@ -113,7 +117,7 @@ b = 2
 
     @raises(HooqAliasesInvalidLineError)
     def test_parse_with_syntax_error(self):
-        aliases = self._parse("""
+        self._parse("""
 a  1
 """)
 

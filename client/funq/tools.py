@@ -44,9 +44,11 @@ from funq.errors import TimeOutError
 # this allows to specify the global snooze factor
 SNOOZE_FACTOR = 1.0
 
+
 def apply_snooze_factor(value):
     """Appply global snooze factor"""
     return value * SNOOZE_FACTOR
+
 
 def wait_for(func, timeout, timeout_interval=0.1):
     """
@@ -74,9 +76,11 @@ def wait_for(func, timeout, timeout_interval=0.1):
         time.sleep(timeout_interval)
         elapsed += timeout_interval
 
+
 def is_exe(fpath):
     """Returns True if fpath is an executable file"""
     return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
+
 
 def _which(program):
     """
@@ -92,6 +96,7 @@ def _which(program):
             if is_exe(exe_file):
                 return exe_file
     return None
+
 
 def which(program):
     """

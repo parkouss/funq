@@ -37,14 +37,20 @@ This module allows to take screenshots and to save them as PNG image
 automatically.
 """
 
-import os, itertools, logging, codecs
+import os
+import itertools
+import logging
+import codecs
 
 LOG = logging.getLogger('funq.screenshoter')
 
-class ScreenShoter(object): # pylint: disable=R0903
+
+class ScreenShoter(object):  # pylint: disable=R0903
+
     """
     Object that can take screenshots.
     """
+
     def __init__(self, working_folder):
         self.working_folder = os.path.realpath(working_folder)
         self.txt_file_path = os.path.join(self.working_folder, 'images.txt')
