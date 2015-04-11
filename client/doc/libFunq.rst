@@ -3,12 +3,12 @@
 Compile the application with **libFunq**
 ========================================
 
-.. note::
+.. important::
 
   Always prefer the standard approach (use **funq** executable) when
   possible. This part of the documentation is only useful when the
-  standard approach is not working. ne doit être utilisée que si la méthode
-  standard pose problème.
+  standard approach is not working.
+
 
 **libFunq** can be integrated in an already compiled application with
 the code injection done by the **funq** executable. It is the preferred
