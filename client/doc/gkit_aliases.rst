@@ -18,13 +18,13 @@ Each section defines a particular graphical kit (window manager),
 You can use these aliases in the aliases file in a standard way (between {}).
 
 .. note::
-  
+
   Currently the famework does not identify automatically which window
   manager is used - **default** is always used.
-  
+
   To use another graphical kit, you have to specify it with the *funq-gkit*
   nose option. Example:
-  
+
   .. code-block:: bash
-    
+
     nosetests --with-funq --funq-gkit kde

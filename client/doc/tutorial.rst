@@ -14,7 +14,7 @@ This sample application must be compiled to an executable binary file,
 **player_tester**.
 
 .. important::
-  
+
   Please keep in mind that funq-server currently does only works with
   QT4 - be careful to not compile player_tester with QT5 !
 
@@ -22,13 +22,13 @@ The two packages **funq** and **funq-server** must be installed. You
 can check that funq-server is installed by running:
 
 .. code-block:: bash
-  
+
   funq -h
 
 And that funq is installed with:
 
 .. code-block:: bash
-  
+
   nosetests -h | grep 'with-funq'
 
 Tests file tree
@@ -40,7 +40,7 @@ test files and a funq configuration file, **funq.conf**.
 First, create a *tutorial* folder next to the **player_tester** binary file:
 
 .. code-block:: bash
-  
+
   mkdir tutorial
   cd tutorial
 
@@ -49,7 +49,7 @@ Here is the most minimalistic configuration file:
 
 .. literalinclude:: tutorial_funq.conf
   :language: ini
-  
+
 
 Write your first test
 ---------------------
@@ -63,12 +63,12 @@ called test_1.py:
 This file contains one test, that do nothing except wait for 3 seconds.
 
 .. note::
-  
+
   The "applitest" configuration is described in the funq configuration
   file by the section of the same name.
 
 .. note::
-  
+
   Subclass :class:`funq.testcase.FunqTestCase` ensure that each test method
   will start the application and close it properly.
 
@@ -78,25 +78,25 @@ Test execution
 Well done ! Let's run this first test. Type the following command:
 
 .. code-block:: bash
-  
+
   nosetests --with-funq
 
 One window must appear, and close after a few seconds. The output on the
 terminal must look like this::
-  
+
   .
   ----------------------------------------------------------------------
   Ran 1 test in 3.315s
-  
+
   OK
 
 .. note::
-  
+
   The option ``--with-funq`` given to nosetests allow to use the funq plugin
   that will read the configuration file and execute your tests.
 
 .. note::
-  
+
   **nosetests** has multiples options to allow for example the generation
   of an xml file to format tests result. See **nosetests -h**.
 
@@ -118,18 +118,18 @@ application is refactored.
 .. literalinclude:: tutorial_aliases
 
 .. note::
-  
+
   This file support variables substitution by using brackets, allowing
   to avoid useless and dangerous copy/paste.
 
 .. note::
-  
+
   Some aliases are predefined. See :ref:`gkit-aliases`.
 
 Now you need to modify the **funq.conf** configuration file to indicate
 the use of this aliases file. Add the following line in the **applitest**
 section::
-  
+
   aliases = applitest.aliases
 
 Do something with the widgets
@@ -147,22 +147,22 @@ to manipulate the tested application. It is an instance of
 Now you can start tests again:
 
 .. code-block:: bash
-  
+
   nosetests --with-funq
 
 .. note::
-  
+
   This time, 5 tests are launched! It's normal because you have written
   5 tests divided up in 2 files.
-  
+
   To launch the tests of one file only, name it on the command line:
-  
+
   .. code-block:: bash
-    
+
     nosetests --with-funq test_widgets.py
 
 .. important::
-  
+
   It is really important even for functional tests to not write tests
   that depends on others tests. In other words, the
   *order of test execution must not be important*. This allow to limit

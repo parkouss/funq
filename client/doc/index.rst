@@ -12,7 +12,7 @@ https://github.com/parkouss/funq.
 
 .. toctree::
    :maxdepth: 2
-   
+
    tutorial
    funq_conf
    writing_tests

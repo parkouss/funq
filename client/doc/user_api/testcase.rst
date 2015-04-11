@@ -31,4 +31,4 @@ Helpers
 
 .. autoclass:: MetaParameterized
 
-.. autoexception:: AssertionSuccessError  
+.. autoexception:: AssertionSuccessError

@@ -13,15 +13,15 @@ package) in *pick mode*.
 For example, to find widgets from qtcreator application:
 
 .. code-block:: bash
-  
+
   funq --pick qtcreator
-  
+
 Then you need to pick on a widget while pressing *Ctrl* and *Shift*.
 This will print on stdout the complete widget path and the available
-properties. 
+properties.
 
 Here is an example of output when clicking on the "File" menu in qtcreator::
-  
+
   WIDGET: `Core:_:Internal:_:MainWindow-0::QtCreator.MenuBar` (pos: 42, 12)
   	objectName: QtCreator.MenuBar
   	modal: false
@@ -60,12 +60,12 @@ Xml dump of all widgets
 
 It is also possible to dump widgets of the running application. This may
 only be used in a test::
-  
+
   from funq.testcase import FunqTestCase
-  
+
   class MyTestCase(FunqTestCase):
       __app_config_name__ = 'applitest'
-  
+
       def test_my_first_test(self):
           # this will write a "dump.json" file
           self.funq.dump_widgets_list('dump.json')

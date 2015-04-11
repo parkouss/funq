@@ -4,7 +4,7 @@ Compile the application with **libFunq**
 ========================================
 
 .. note::
-  
+
   Always prefer the standard approach (use **funq** executable) when
   possible. This part of the documentation is only useful when the
   standard approach is not working. ne doit être utilisée que si la méthode
@@ -17,34 +17,34 @@ application.
 
 But it is also possible to integrate directly libFunq in an application
 if you need it. You will then need to modify your .pro file like this::
-  
+
   include(/path/to/libFunq/libFunq.pri)
 
 Then, in the main of your program:
 
 .. code-block:: cpp
-  
+
   #include "funq.h"
   #include <QApplication>
-  
+
   int main(int argc, char *argv[]) {
       QApplication a(argc, argv);
-      
+
       // libFunq activation
       Funq::activate(true);
-      
+
       /* ... */
-      
+
       return a.exec();
   }
 
 You will then need to adapt the **funq.conf** configuration file:
 
 .. code-block:: ini
-  
+
   [my_application]
   executable = mon_executable
-  
+
   # does not use funq executable to inject libFunq
   attach = no
 
@@ -61,6 +61,6 @@ to integrate libFunq only for testing purpose and not deliver to final users
 an application with funq included.
 
 .. important::
-  
+
   The best alternative is to use the dynamic injection provided by the
   executable **funq** when possible.
