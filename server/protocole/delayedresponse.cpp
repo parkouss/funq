@@ -66,7 +66,7 @@ void DelayedResponse::timerCall() {
 void DelayedResponse::onTimerOut() {
     if (! m_hasResponded) {
         writeResponse(jsonClient()->createError("DelayedResponseTimeOut",
-                                                QString::fromUtf8("Délai de non réponse dépassé pour %2")
+                                                QString::fromUtf8("Timeout for non response: %2")
                                                 .arg(staticMetaObject.className())));
     }
 }

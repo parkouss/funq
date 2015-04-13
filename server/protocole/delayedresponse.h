@@ -40,20 +40,18 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTimer>
 
 /**
-  * @brief Objet permettant de fournir une réponse asynchrone à une requète json
+  * @brief Objet that represent a non blocking answer.
   *
-  * Un pointeur de DelayedResponse peut être renvoyée par un slot de Player
-  * pour fournir une réponse asynchrone.
+  * A pointer of DelayedResponse may be returned by a Player's slot to return
+  * an asynchron answer (that is, non blocking the main Qt loop).
   *
-  * Un QTimer est utilisé pour appeller de manière cyclique la méthode
-  * execute(), jusquèà ce que writeResponse() soit appelé. Dès le premier
-  * appel de writeResponse(), execute() ne sera plus appelé et l'objet sera
-  * détruit automatiquement.
+  * A QTimer is used to call multiple times the execute() method, until
+  * writeResponse() is called. After the writeResponse() call, execute()
+  * won't be called again and the object will be deleted automatically.
   *
-  * Si la méthode writeResponse() n'est pas appellée dans le temps imparti
-  * par timerOut lors de la construction de l'objet, une réponse sera automatiquement
-  * envoyée pour indiquer une erreur de timeout. par défaut, ce timeout vaut
-  * 20000 ms, soit 20s.
+  * If the writeResponse() method is not called in the given time (timerOut, given
+  * in the constructor), an automatic error response will be sent. Default timeout
+  * is 20 seconds.
   */
 class DelayedResponse : public QObject {
     Q_OBJECT
@@ -61,31 +59,31 @@ public:
     explicit DelayedResponse(JsonClient * client, const QtJson::JsonObject & command, int interval=0, int timerOut=20000);
     
     /**
-      * @ brief Définit l'intervalle en ms entre les appels de execute().
+      * @brief Define the intervall between each execute() call.
       *
-      * Par défaut, l'intervalle vaut 0, ce qui indique que l'appel sera
-      * exécuté au prochain tour de la boucle d'évènements QT.
+      * By default, interval is 0, meaning that it will be called as soon
+      * as possible by Qt.
       */
     void setInterval(int interval) { m_timer.setInterval(interval); }
 
     /**
-      * @brief démarre les appels récurrents de execute().
+      * @brief start the execute() calls.
       */
     void start();
 
 protected:
     /**
-      * @brief à implémenter pour renvoyer la réponse.
+      * @brief This needs to be implemented, this is the entry point for answering.
       *
-      * Cette méthode doit appeller writeResponse() à un moment donné pour envoyer
-      * la réponse et terminer la vie de l'objet.
+      * This method MUST call writeResponse() at a given time to answer and
+      * ends the life cycle of this object.
       */
     virtual void execute(int call) = 0;
 
     /**
-      * @brief renvoie une réponse au client json.
+      * @brief Returns the response.
       *
-      * Cet appel amorcera la destruction automatique de l'objet.
+      * This call will automatically ask for object deletion.
       */
     void writeResponse(const QtJson::JsonObject & result);
     JsonClient * jsonClient() { return m_client; }

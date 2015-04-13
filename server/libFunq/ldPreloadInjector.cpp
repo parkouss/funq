@@ -44,7 +44,7 @@ int QCoreApplication::exec() {
     QCoreApplicationExec * originalExec =
             (QCoreApplicationExec *) dlsym(RTLD_NEXT, "_ZN16QCoreApplication4execEv");
     if (!originalExec) {
-        qDebug() << "impossible de localiser la fonction originale QCoreApplication::exec(). Abandon";
+        qDebug() << "Unable to locate the original function QCoreApplication::exec(). Aborting.";
         return 1;
     }
     Funq::activate();

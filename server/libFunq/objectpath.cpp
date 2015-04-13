@@ -40,7 +40,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QGraphicsView>
 
 /**
-  * Renvoie le nom de l'objet, possiblement en doublon par rapport aux siblings
+  * Returns the object name (not unique given its siblings)
   */
 inline QString _rawObjectName(QObject* object) {
     QString rawName = object->objectName();
@@ -52,7 +52,7 @@ inline QString _rawObjectName(QObject* object) {
 }
 
 /**
-  * Renvoie le nom de l'objet, unique par rapport aux siblings
+  * Returns the object name (unique given its siblings)
   */
 QString rawObjectName(QObject* object)
 {
@@ -195,7 +195,7 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
     }
     path.removeFirst();
 
-    // recherche de la racine
+    // find the root
     QGraphicsItem * root = NULL;
     int pos = 0;
     foreach (QGraphicsItem * item, view->items()) {
@@ -208,7 +208,7 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
         }
     }
 
-    // recherche recursive du reste
+    // recursive search
     while (root && !path.isEmpty()) {
         index = path.at(0).toInt(&conv_ok);
         if (!conv_ok || index < 0) {

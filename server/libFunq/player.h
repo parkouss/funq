@@ -41,10 +41,10 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 class DelayedResponse;
 class QAbstractItemView;
 /**
-  * @brief Player est une spécialisation de JsonClient pour la gestion des objets manipuler à distance.
+  * @brief Player is a specialized JsonClient that handle remote Qt object manipulation.
   *
-  * Gère le référencement des QWidget que l'on veut manipulable, et définit les actions
-  * possible par un client de test.
+  * It handle referencing of used QObjects, and define actions that are available for
+  * a client.
   */
 class Player : public JsonClient
 {
@@ -61,19 +61,18 @@ signals:
     
 public slots:
     /*
-      Ces slots sont automatiquement transformés en commande disponibles
-      pour les clients.
-
-      Ils peuvent être de deux formes différentes :
-
-      - QtJson::JsonObject commande(const QtJson::JsonObject & command);
-      - DelayedResponse * commande(const QtJson::JsonObject & command);
-
-      La première forme est une réponse directe, synchrone à une demande
-      (pas de possibilité d'attente sans bloquage de l'application). La
-      deuxième forme permet de passer outre cette limitation.
-
-      */
+     * These slots are automatically transformed into available commands
+     * for clients.
+     *
+     * There is two possible signatures:
+     *
+     * - QtJson::JsonObject command_name(const QtJson::JsonObject & command);
+     * - DelayedResponse * command_name(const QtJson::JsonObject & command);
+     *
+     * First signature is a blocking answer, executed in the Qt main loop. The
+     * second signature allows to create non blocking answers.
+     *
+     */
     QtJson::JsonObject list_actions(const QtJson::JsonObject & command);
 
     QtJson::JsonObject widget_by_path(const QtJson::JsonObject & command);
@@ -111,7 +110,7 @@ private:
 };
 
 /**
-  * @brief Permet de retrouver un objet précédemment référencé par le Player.
+  * @brief Allow to find a previously referenced object.
   */
 class ObjectLocatorContext {
 public:
@@ -127,7 +126,7 @@ public:
 };
 
 /**
-  * @brief Permet de retrouver un widget (de type T) précédemment référencé par le Player.
+  * @brief Allow to find a previously referenced widget (with type T).
   */
 template <class T = QWidget>
 class WidgetLocatorContext : public ObjectLocatorContext {
@@ -140,7 +139,7 @@ public:
             widget = qobject_cast<T *>(obj);
             if (!widget) {
                 lastError = player->createError("NotAWidget",
-                                                QString::fromUtf8("L'objet (id:%1) n'est pas un %2").arg(id).arg(T::staticMetaObject.className()));
+                                                QString::fromUtf8("Object (id:%1) is not a %2").arg(id).arg(T::staticMetaObject.className()));
             }
         }
     }

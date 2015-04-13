@@ -285,7 +285,7 @@ private slots:
     }
     /*
      * 
-     * TESTS de player.cpp
+     * TESTS for player.cpp
      * 
      */
      void test_player_widget_by_path() {

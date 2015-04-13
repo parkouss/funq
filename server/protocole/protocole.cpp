@@ -54,7 +54,7 @@ void Protocole::setDevice(QIODevice *device) {
 void Protocole::onReadyRead() {
     while (1) {
         if (m_messageSize == 0) {
-            // attente d'entete
+            // waiting header
             if (!m_device->canReadLine()) {
                 return; // we need more data
             }
@@ -62,7 +62,7 @@ void Protocole::onReadyRead() {
             bool ok = false;
             m_messageSize = entete.toLongLong(&ok);
             if (!ok || m_messageSize == 0) {
-                qDebug() << QString("Erreur de réception d'entete: %1").arg(entete);
+                qDebug() << QString("Error while reading frame header: %1").arg(entete);
                 close();
                 return;
             }

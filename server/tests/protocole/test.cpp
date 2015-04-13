@@ -40,7 +40,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "delayedresponse.h"
 #include <QSignalSpy>
 /*
- * QBuffer par defaut n'emet ni readyRead, ni bytesWritten. Mais on en a besoin :)
+ * QBuffer by default does not emit readyRead and bytesWritten. But we need it for testing :)
  */
 class EmittingBuffer : public QBuffer {
     Q_OBJECT
@@ -94,7 +94,7 @@ private:
  {
      Q_OBJECT
  private slots:
-     /* tests de protocole */
+     /* protocole tests */
      void test_protocole_simple_read() {
          EmittingBuffer buffer;
          Protocole protocole;
@@ -149,7 +149,7 @@ private:
          QCOMPARE(QString(buffer.readAll()), QString("24\n{\"1\": 1, \"2\": 2, \"3\": 3}"));
      }
      
-     /* tests de jsonclient */
+     /* jsonclient tests */
      void test_jsonclient_response() {
          EmittingBuffer buffer;
          QVERIFY(buffer.open(QIODevice::ReadWrite));
@@ -160,7 +160,7 @@ private:
          buffer.seek(0);
          buffer.emitReadyRead();
          
-         // l'encodage en json de QVariantMap place 4 espaces de plus.
+         // encoding QVariantMap in json put 4 more spaces.
          
          buffer.emitBytesWritten(35 + 4 + 3);
          
@@ -170,7 +170,7 @@ private:
          ));
      }
      
-     /* tests de delayedresponse */
+     /* delayedresponse tests */
      void test_delayedresponse_simple() {
          EmittingBuffer buffer;
          QVERIFY(buffer.open(QIODevice::ReadWrite));
@@ -187,7 +187,7 @@ private:
          
          QByteArray data = buffer.readAll();
          
-         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QString resultStr = data.mid(data.indexOf('\n')+1); // remove the message header
          QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
          
          QCOMPARE(result["result"].toInt(), 1);
@@ -209,7 +209,7 @@ private:
          
          QByteArray data = buffer.readAll();
          
-         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QString resultStr = data.mid(data.indexOf('\n')+1); // remove the message header
          QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
          
          QVERIFY(result.contains("errName"));
@@ -235,7 +235,7 @@ private:
          
          QByteArray data = buffer.readAll();
          
-         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QString resultStr = data.mid(data.indexOf('\n')+1); // remove the message header
          QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
          
          QCOMPARE(result["result"].toInt(), 1);
@@ -258,7 +258,7 @@ private:
          
          QByteArray data = buffer.readAll();
          
-         QString resultStr = data.mid(data.indexOf('\n')+1); // supprime l'entete du message
+         QString resultStr = data.mid(data.indexOf('\n')+1); // remove the message header
          QtJson::JsonObject result = QtJson::parse(resultStr).toMap();
          
          QCOMPARE(result["result"].toInt(), 1);
