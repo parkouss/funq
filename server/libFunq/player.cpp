@@ -53,6 +53,10 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "dragndropresponse.h"
 #include "shortcutresponse.h"
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#include <QWindow>
+#endif
+
 using namespace ObjectPath;
 
 void mouse_click(QWidget * w, const QPoint & pos) {
@@ -299,19 +303,36 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
-    QWidget * active;
+    QObject * active;
     QString type = command["type"].toString();
     if (type == "modal") {
         active = QApplication::activeModalWidget();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            active = QApplication::modalWindow();
+        }
+#endif
     } else if (type == "popup") {
         active = QApplication::activePopupWidget();
     } else if (type == "focus") {
         active = QApplication::focusWidget();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            active = QApplication::focusWindow();
+        }
+#endif
     }else {
         active = QApplication::activeWindow();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            QWindowList lst = QGuiApplication::topLevelWindows();
+            if (! lst.isEmpty()) {
+                active = lst.first();
+            }
+        }
+#endif
     }
     if (! active) {
-        type = "window";
         return createError("NoActiveWindow",
                             QString::fromUtf8("There is no active widget (%1)").arg(type));
     }
@@ -382,8 +403,20 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
             }
         }
     } else {
-        foreach (QWidget * widget, QApplication::topLevelWidgets()) {
-            recursive_list_widget(widget, result, with_properties);
+        QList<QWidget *> widgets = QApplication::topLevelWidgets();
+        if (! widgets.isEmpty()) {
+            foreach (QWidget * widget, widgets) {
+                recursive_list_widget(widget, result, with_properties);
+            }
+        } else {
+            // no qwidgets, this is probably a qtquick app
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+            foreach (QWindow * window, QApplication::topLevelWindows()) {
+                QtJson::JsonObject resultWindow;
+                dump_object(window, resultWindow, with_properties);
+                result[resultWindow["path"].toString()] = resultWindow;
+            }
+#endif
         }
     }
     return result;

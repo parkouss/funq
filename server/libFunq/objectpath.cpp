@@ -39,6 +39,10 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QGraphicsItem>
 #include <QGraphicsView>
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#include <QWindow>
+#endif
+
 /**
   * Returns the object name (not unique given its siblings)
   */
@@ -129,6 +133,14 @@ QObject* ObjectPath::findObject(const QString& path)
                 return widget;
             }
         }
+        // did not find any ? - let's try on windows (qtquick)
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        Q_FOREACH(QWindow* window, QApplication::topLevelWindows()) {
+            if (objectName(window) == name) {
+                return window;
+            }
+        }
+#endif
         return 0;
     }
     else
