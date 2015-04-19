@@ -759,6 +759,12 @@ class HeaderView(Widget):
 class QuickItem(Object):
     CPP_CLASS = "QQuickItem"
 
+    def click(self):
+        self.client.send_command(
+            "quick_item_click",
+            oid=self.oid
+        )
+
 
 class QuickWindow(Widget):
     CPP_CLASS = "QQuickWindow"
@@ -781,4 +787,4 @@ class QuickWindow(Widget):
             quick_window_oid=self.oid,
             path=path,
         )
-        return Object.create(self, data)
+        return Object.create(self.client, data)

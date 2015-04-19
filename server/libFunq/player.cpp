@@ -79,6 +79,26 @@ void mouse_click(QWidget * w, const QPoint & pos) {
                         Qt::NoModifier));
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+void mouse_click(QWindow * w, const QPoint & pos) {
+    QPoint global_pos = w->mapToGlobal(pos);
+    qApp->postEvent(w,
+        new QMouseEvent(QEvent::MouseButtonPress,
+                        pos,
+                        global_pos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+    qApp->postEvent(w,
+        new QMouseEvent(QEvent::MouseButtonRelease,
+                        pos,
+                        global_pos,
+                        Qt::LeftButton,
+                        Qt::NoButton,
+                        Qt::NoModifier));
+}
+#endif
+
 void mouse_dclick(QWidget * w, const QPoint & pos) {
     mouse_click(w, pos);
     qApp->postEvent(w,
@@ -464,6 +484,25 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     }
     QtJson::JsonObject result;
     return result;
+}
+
+QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+    WidgetLocatorContext<QQuickItem> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QQuickWindow * window = ctx.widget->window();
+    if (! window) {
+        return createError("NoWindowForQuickItem", "No QQuickWindow associated to the item.");
+    }
+    QPoint sPos = ctx.widget->mapToScene(QPointF(0,0)).toPoint();
+    sPos.rx() += ctx.widget->width() / 2;
+    sPos.ry() += ctx.widget->height() / 2;
+    mouse_click(window, sPos);
+    QtJson::JsonObject result;
+    return result;
+#else
+    return createError("Qt5Only", "this method can only be called for a Qt5 app.");
+#endif
 }
 
 QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
