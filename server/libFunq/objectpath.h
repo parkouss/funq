@@ -40,6 +40,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 class QGraphicsItem;
 class QGraphicsView;
+class QQuickItem;
+class QQuickWindow;
 
 namespace ObjectPath {
     QString objectPath(QObject* object);
@@ -49,6 +51,9 @@ namespace ObjectPath {
     QString graphicsItemPath(QGraphicsItem * item);
     int graphicsItemPos(QGraphicsItem * item);
     QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath);
+
+    QString quickItemPath(QQuickItem * item);
+    QQuickItem * findQuickItem(QQuickWindow *window, const QString& path);
 } // namespace ObjectPath
 
 #endif // OBJECTPATH_H

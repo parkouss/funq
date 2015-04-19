@@ -100,6 +100,8 @@ public slots:
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
 
+    QtJson::JsonObject quick_item_by_path(const QtJson::JsonObject & command);
+
 private slots:
     void objectDeleted(QObject * object);
     void _object_set_properties(QObject * object, const QVariantMap & props);

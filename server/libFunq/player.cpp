@@ -55,6 +55,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
 #include <QWindow>
+#include <QQuickWindow>
+#include <QQuickItem>
 #endif
 
 using namespace ObjectPath;
@@ -299,6 +301,26 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
     result["oid"] = id;
     dump_object(o, result);
+    return result;
+}
+
+QtJson::JsonObject Player::quick_item_by_path(const QtJson::JsonObject & command) {
+    QtJson::JsonObject result;
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+    WidgetLocatorContext<QQuickWindow> ctx(this, command, "quick_window_oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QString path = command["path"].toString();
+    QQuickItem * item = ObjectPath::findQuickItem(ctx.widget, path);
+    qulonglong id = registerObject(item);
+    if (id == 0) {
+        return createError("InvalidQuickItemPath", QString("Unable to find quick item with path `%1`").arg(path));
+    }
+    result["oid"] = id;
+    result["quick_window_oid"] = command["quick_window_oid"].toString();
+    dump_object(item, result);
+#else
+    result = createError("Qt5Only", "this method can only be called for a Qt5 app.");
+#endif
     return result;
 }
 

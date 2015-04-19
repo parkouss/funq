@@ -754,3 +754,31 @@ class HeaderView(Widget):
         return self.client.send_command('headerview_click',
                                         oid=self.oid,
                                         indexOrName=index_or_name)
+
+
+class QuickItem(Object):
+    CPP_CLASS = "QQuickItem"
+
+
+class QuickWindow(Widget):
+    CPP_CLASS = "QQuickWindow"
+
+    def item(self, alias=None, path=None):
+        if not (alias or path):
+            raise TypeError("alias or path must be defined")
+
+        if alias:
+            path = self.client.aliases[alias]
+            if not path.startswith(self.path):
+                raise TypeError("alias %r does not belong to this quick window"
+                                % path)
+            # remove the window path here, c++ code only requires the
+            # object path from the root item.
+            path = path[len(self.path)+2:]
+
+        data = self.client.send_command(
+            'quick_item_by_path',
+            quick_window_oid=self.oid,
+            path=path,
+        )
+        return Object.create(self, data)

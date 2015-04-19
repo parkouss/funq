@@ -41,6 +41,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
 #include <QWindow>
+#include <QQuickItem>
+#include <QQuickWindow>
 #endif
 
 /**
@@ -235,4 +237,49 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
     }
 
     return root;
+}
+
+QString quickItemPath(QQuickItem * item) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+    QStringList components;
+    QQuickItem* current = item;
+    while(current)
+    {
+        components.prepend(ObjectPath::objectName(current));
+        current = current->parentItem();
+    }
+    return components.join("::");
+#else
+    return QString();
+#endif
+}
+
+QQuickItem * ObjectPath::findQuickItem(QQuickWindow *window, const QString& path) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+    QStringList lstpath = path.split("::");
+    if (lstpath.isEmpty() || ! window) {
+        return NULL;
+    }
+
+    QQuickItem* root = window->contentItem();
+
+    while (root && !lstpath.isEmpty()) {
+        QString itemName = lstpath.first();
+        lstpath.removeFirst();
+        bool find = false;
+        foreach (QQuickItem * child, root->childItems()) {
+            if (ObjectPath::objectName(child) == itemName) {
+                find = true;
+                root = child;
+                break;
+            }
+        }
+        if (! find) {
+            return NULL;
+        }
+    }
+    return root;
+#else
+    return NULL;
+#endif
 }
