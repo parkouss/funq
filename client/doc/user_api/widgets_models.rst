@@ -3,6 +3,22 @@ Widgets and other classes to interact with tested application
 
 .. currentmodule:: funq.models
 
+The Object base class
+---------------------
+
+.. autoclass:: Object
+
+  .. automethod:: Object.properties
+
+  .. automethod:: Object.set_properties
+
+  .. automethod:: Object.set_property
+
+  .. automethod:: Object.wait_for_properties
+
+  .. automethod:: Object.call_slot
+
+
 The Widget base class
 ---------------------
 
@@ -12,15 +28,9 @@ Example::
 
   my_widget = self.funq.widget('my_widget')
 
+.. inheritance-diagram:: Widget
+
 .. autoclass:: Widget
-
-  .. automethod:: Widget.properties
-
-  .. automethod:: Widget.set_properties
-
-  .. automethod:: Widget.set_property
-
-  .. automethod:: Widget.wait_for_properties
 
   .. automethod:: Widget.click
 
@@ -32,11 +42,9 @@ Example::
 
   .. automethod:: Widget.drag_n_drop
 
-  .. automethod:: Widget.close
-
-  .. automethod:: Widget.call_slot
-
   .. automethod:: Widget.activate_focus
+
+  .. automethod:: Widget.close
 
 Interacting with the data of QT Model/View framework
 ----------------------------------------------------

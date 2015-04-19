@@ -118,15 +118,15 @@ class WidgetMetaClass(type):
         return cls
 
 
-class Widget(object):
+class Object(object):
 
     """
-    Allow to manipulate a QWidget or derived.
+    Allow to manipulate a QObject or derived.
 
     :var client: client for the communication with libFunq
                  [type: :class:`funq.client.FunqClient`]
     :var oid: ID of the managed C++ instance. [type: long]
-    :var path: complete path to the widget [type: str]
+    :var path: complete path to the object [type: str]
     :var classes: list of class names of the managed C++ instance,
                   in inheritance order (ie 'QObject' is last)
                   [type : list(str)]
@@ -140,7 +140,7 @@ class Widget(object):
     @classmethod
     def create(cls, client, data):
         """
-        Allow to create a Widget or a subclass given data coming from
+        Allow to create an Object or a subclass given data coming from
         decoded json.
         """
         # recherche la classe appropriee
@@ -158,22 +158,22 @@ class Widget(object):
 
     def properties(self):
         """
-        Returns a dict of availables properties for this widget with associated
+        Returns a dict of availables properties for this object with associated
         values.
 
         Example::
 
-          enabled = widget.properties()["enabled"]
+          enabled = object.properties()["enabled"]
         """
         return self.client.send_command('object_properties', oid=self.oid)
 
     def set_properties(self, **properties):
         """
-        Define some properties on this widget.
+        Define some properties on this object.
 
         Example::
 
-          widget.set_properties(text="My beautiful text")
+          object.set_properties(text="My beautiful text")
         """
         self.client.send_command('object_set_properties',
                                  oid=self.oid,
@@ -181,11 +181,11 @@ class Widget(object):
 
     def set_property(self, name, value):
         """
-        Define one property on this widget.
+        Define one property on this object.
 
         Example::
 
-          widget.set_property('text', "My beautiful text")
+          object.set_property('text', "My beautiful text")
         """
         self.set_properties(**{name: value})  # pylint:disable=W0142
 
@@ -198,24 +198,12 @@ class Widget(object):
           self.wait_for_properties({'enabled': True, 'visible': True})
         """
         def check_props():
-            """checke la valeur des propriétés"""
             properties = self.properties()
             for k, v in props.iteritems():
                 if properties.get(k) != v:
                     return False
             return True
         return wait_for(check_props, timeout, timeout_interval)
-
-    def click(self, wait_for_enabled=10.0):
-        """
-        Click on the widget. If wait_for_enabled is > 0 (default), it will wait
-        until the widget become active (enabled and visible) before sending
-        click.
-        """
-        if wait_for_enabled > 0.0:
-            self.wait_for_properties({'enabled': True, 'visible': True},
-                                     timeout=wait_for_enabled)
-        self.client.send_command('widget_click', oid=self.oid)
 
     def call_slot(self, slot_name, params={}):
         """
@@ -237,6 +225,24 @@ class Widget(object):
             params=params,
             oid=self.oid
         )['result_slot']
+
+
+class Widget(Object):
+
+    """
+    Allow to manipulate a QWidget or derived.
+    """
+
+    def click(self, wait_for_enabled=10.0):
+        """
+        Click on the widget. If wait_for_enabled is > 0 (default), it will wait
+        until the widget become active (enabled and visible) before sending
+        click.
+        """
+        if wait_for_enabled > 0.0:
+            self.wait_for_properties({'enabled': True, 'visible': True},
+                                     timeout=wait_for_enabled)
+        self.client.send_command('widget_click', oid=self.oid)
 
     def dclick(self, wait_for_enabled=10.0):
         """
