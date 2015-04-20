@@ -61,7 +61,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 using namespace ObjectPath;
 
-void mouse_click(QWidget * w, const QPoint & pos) {
+template<class T>
+void mouse_click(T * w, const QPoint & pos) {
     QPoint global_pos = w->mapToGlobal(pos);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonPress,
@@ -79,27 +80,8 @@ void mouse_click(QWidget * w, const QPoint & pos) {
                         Qt::NoModifier));
 }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-void mouse_click(QWindow * w, const QPoint & pos) {
-    QPoint global_pos = w->mapToGlobal(pos);
-    qApp->postEvent(w,
-        new QMouseEvent(QEvent::MouseButtonPress,
-                        pos,
-                        global_pos,
-                        Qt::LeftButton,
-                        Qt::NoButton,
-                        Qt::NoModifier));
-    qApp->postEvent(w,
-        new QMouseEvent(QEvent::MouseButtonRelease,
-                        pos,
-                        global_pos,
-                        Qt::LeftButton,
-                        Qt::NoButton,
-                        Qt::NoModifier));
-}
-#endif
-
-void mouse_dclick(QWidget * w, const QPoint & pos) {
+template<class T>
+void mouse_dclick(T * w, const QPoint & pos) {
     mouse_click(w, pos);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonDblClick,
@@ -396,6 +378,25 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
     }
 }
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+QuickItemLocatorContext::QuickItemLocatorContext(Player * player,
+                                                 const QtJson::JsonObject & command,
+                                                 const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
+    if (! hasError()) {
+        item = qobject_cast<QQuickItem *>(obj);
+        if (!item) {
+            lastError = player->createError("NotAWidget",
+                                            QString::fromUtf8("Object (id:%1) is not a QQuickItem").arg(id));
+        } else {
+            window = item->window();
+            if (! window) {
+                lastError = player->createError("NoWindowForQuickItem", "No QQuickWindow associated to the item.");
+            }
+        }
+    }
+}
+#endif
+
 QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
@@ -488,16 +489,13 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) {
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-    WidgetLocatorContext<QQuickItem> ctx(this, command, "oid");
+    QuickItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QQuickWindow * window = ctx.widget->window();
-    if (! window) {
-        return createError("NoWindowForQuickItem", "No QQuickWindow associated to the item.");
-    }
-    QPoint sPos = ctx.widget->mapToScene(QPointF(0,0)).toPoint();
-    sPos.rx() += ctx.widget->width() / 2;
-    sPos.ry() += ctx.widget->height() / 2;
-    mouse_click(window, sPos);
+
+    QPoint sPos = ctx.item->mapToScene(QPointF(0,0)).toPoint();
+    sPos.rx() += ctx.item->width() / 2;
+    sPos.ry() += ctx.item->height() / 2;
+    mouse_click(ctx.window, sPos);
     QtJson::JsonObject result;
     return result;
 #else

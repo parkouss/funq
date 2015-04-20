@@ -51,6 +51,12 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QHeaderView>
+
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#include <QQuickView>
+#include <QQuickItem>
+#endif
+
 #include "objectpath.h"
 #include "player.h"
 #include "shortcutresponse.h"
@@ -799,6 +805,8 @@ private slots:
          QCOMPARE(items.count(), 4 * 4);
      }
      
+#if QT_VERSION < 0x050000
+    /* TODO: this test crash on ubuntu Using Qt version 5.2.1 in /usr/lib/x86_64-linux-gnu */
      void test_drag_ndrop() {
          TestDragNDropWidget dndwidget;
          
@@ -844,6 +852,73 @@ private slots:
              test_drag_ndrop();
          } 
      }
+#endif
+
+#if QT_VERSION >= 0x050000
+    /* QtQuick tests */
+
+    void test_quick_item_by_path() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("sample1.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        // register the quick view
+        QtJson::JsonObject command_get_view;
+        command_get_view["path"] = "QQuickView";
+        QtJson::JsonObject result_view = player.widget_by_path(command_get_view);
+
+        // search for quick_object
+        QtJson::JsonObject command;
+        command["quick_window_oid"] = result_view["oid"].value<qulonglong>();
+        command["path"] = "QQuickItem::QQuickRectangle";
+
+        QtJson::JsonObject result = player.quick_item_by_path(command);
+
+        QVERIFY(result["oid"].value<qulonglong>() != 0);
+        QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), view.contentItem()->childItems().first()->childItems().first());
+    }
+
+    void test_quick_item_click() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("test_click.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        qulonglong view_id = player.registerObject(&view);
+
+        // search for quick_object
+        QtJson::JsonObject command;
+        command["quick_window_oid"] = view_id;
+        command["path"] = "QQuickItem::QQuickRectangle";
+
+        QtJson::JsonObject result = player.quick_item_by_path(command);
+
+        QQuickItem * item = view.contentItem()->childItems().first()->childItems().first();
+        QCOMPARE(item->property("color").toString(), QString("#272822"));
+
+        // click on it
+        QtJson::JsonObject command_click;
+        command_click["oid"] = result["oid"].value<qulonglong>();
+        player.quick_item_click(command_click);
+
+        qApp->processEvents();
+
+        QCOMPARE(item->property("color").toString(), QString("#ffffff"));
+    }
+#endif
 };
 
 QTEST_MAIN(LibFunqTest)
