@@ -53,7 +53,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "dragndropresponse.h"
 #include "shortcutresponse.h"
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
 #include <QWindow>
 #include <QQuickWindow>
 #include <QQuickItem>
@@ -308,7 +308,7 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
     WidgetLocatorContext<QQuickWindow> ctx(this, command, "quick_window_oid");
     if (ctx.hasError()) { return ctx.lastError; }
     QQuickItem * item;
@@ -332,7 +332,7 @@ QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
     result["quick_window_oid"] = command["quick_window_oid"].toString();
     dump_object(item, result);
 #else
-    result = createError("Qt5Only", "this method can only be called for a Qt5 app.");
+    result = createQtQuickOnlyError();
 #endif
     return result;
 }
@@ -389,7 +389,7 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
     }
 }
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
 QuickItemLocatorContext::QuickItemLocatorContext(Player * player,
                                                  const QtJson::JsonObject & command,
                                                  const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
@@ -463,7 +463,7 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
                 recursive_list_widget(widget, result, with_properties);
             }
         } else {
-            // no qwidgets, this is probably a qtquick app
+            // no qwidgets, this is probably a qtquick app - anyway, check for windows
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
             foreach (QWindow * window, QApplication::topLevelWindows()) {
                 QtJson::JsonObject resultWindow;
@@ -499,7 +499,7 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
 }
 
 QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
     QuickItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
 
@@ -510,7 +510,7 @@ QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) 
     QtJson::JsonObject result;
     return result;
 #else
-    return createError("Qt5Only", "this method can only be called for a Qt5 app.");
+    return createQtQuickOnlyError();
 #endif
 }
 

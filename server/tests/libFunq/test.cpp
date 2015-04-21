@@ -52,7 +52,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTableWidgetItem>
 #include <QHeaderView>
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
 #include <QQuickView>
 #include <QQuickItem>
 #endif
@@ -854,7 +854,7 @@ private slots:
      }
 #endif
 
-#if QT_VERSION >= 0x050000
+#ifdef QT_QUICK_LIB
     /* QtQuick tests */
 
     void test_quick_item_by_path() {

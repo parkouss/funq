@@ -243,7 +243,7 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
 
 /* quick items stuff */
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
 QString quickItemPath(QQuickItem * item) {
 
     QStringList components;

@@ -52,7 +52,7 @@ namespace ObjectPath {
     int graphicsItemPos(QGraphicsItem * item);
     QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath);
 
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#ifdef QT_QUICK_LIB
     QString quickItemPath(QQuickItem * item);
     QQuickItem * findQuickItem(QQuickWindow *window, const QString& path);
     QQuickItem * findQuickItemById(QQuickItem * root, const QString& qid);
