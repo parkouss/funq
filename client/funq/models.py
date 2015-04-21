@@ -757,9 +757,19 @@ class HeaderView(Widget):
 
 
 class QuickItem(Object):
+    """
+    Represent a QQuickItem or derived.
+
+    You can get a :class:`QuickItem` instance by using
+    :meth:`QuickWindow.item`.
+    """
+
     CPP_CLASS = "QQuickItem"
 
     def click(self):
+        """
+        Click on the :class:`QuickItem`.
+        """
         self.client.send_command(
             "quick_item_click",
             oid=self.oid
@@ -767,9 +777,66 @@ class QuickItem(Object):
 
 
 class QuickWindow(Widget):
+    """
+    Represent a QQuickWindow or QQuickView.
+
+    If your application is a qml app with one window, you can easily get the
+    :class:`QuickWindow` with :meth:`funq.FunqClient.active_widget`.
+
+    Example::
+
+      quick_window = self.funq.active_widget()
+    """
+
     CPP_CLASS = "QQuickWindow"
 
     def item(self, alias=None, path=None, id=None):
+        """
+        Search for a :class:`funq.models.QuickItem` and returns it.
+
+        An item can be identified by its id, using an alias or using a
+        raw path. The preferred way is using an id (defined in the qml
+        file) - this takes precedence over other methods.
+
+        For example, with the following qml code:
+
+        .. code-block:: qml
+
+          import QtQuick 2.0
+
+          Item {
+            id: root
+            width: 320
+            height: 480
+
+            Rectangle {
+                id: rect
+                color: "#272822"
+                width: 320
+                height: 480
+            }
+          }
+
+        You can use the following statements::
+
+          # using id
+          root = quick_window.item(id='root')
+          rect = quick_window.item(id='root.rect') # or just 'rect'
+
+          # using alias
+          # you must have something like the following line in your alias file:
+          # my_rect = QQuickView::QQuickItem::QQuickRectangle
+          rect = quick_window.item(alias='my_rect')
+
+          # using raw path - note the path is relative to the quick window
+          rect = quick_window.item(path='QQuickItem::QQuickRectangle')
+
+        :param alias: alias defined in the aliases file that points to the
+                      item.
+        :param path: path of the item, relative to the view (do not pass
+                     the full path)
+        :param id: id of the qml item.
+        """
         if not (alias or path or id):
             raise TypeError("alias, path or id must be defined")
 

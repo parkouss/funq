@@ -181,3 +181,42 @@ Other widgets
   .. automethod:: ComboBox.model_items
 
   .. automethod:: ComboBox.set_current_text
+
+
+.. _quick-objects-api:
+
+Interacting with QtQuick objects
+--------------------------------
+
+.. versionadded:: 1.2.0
+
+If funq-server is built uppon Qt5 with QtQuick enabled, you can manipulate
+QtQuickItems.
+
+Example: ::
+
+  from funq.models import QuickWindow, QuickItem
+
+  # first get the quick view
+  quick_view = self.funq.active_widget()
+  assert isinstance(quick_view, QuickWindow)
+
+  # get an item, click on it and print its color property
+  my_rect = quick_view.item(id='rect')
+  assert isinstance(my_rect, QuickItem)
+  my_rect.click()
+  print(my_rect.properties()["color"])
+
+
+.. inheritance-diagram:: QuickWindow
+
+.. autoclass:: QuickWindow
+
+  .. automethod:: QuickWindow.item
+
+
+.. inheritance-diagram:: QuickItem
+
+.. autoclass:: QuickItem
+
+  .. automethod:: QuickItem.click
