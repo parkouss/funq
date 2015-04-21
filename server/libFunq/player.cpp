@@ -306,16 +306,27 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::quick_item_by_path(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
     WidgetLocatorContext<QQuickWindow> ctx(this, command, "quick_window_oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QString path = command["path"].toString();
-    QQuickItem * item = ObjectPath::findQuickItem(ctx.widget, path);
-    qulonglong id = registerObject(item);
-    if (id == 0) {
-        return createError("InvalidQuickItemPath", QString("Unable to find quick item with path `%1`").arg(path));
+    QQuickItem * item;
+    qulonglong id;
+    QString qid = command["qid"].toString();
+    if (! qid.isEmpty()) {
+        item = ObjectPath::findQuickItemById(ctx.widget->contentItem(), qid);
+        id = registerObject(item);
+        if (id == 0) {
+            return createError("InvalidQuickItem", QString("Unable to find quick item with id `%1`").arg(qid));
+        }
+    } else {
+        QString path = command["path"].toString();
+        item = ObjectPath::findQuickItem(ctx.widget, path);
+        id = registerObject(item);
+        if (id == 0) {
+            return createError("InvalidQuickItem", QString("Unable to find quick item with path `%1`").arg(path));
+        }
     }
     result["oid"] = id;
     result["quick_window_oid"] = command["quick_window_oid"].toString();

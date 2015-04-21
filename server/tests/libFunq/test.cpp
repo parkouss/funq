@@ -879,10 +879,75 @@ private slots:
         command["quick_window_oid"] = result_view["oid"].value<qulonglong>();
         command["path"] = "QQuickItem::QQuickRectangle";
 
-        QtJson::JsonObject result = player.quick_item_by_path(command);
+        QtJson::JsonObject result = player.quick_item_find(command);
 
         QVERIFY(result["oid"].value<qulonglong>() != 0);
         QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), view.contentItem()->childItems().first()->childItems().first());
+
+        // search for object that does not exists
+        command["path"] = "tototiti::tutu";
+        result = player.quick_item_find(command);
+
+        QCOMPARE(result["success"].toBool(), false);
+        QCOMPARE(result["errName"].toString(), QString("InvalidQuickItem"));
+    }
+
+    void test_quick_item_find_by_id() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("find_by_id.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        qulonglong view_id = player.registerObject(&view);
+
+        QtJson::JsonObject command;
+        QtJson::JsonObject result;
+        qulonglong oid;
+        QQuickItem * item;
+
+        // search for root object
+        command["quick_window_oid"] = view_id;
+        command["qid"] = "root";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRoot"));
+
+        // search for rect object
+        command["qid"] = "rect";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRect"));
+
+        // search for rect object with full id
+        command["qid"] = "root.rect";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRect"));
+
+        // search for object that does not exists
+        command["qid"] = "rootrect";
+
+        result = player.quick_item_find(command);
+        QCOMPARE(result["success"].toBool(), false);
+        QCOMPARE(result["errName"].toString(), QString("InvalidQuickItem"));
     }
 
     void test_quick_item_click() {
@@ -904,7 +969,7 @@ private slots:
         command["quick_window_oid"] = view_id;
         command["path"] = "QQuickItem::QQuickRectangle";
 
-        QtJson::JsonObject result = player.quick_item_by_path(command);
+        QtJson::JsonObject result = player.quick_item_find(command);
 
         QQuickItem * item = view.contentItem()->childItems().first()->childItems().first();
         QCOMPARE(item->property("color").toString(), QString("#272822"));

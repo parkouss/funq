@@ -769,11 +769,11 @@ class QuickItem(Object):
 class QuickWindow(Widget):
     CPP_CLASS = "QQuickWindow"
 
-    def item(self, alias=None, path=None):
-        if not (alias or path):
-            raise TypeError("alias or path must be defined")
+    def item(self, alias=None, path=None, id=None):
+        if not (alias or path or id):
+            raise TypeError("alias, path or id must be defined")
 
-        if alias:
+        if alias and not id:
             path = self.client.aliases[alias]
             if not path.startswith(self.path):
                 raise TypeError("alias %r does not belong to this quick window"
@@ -783,8 +783,9 @@ class QuickWindow(Widget):
             path = path[len(self.path)+2:]
 
         data = self.client.send_command(
-            'quick_item_by_path',
+            'quick_item_find',
             quick_window_oid=self.oid,
             path=path,
+            qid=id,
         )
         return Object.create(self.client, data)

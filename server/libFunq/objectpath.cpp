@@ -43,6 +43,8 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QWindow>
 #include <QQuickItem>
 #include <QQuickWindow>
+#include <QQmlContext>
+#include <QQmlEngine>
 #endif
 
 /**
@@ -239,8 +241,11 @@ QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QSt
     return root;
 }
 
-QString quickItemPath(QQuickItem * item) {
+/* quick items stuff */
+
 #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+QString quickItemPath(QQuickItem * item) {
+
     QStringList components;
     QQuickItem* current = item;
     while(current)
@@ -249,13 +254,9 @@ QString quickItemPath(QQuickItem * item) {
         current = current->parentItem();
     }
     return components.join("::");
-#else
-    return QString();
-#endif
 }
 
 QQuickItem * ObjectPath::findQuickItem(QQuickWindow *window, const QString& path) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
     QStringList lstpath = path.split("::");
     if (lstpath.isEmpty() || ! window) {
         return NULL;
@@ -279,7 +280,30 @@ QQuickItem * ObjectPath::findQuickItem(QQuickWindow *window, const QString& path
         }
     }
     return root;
-#else
-    return NULL;
-#endif
 }
+
+QQuickItem * ObjectPath::findQuickItemById(QQuickItem * root, const QString& qid) {
+    QStringList qids = qid.split(".");
+    if (qids.isEmpty()) {
+        return NULL;
+    }
+    QList<QQuickItem *> items;
+    items << root;
+
+    while (!items.isEmpty()) {
+        QQuickItem * item = items.first();
+        items.removeFirst();
+        QQmlContext * ctx = QQmlEngine::contextForObject(item);
+        if (ctx && ctx->nameForObject(item) == qids.first()) {
+            qids.removeFirst();
+            if (qids.isEmpty()) {
+                return item;
+            }
+            items.clear();
+        }
+        items += item->childItems();
+    }
+    return NULL;
+}
+
+#endif // quick item stuff
