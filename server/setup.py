@@ -65,7 +65,7 @@ class build_libfunq(Command):
                                    ('debug', 'debug'),
                                    ('build_lib', 'build_lib'))
         if self.qmake_path is None:
-            self.qmake_path = 'qmake' if IS_WINDOWS else 'qmake-qt4'
+            self.qmake_path = 'qmake'
         if self.make_path is None:
             self.make_path = 'make'
     
