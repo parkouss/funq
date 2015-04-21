@@ -21,6 +21,7 @@
  */
 
 #include <QDateTime>
+#include <QColor>
 #include "json.h"
 
 namespace QtJson {
@@ -132,6 +133,8 @@ namespace QtJson {
             }
         } else if (data.type() == QVariant::Bool) { // boolean value?
             str = data.toBool() ? "true" : "false";
+        } else if (data.type() == QVariant::Color) { // color
+            str = sanitizeString(data.value<QColor>().name()).toUtf8();
         } else if (data.type() == QVariant::ULongLong) { // large unsigned number?
             str = QByteArray::number(data.value<qulonglong>());
         } else if (data.canConvert<qlonglong>()) { // any signed number?
