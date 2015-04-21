@@ -65,9 +65,9 @@ class build_libfunq(Command):
                                    ('debug', 'debug'),
                                    ('build_lib', 'build_lib'))
         if self.qmake_path is None:
-            self.qmake_path = 'qmake'
+            self.qmake_path = os.environ.get('FUNQ_QMAKE_PATH') or 'qmake'
         if self.make_path is None:
-            self.make_path = 'make'
+            self.make_path = os.environ.get('FUNQ_MAKE_PATH') or 'make'
     
     def funqlib_out_path(self):
         funqlib_base_dir = '.' if self.inplace else self.build_lib

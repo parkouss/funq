@@ -7,6 +7,15 @@ using python.
 It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
 See the LICENCE.txt file distributed in the sources for more information.
 
+The licence may appear restrictive, but as **funq** is a testing tool, you
+probably just don't mind. Do not deliver funq alongside your code source
+or compiled binaries if your licence is not compatible, that's all. You can
+still use the sources, or link with funq libraries for a personal use
+(like testing!).
+
+Please feel free to contribute to this project by creating github issues,
+pull requests, or simply staring the project! It will be greatly appreciated.
+
 Tutorial and documentation:
 
 .. image:: https://readthedocs.org/projects/funq/badge/?version=latest
@@ -34,6 +43,8 @@ How does *funq* works
   executable called **funq** and a dynamic library **libFunq**. The
   **funq** executable allows to inject some code in a Qt application
   to start a TCP server that will allow to interact with the application.
+  This is currently not working well on windows, but you can still
+  build you application with libFunq as a workaround.
 
 - **funq** is a python package that offers an API to interact with a
   **libFunq** TCP server. It is the client side of the project, and uses
@@ -42,61 +53,57 @@ How does *funq* works
 Known restrictions
 ==================
 
-Funq currently only works with python >= 2.7, Qt4 (Qt5 support is
-experimental but seems to work pretty well), and on GNU/Linux.
+Funq currently works with python >= 2.7 (it is fully compatible with python 3),
+Qt4 and Qt5 on GNU/Linux.
 
-The server is currently not compatible with python3, but the client is
-and so tests may be written in python 3.
-
-Funq may work under Windows XP and some other versions but this has
-not been really tested.
-
-There are plans to make it work under windows and also fully support Qt5.
-Contributors are welcome to help in these tasks !
-
-.. note::
-  
-  note that python 3 and Qt5 support is only available in github sources -
-  not provided for now from PyPi, until a new release is made.
+It also works on Windows, but the tested application have to be compiled
+with libFunq (I am not able to do a fully working dll injection for this
+platform, windows expert you're welcome!).
 
 Installation
 ============
 
 You can easily install it from PyPi with pip or setuptools::
-  
+
   pip install funq-server
   pip install funq
 
 .. note::
-  
-  Note that funq-server will need qmake-qt4 to build the C++ part
-  of the server.
-  
+
+  Note that funq-server will need qmake to build the C++ part of the server,
+  and this installation will be Qt-compatible with the same Qt version of
+  qmake.
+
+  To specify the path to qmake, you can define the **FUNQ_QMAKE_PATH**
+  environment variable: ::
+
+    FUNQ_QMAKE_PATH=/usr/bin/qmake-qt5 pip install funq-server
+
   Also, if you're not using virtualenv you may have to take root
   privileges to install **funq**.
 
-You can instead get the sources and install it with setup.py::
-  
-  cd server
-  python setup.py install
-  
-  cd ../client
-  python setup.py install
+You can instead get the sources and install it::
+
+  cd funq/
+  pip install server
+  pip install client
 
 .. note::
-  
-  For contributors, you may want to use **python setup.py develop**
-  instead of **python setup.py install** commands.
+
+  For contributors, you may want to use **pip install -e** instead of
+  **pip install** commands. Note that **virtualenv** is highly recommended,
+  so you can easily manage multiple python2/python3/Qt4/Qt5 environments.
 
 .. note::
-  
-  To install funq for qt5, first create a server/setup.cfg file with
-  the following content::
-    
+
+  When installing funq-server from sources, you can create a server/setup.cfg
+  file to specify the qmake path::
+
     [build_libfunq]
     qmake_path = /usr/bin/qmake-qt5
-  
-  before running the *python setup.py install* command.
+
+  before running the *pip install* command, or use the **FUNQ_QMAKE_PATH**
+  environment variable.
 
 Thanks to
 =========
