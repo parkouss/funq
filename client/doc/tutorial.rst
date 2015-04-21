@@ -13,10 +13,13 @@ https://github.com/parkouss/funq/tree/master/server/player_tester.
 This sample application must be compiled to an executable binary file,
 **player_tester**.
 
-.. important::
+To compile player_tester, just::
 
-  Please keep in mind that funq-server currently does only works with
-  QT4 - be careful to not compile player_tester with QT5 !
+  cd player_tester
+  qmake
+  make
+
+This will create a **player_tester** executable file.
 
 The two packages **funq** and **funq-server** must be installed. You
 can check that funq-server is installed by running:
@@ -30,6 +33,14 @@ And that funq is installed with:
 .. code-block:: bash
 
   nosetests -h | grep 'with-funq'
+
+.. important::
+
+  **funq-server** and the tested executable **player_tester** must be compiled
+  **with the same Qt version**. You can check it with **ldd** for example.
+
+  If you just installed **funq-server** with pip (or did not specified any
+  specific qmake path), then you are probably good.
 
 Tests file tree
 ---------------
