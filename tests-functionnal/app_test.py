@@ -141,6 +141,33 @@ class TableDialog(SimpleDialog):
         view.verticalHeader().sectionClicked.connect(self.on_vheader_clicked)
         yield view
 
+
+class MyItem(QtGui.QGraphicsRectItem):
+    def __init__(self, *args):
+        QtGui.QGraphicsRectItem.__init__(self, *args)
+
+class MyQItem(QtGui.QGraphicsTextItem):
+    def __init__(self, text):
+        QtGui.QGraphicsTextItem.__init__(self, text)
+
+    def mousePressEvent(self, event):
+        self.setObjectName("clicked")
+        QtGui.QGraphicsRectItem.mousePressEvent(self, event)
+
+class GraphicsViewDialog(SimpleDialog):
+    def _create_widgets(self):
+        view = QtGui.QGraphicsView()
+        scene = QtGui.QGraphicsScene()
+        view.setScene(scene)
+        item = MyItem(0, 0, 100, 100)
+        item.setBrush(QtGui.QBrush(QtGui.QColor(255, 0, 0, 127)))
+        scene.addItem(item)
+        itemq = MyQItem("hello !")
+        itemq.setPos(105, 0)
+        itemq.setObjectName("textItem")
+        scene.addItem(itemq)
+        yield view
+
 def main():
     dialogs = {
         "click": ClickDialog,
@@ -149,6 +176,7 @@ def main():
         'retrieve': RetrieveWidget,
         'shortcut': ShortcutDialog,
         'table': TableDialog,
+        "gview": GraphicsViewDialog,
     }
     
     app = QtGui.QApplication(sys.argv)
