@@ -147,25 +147,40 @@ class MyItem(QtGui.QGraphicsRectItem):
         QtGui.QGraphicsRectItem.__init__(self, *args)
 
 class MyQItem(QtGui.QGraphicsTextItem):
-    def __init__(self, text):
+    def __init__(self, text, objname, pos):
         QtGui.QGraphicsTextItem.__init__(self, text)
+        self.setAcceptDrops(True)
+        self.setObjectName(objname)
+        self.setPos(*pos)
 
     def mousePressEvent(self, event):
-        self.setObjectName("clicked")
-        QtGui.QGraphicsRectItem.mousePressEvent(self, event)
+        self.setObjectName(str(self.objectName()) + "-clicked")
+        # do not call the parent here to get more released event
+        # see http://doc.qt.io/qt-4.8/qgraphicsitem.html#mousePressEvent
+
+    def mouseReleaseEvent(self, event):
+        self.setObjectName(str(self.objectName()) + "-released")
+
+class GView(QtGui.QGraphicsView):
+    def __init__(self, dlg):
+        QtGui.QGraphicsView.__init__(self)
+        self.dlg = dlg
+
+    def mouseReleaseEvent(self, e):
+        self.dlg.showResult("released!")
+        return QtGui.QGraphicsView.mouseReleaseEvent(self, e)
 
 class GraphicsViewDialog(SimpleDialog):
     def _create_widgets(self):
-        view = QtGui.QGraphicsView()
+        view = GView(self)
         scene = QtGui.QGraphicsScene()
+
         view.setScene(scene)
         item = MyItem(0, 0, 100, 100)
         item.setBrush(QtGui.QBrush(QtGui.QColor(255, 0, 0, 127)))
         scene.addItem(item)
-        itemq = MyQItem("hello !")
-        itemq.setPos(105, 0)
-        itemq.setObjectName("textItem")
-        scene.addItem(itemq)
+        scene.addItem(MyQItem("hello !", "textItem", (105, 0)))
+        scene.addItem(MyQItem("hello2 !", "textItem2", (0, 105)))
         yield view
 
 def main():

@@ -33,27 +33,44 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 from base import AppTestCase
+import time
 
 class TestGItems(AppTestCase):
 
-    def _text_item(self, gview):
+    def _text_item(self, gview, name="textItem"):
         for item in gview.gitems().iter():
-            if item.objectname == "textItem":
+            if item.objectname == name:
                 return item
 
     def test_gitems(self):
         self.start_dialog('gview')
         gview = self.funq.widget(
-            path='mainWindow::GraphicsViewDialog::QGraphicsView')
+            path='mainWindow::GraphicsViewDialog::GView')
         gitems = gview.gitems()
         gitems_list = list(gitems.iter())
-        self.assertEquals(len(gitems_list), 2)
+        self.assertEquals(len(gitems_list), 3)
 
     def test_gitem_click(self):
         self.start_dialog('gview')
         gview = self.funq.widget(
-            path='mainWindow::GraphicsViewDialog::QGraphicsView')
+            path='mainWindow::GraphicsViewDialog::GView')
         item = self._text_item(gview)
         self.assertEquals(item.properties()["objectName"], "textItem")
         item.click()
-        self.assertEquals(item.properties()["objectName"], "clicked")
+        time.sleep(0.2)  # wait to be sure event is handled from qt
+        self.assertEquals(item.properties()["objectName"],
+                          "textItem-clicked-released")
+
+    def test_drag_and_drop(self):
+        self.start_dialog('gview')
+        gview = self.funq.widget(
+            path='mainWindow::GraphicsViewDialog::GView')
+        item = self._text_item(gview)
+        item2 = self._text_item(gview, name="textItem2")
+        gview.viewport().drag_n_drop(src_pos=item.pos(), dest_pos=item2.pos())
+        self.assertEquals(item.properties()["objectName"],
+                          "textItem-clicked-released")
+        # release event is only visible from the scene because the mouse
+        # press event is not initiated on the same item
+        # see http://doc.qt.io/qt-4.8/qgraphicsitem.html#mousePressEvent
+        self.assertEquals(self.get_status_text(), "released!")

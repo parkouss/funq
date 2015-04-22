@@ -408,6 +408,21 @@ QuickItemLocatorContext::QuickItemLocatorContext(Player * player,
 }
 #endif
 
+class GItemLocatorContext : public WidgetLocatorContext<QGraphicsView> {
+public:
+    GItemLocatorContext(Player * player,
+                         const QtJson::JsonObject & command,
+                         const QString & objKey) : WidgetLocatorContext<QGraphicsView>(player, command, objKey) {
+        if (! hasError()) {
+            item = graphicsItemFromId(widget, command["gid"].value<qulonglong>());
+            if (!item) {
+                lastError = player->createError("MissingItem", QString::fromUtf8("The view (id:%1) has no such item").arg(id));
+            }
+        }
+    }
+    QGraphicsItem * item;
+};
+
 QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
@@ -607,17 +622,12 @@ void Player::_model_item_action(const QString & action, QAbstractItemView * widg
 }
 
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
-    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    GItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    qulonglong gid = command["gid"].value<qulonglong>();
-    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
-    if (!item) {
-        return createError("MissingGItem", QString::fromUtf8("The view (id:%1) has no associated item %2").arg(ctx.id).arg(gid));
-    }
-    ctx.widget->ensureVisible(item); // be sure item is visible
+    ctx.widget->ensureVisible(ctx.item); // be sure item is visible
     QString itemaction = command["itemaction"].toString();
 
-    QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
+    QPoint viewPos = ctx.widget->mapFromScene(ctx.item->mapToScene(ctx.item->boundingRect().center()));
     if (itemaction == "click") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
@@ -632,6 +642,17 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
         return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }
     QtJson::JsonObject result;
+    return result;
+}
+
+QtJson::JsonObject Player::model_gitem_pos(const QtJson::JsonObject & command) {
+    GItemLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QPoint viewPos = ctx.widget->mapFromScene(ctx.item->mapToScene(ctx.item->boundingRect().center()));
+
+    QtJson::JsonObject result;
+    result["x"] = viewPos.x();
+    result["y"] = viewPos.y();
     return result;
 }
 
@@ -788,19 +809,27 @@ QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
      return result;
 }
 
-QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::graphicsitems_viewport(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    qulonglong gid = command["gid"].value<qulonglong>();
-    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
-    if (!item) {
-        return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 is not in view %2")
-                           .arg(gid).arg(ctx.id));
+    QWidget * w = ctx.widget->viewport();
+    qulonglong id = registerObject(w);
+    if (id == 0) {
+        return createError("InvalidWidgetPath", QString("Unable to find the viewport widget"));
     }
-    QObject * object = dynamic_cast<QObject *>(item);
+    QtJson::JsonObject result;
+    result["oid"] = id;
+    dump_object(w, result);
+    return result;
+}
+
+QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
+    GItemLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QObject * object = dynamic_cast<QObject *>(ctx.item);
     if (!object) {
         return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 in view %2 does not inherit from QObject")
-                           .arg(gid).arg(ctx.id));
+                           .arg(graphicsItemId(ctx.item)).arg(ctx.id));
     }
     QtJson::JsonObject result;
     dump_properties(object, result);

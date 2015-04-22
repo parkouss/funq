@@ -654,6 +654,15 @@ class GItem(TreeItem):
         """
         self._action("doubleclick")
 
+    def pos(self):
+        """
+        Returns the position (x, y) of the item in viewport coordinates.
+        """
+        data = self.client.send_command('model_gitem_pos',
+                                        oid=self.viewid,
+                                        gid=self.gid)
+        return data['x'], data['y']
+
 
 class GItems(TreeItems):
 
@@ -708,6 +717,13 @@ class GraphicsView(Widget):
         stream.write(raw)
         if has_to_be_closed:
             stream.close()
+
+    def viewport(self):
+        """
+        Returns the wiewport widget of this graphics view.
+        """
+        data = self.client.send_command('graphicsitems_viewport', oid=self.oid)
+        return Widget.create(self.client, data)
 
 
 class ComboBox(Widget):
