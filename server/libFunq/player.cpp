@@ -734,3 +734,25 @@ QtJson::JsonObject Player::widget_activate_focus(const QtJson::JsonObject & comm
     QtJson::JsonObject result;
     return result;
 }
+
+QtJson::JsonObject Player::grab_graphics_view(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QString format = command["format"].toString();
+    if (format.isEmpty()) {
+        format = "PNG";
+    }
+    QString pathFileName = command["path_filename"].toString();
+    QPixmap pixmap(ctx.widget->scene()->width(), ctx.widget->scene()->height());
+    QPainter q_painter(&pixmap);
+
+    ctx.widget->scene()->render(&q_painter);
+    QBuffer buffer;
+    pixmap.save(&buffer, "PNG");
+
+    QtJson::JsonObject result;
+    result["format"] = format;
+    result["data"] = buffer.data().toBase64();
+
+    return result;
+}

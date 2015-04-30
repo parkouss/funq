@@ -37,7 +37,7 @@ Definition of widgets and models useable in funq.
 """
 from funq.tools import wait_for
 from funq.errors import FunqError
-import json
+import json, base64
 
 
 class TreeItem(object):  # pylint: disable=R0903
@@ -684,6 +684,24 @@ class GraphicsView(Widget):
             stream = open(stream, 'w')
         json.dump(data,
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
+
+    def grab(self, stream, format_="PNG"):
+        """
+        Save the GraphicsView as image.
+        """
+        has_to_closed = False
+        data = self.client.send_command(
+            'grab_graphics_view',
+            format=format_,
+            oid=self.oid
+        )
+        if isinstance(stream, basestring):
+            stream = open(stream, 'wb')
+            has_to_closed = True
+        raw = base64.standard_b64decode(data['data'])
+        stream.write(raw) #pylint: disable=E1103
+        if has_to_closed:
+            stream.close() # pylint: disable=E1103
 
 
 class ComboBox(Widget):
