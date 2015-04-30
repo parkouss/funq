@@ -38,6 +38,7 @@ Definition of widgets and models useable in funq.
 from funq.tools import wait_for
 from funq.errors import FunqError
 import json
+import base64
 
 
 class TreeItem(object):  # pylint: disable=R0903
@@ -689,6 +690,24 @@ class GraphicsView(Widget):
             stream = open(stream, 'w')
         json.dump(data,
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
+
+    def grab_scene(self, stream, format_="PNG"):
+        """
+        Save the full QGraphicsScene content under the GraphicsView as an
+        image.
+
+        .. versionadded:: 1.2.0
+        """
+        data = self.client.send_command('grab_graphics_view', format=format_,
+                                        oid=self.oid)
+        has_to_be_closed = False
+        if isinstance(stream, basestring):
+            stream = open(stream, 'wb')
+            has_to_be_closed = True
+        raw = base64.standard_b64decode(data['data'])
+        stream.write(raw)
+        if has_to_be_closed:
+            stream.close()
 
 
 class ComboBox(Widget):

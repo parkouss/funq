@@ -838,3 +838,24 @@ QtJson::JsonObject Player::widget_activate_focus(const QtJson::JsonObject & comm
     QtJson::JsonObject result;
     return result;
 }
+
+QtJson::JsonObject Player::grab_graphics_view(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QString format = command["format"].toString();
+    if (format.isEmpty()) {
+        format = "PNG";
+    }
+    QPixmap pixmap(ctx.widget->scene()->width(), ctx.widget->scene()->height());
+    QPainter q_painter(&pixmap);
+
+    ctx.widget->scene()->render(&q_painter);
+    QBuffer buffer;
+    pixmap.save(&buffer, format.toStdString().c_str());
+
+    QtJson::JsonObject result;
+    result["format"] = format;
+    result["data"] = buffer.data().toBase64();
+
+    return result;
+}
