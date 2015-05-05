@@ -48,15 +48,14 @@ namespace ObjectPath {
     QString objectName(QObject* object);
     QObject* findObject(const QString& path);
 
-    QString graphicsItemPath(QGraphicsItem * item);
-    int graphicsItemPos(QGraphicsItem * item);
-    QGraphicsItem * graphicsItemFromPath(QGraphicsView * view, const QString & stackPath);
-
 #ifdef QT_QUICK_LIB
     QString quickItemPath(QQuickItem * item);
     QQuickItem * findQuickItem(QQuickWindow *window, const QString& path);
     QQuickItem * findQuickItemById(QQuickItem * root, const QString& qid);
 #endif
+
+    qulonglong graphicsItemId(QGraphicsItem * item);
+    QGraphicsItem * graphicsItemFromId(QGraphicsView * view, const qulonglong & id);
 } // namespace ObjectPath
 
 #endif // OBJECTPATH_H

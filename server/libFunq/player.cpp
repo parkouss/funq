@@ -220,7 +220,7 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
     QtJson::JsonArray outitems;
     foreach (QGraphicsItem * item, items) {
         QtJson::JsonObject outitem;
-        outitem["stackpath"] = graphicsItemPath(item);
+        outitem["gid"] = graphicsItemId(item);
         outitem["viewid"] = viewid;
         QObject * itemObject = dynamic_cast<QObject *>(item);
         if (itemObject) {
@@ -609,9 +609,10 @@ void Player::_model_item_action(const QString & action, QAbstractItemView * widg
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, command["stackpath"].toString());
+    qulonglong gid = command["gid"].value<qulonglong>();
+    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
-        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
+        return createError("MissingGItem", QString::fromUtf8("The view (id:%1) has no associated item %2").arg(ctx.id).arg(gid));
     }
     ctx.widget->ensureVisible(item); // be sure item is visible
     QString itemaction = command["itemaction"].toString();
@@ -790,16 +791,16 @@ QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QString stackpath = command["stackpath"].toString();
-    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, stackpath);
+    qulonglong gid = command["gid"].value<qulonglong>();
+    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
         return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 is not in view %2")
-                           .arg(stackpath).arg(ctx.id));
+                           .arg(gid).arg(ctx.id));
     }
     QObject * object = dynamic_cast<QObject *>(item);
     if (!object) {
         return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 in view %2 does not inherit from QObject")
-                           .arg(stackpath).arg(ctx.id));
+                           .arg(gid).arg(ctx.id));
     }
     QtJson::JsonObject result;
     dump_properties(object, result);

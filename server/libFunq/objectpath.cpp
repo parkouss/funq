@@ -167,78 +167,17 @@ QObject* ObjectPath::findObject(const QString& path)
     return 0;
 }
 
-int ObjectPath::graphicsItemPos(QGraphicsItem *item) {
-    if (item->parentItem()) {
-        #if QT_VERSION >= 0x050000
-        return item->parentItem()->childItems().indexOf(item);
-        #else
-        return item->parentItem()->children().indexOf(item);
-        #endif
-    }
-    QGraphicsScene * scene = item->scene();
-    int pos = 0;
-    foreach (QGraphicsItem * item_, scene->items()) {
-        if (!item_->parentItem()) {
-            if (item == item_) {
-                return pos;
-            }
-            pos++;
-        }
-    }
-    return -1;
+qulonglong ObjectPath::graphicsItemId(QGraphicsItem *item) {
+    return (qulonglong) item;
 }
 
-QString ObjectPath::graphicsItemPath(QGraphicsItem *item) {
-    QStringList path;
-    while (item) {
-        path.prepend(QString::number(ObjectPath::graphicsItemPos(item)));
-        item = item->parentItem();
-    }
-    return path.join("/");
-}
-
-QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QString & stackPath) {
-    QStringList path = stackPath.split('/');
-    if (stackPath.isEmpty()) {
-        return NULL;
-    }
-    bool conv_ok;
-    int index;
-
-    index = path.at(0).toInt(&conv_ok);
-    if (!conv_ok || index < 0) {
-        return NULL;
-    }
-    path.removeFirst();
-
-    // find the root
-    QGraphicsItem * root = NULL;
-    int pos = 0;
+QGraphicsItem * ObjectPath::graphicsItemFromId(QGraphicsView * view, const qulonglong & id) {
     foreach (QGraphicsItem * item, view->items()) {
-        if (!item->parentItem()) {
-            if (pos == index) {
-                root = item;
-                break;
-            }
-            pos++;
+        if (((qulonglong) item) == id) {
+            return item;
         }
     }
-
-    // recursive search
-    while (root && !path.isEmpty()) {
-        index = path.at(0).toInt(&conv_ok);
-        if (!conv_ok || index < 0) {
-            return NULL;
-        }
-        path.removeFirst();
-        #if QT_VERSION >= 0x050000
-        root = root->childItems().at(index);
-        #else
-        root = root->children().at(index);
-        #endif
-    }
-
-    return root;
+    return NULL;
 }
 
 /* quick items stuff */

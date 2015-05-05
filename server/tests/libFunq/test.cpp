@@ -184,110 +184,35 @@ private slots:
         
         QCOMPARE(ObjectPath::findObject("QMainWindow:::_:NAMEd"), &obj2);
     }
-    void test_objectpath_graphicsItemPos_toplevel() {
+    void test_objectpath_graphicsItemId() {
         QGraphicsView view;
         QGraphicsScene scene;
         view.setScene(&scene);
-        
+
         QGraphicsRectItem item;
-        
+        QGraphicsRectItem child(&item);
+
         scene.addItem(&item);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
+
+        QCOMPARE(ObjectPath::graphicsItemId(&item), (qulonglong) &item);
+        QCOMPARE(ObjectPath::graphicsItemId(&child), (qulonglong) &child);
     }
-    void test_objectpath_graphicsItemPos_multi_toplevel() {
+    void test_objectpath_graphicsItemFromId() {
         QGraphicsView view;
         QGraphicsScene scene;
         view.setScene(&scene);
-        
-        QGraphicsRectItem item;
-        QGraphicsRectItem item2;
-        
-        scene.addItem(&item);
-        scene.addItem(&item2);
-        
-        item2.setZValue(-1200);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-        QCOMPARE(ObjectPath::graphicsItemPos(&item2), 1);
-    }
-    void test_objectpath_graphicsItemPos_child() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-    }
-    void test_objectpath_graphicsItemPos_children() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
+
+        QGraphicsRectItem notInScene;
         QGraphicsRectItem parent;
         QGraphicsRectItem item(&parent);
         QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
+
         scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-        QCOMPARE(ObjectPath::graphicsItemPos(&item2), 1);
-    }
-    void test_objectpath_graphicsItemPath_child() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPath(&parent), QString("0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item), QString("0/0"));
-    }
-    void test_objectpath_graphicsItemPath_children() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPath(&parent), QString("0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item), QString("0/0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item2), QString("0/1"));
-    }
-    void test_objectpath_graphicsItemFromPath() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0"), &parent);
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/0"), &item);
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/1"), &item2);
+
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &parent), &parent);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &item), &item);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &item2), &item2);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &notInScene), (QGraphicsItem *) NULL);
     }
     /*
      * 

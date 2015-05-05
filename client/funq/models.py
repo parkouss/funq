@@ -609,8 +609,7 @@ class GItem(TreeItem):
 
     :var viewid: ID of the view attached to the model containing this item
                  [type: long]
-    :var stackpath: Internal gitem ID, based on stackIndex and parent items
-                    [type: str]
+    :var gid: Internal gitem ID [type: unsigned long long]
     :var objectname: value of the "objectName" property if it inherits
                      from QObject. [type: unicode or None]
     :var classes: list of names of class inheritance if it inherits from
@@ -618,7 +617,7 @@ class GItem(TreeItem):
     :var items: list of subitems [type: :class:`GItem`]
     """
     viewid = None
-    stackpath = None
+    gid = None
     objectname = None
     classes = None
 
@@ -633,14 +632,14 @@ class GItem(TreeItem):
         """
         return self.client.send_command('gitem_properties',
                                         oid=self.viewid,
-                                        stackpath=self.stackpath)
+                                        gid=self.gid)
 
     def _action(self, itemaction):
         """ Send the command 'model_gitem_action' """
         self.client.send_command('model_gitem_action',
                                  oid=self.viewid,
                                  itemaction=itemaction,
-                                 stackpath=self.stackpath)
+                                 gid=self.gid)
 
     def click(self):
         """
