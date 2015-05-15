@@ -146,6 +146,8 @@ Example::
   .. automethod:: GraphicsView.gitems
 
   .. automethod:: GraphicsView.dump_gitems
+  
+  .. automethod:: GraphicsView.grab
 
 
 .. autoclass:: GItems
