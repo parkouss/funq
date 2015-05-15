@@ -118,15 +118,15 @@ class WidgetMetaClass(type):
         return cls
 
 
-class Widget(object):
+class Object(object):
 
     """
-    Allow to manipulate a QWidget or derived.
+    Allow to manipulate a QObject or derived.
 
     :var client: client for the communication with libFunq
                  [type: :class:`funq.client.FunqClient`]
     :var oid: ID of the managed C++ instance. [type: long]
-    :var path: complete path to the widget [type: str]
+    :var path: complete path to the object [type: str]
     :var classes: list of class names of the managed C++ instance,
                   in inheritance order (ie 'QObject' is last)
                   [type : list(str)]
@@ -140,7 +140,7 @@ class Widget(object):
     @classmethod
     def create(cls, client, data):
         """
-        Allow to create a Widget or a subclass given data coming from
+        Allow to create an Object or a subclass given data coming from
         decoded json.
         """
         # recherche la classe appropriee
@@ -158,22 +158,22 @@ class Widget(object):
 
     def properties(self):
         """
-        Returns a dict of availables properties for this widget with associated
+        Returns a dict of availables properties for this object with associated
         values.
 
         Example::
 
-          enabled = widget.properties()["enabled"]
+          enabled = object.properties()["enabled"]
         """
         return self.client.send_command('object_properties', oid=self.oid)
 
     def set_properties(self, **properties):
         """
-        Define some properties on this widget.
+        Define some properties on this object.
 
         Example::
 
-          widget.set_properties(text="My beautiful text")
+          object.set_properties(text="My beautiful text")
         """
         self.client.send_command('object_set_properties',
                                  oid=self.oid,
@@ -181,11 +181,11 @@ class Widget(object):
 
     def set_property(self, name, value):
         """
-        Define one property on this widget.
+        Define one property on this object.
 
         Example::
 
-          widget.set_property('text', "My beautiful text")
+          object.set_property('text', "My beautiful text")
         """
         self.set_properties(**{name: value})  # pylint:disable=W0142
 
@@ -198,24 +198,12 @@ class Widget(object):
           self.wait_for_properties({'enabled': True, 'visible': True})
         """
         def check_props():
-            """checke la valeur des propriétés"""
             properties = self.properties()
             for k, v in props.iteritems():
                 if properties.get(k) != v:
                     return False
             return True
         return wait_for(check_props, timeout, timeout_interval)
-
-    def click(self, wait_for_enabled=10.0):
-        """
-        Click on the widget. If wait_for_enabled is > 0 (default), it will wait
-        until the widget become active (enabled and visible) before sending
-        click.
-        """
-        if wait_for_enabled > 0.0:
-            self.wait_for_properties({'enabled': True, 'visible': True},
-                                     timeout=wait_for_enabled)
-        self.client.send_command('widget_click', oid=self.oid)
 
     def call_slot(self, slot_name, params={}):
         """
@@ -237,6 +225,24 @@ class Widget(object):
             params=params,
             oid=self.oid
         )['result_slot']
+
+
+class Widget(Object):
+
+    """
+    Allow to manipulate a QWidget or derived.
+    """
+
+    def click(self, wait_for_enabled=10.0):
+        """
+        Click on the widget. If wait_for_enabled is > 0 (default), it will wait
+        until the widget become active (enabled and visible) before sending
+        click.
+        """
+        if wait_for_enabled > 0.0:
+            self.wait_for_properties({'enabled': True, 'visible': True},
+                                     timeout=wait_for_enabled)
+        self.client.send_command('widget_click', oid=self.oid)
 
     def dclick(self, wait_for_enabled=10.0):
         """
@@ -603,8 +609,7 @@ class GItem(TreeItem):
 
     :var viewid: ID of the view attached to the model containing this item
                  [type: long]
-    :var stackpath: Internal gitem ID, based on stackIndex and parent items
-                    [type: str]
+    :var gid: Internal gitem ID [type: unsigned long long]
     :var objectname: value of the "objectName" property if it inherits
                      from QObject. [type: unicode or None]
     :var classes: list of names of class inheritance if it inherits from
@@ -612,7 +617,7 @@ class GItem(TreeItem):
     :var items: list of subitems [type: :class:`GItem`]
     """
     viewid = None
-    stackpath = None
+    gid = None
     objectname = None
     classes = None
 
@@ -627,14 +632,14 @@ class GItem(TreeItem):
         """
         return self.client.send_command('gitem_properties',
                                         oid=self.viewid,
-                                        stackpath=self.stackpath)
+                                        gid=self.gid)
 
     def _action(self, itemaction):
         """ Send the command 'model_gitem_action' """
         self.client.send_command('model_gitem_action',
                                  oid=self.viewid,
                                  itemaction=itemaction,
-                                 stackpath=self.stackpath)
+                                 gid=self.gid)
 
     def click(self):
         """
@@ -748,3 +753,105 @@ class HeaderView(Widget):
         return self.client.send_command('headerview_click',
                                         oid=self.oid,
                                         indexOrName=index_or_name)
+
+
+class QuickItem(Object):
+    """
+    Represent a QQuickItem or derived.
+
+    You can get a :class:`QuickItem` instance by using
+    :meth:`QuickWindow.item`.
+    """
+
+    CPP_CLASS = "QQuickItem"
+
+    def click(self):
+        """
+        Click on the :class:`QuickItem`.
+        """
+        self.client.send_command(
+            "quick_item_click",
+            oid=self.oid
+        )
+
+
+class QuickWindow(Widget):
+    """
+    Represent a QQuickWindow or QQuickView.
+
+    If your application is a qml app with one window, you can easily get the
+    :class:`QuickWindow` with :meth:`funq.FunqClient.active_widget`.
+
+    Example::
+
+      quick_window = self.funq.active_widget()
+    """
+
+    CPP_CLASS = "QQuickWindow"
+
+    def item(self, alias=None, path=None, id=None):
+        """
+        Search for a :class:`funq.models.QuickItem` and returns it.
+
+        An item can be identified by its id, using an alias or using a
+        raw path. The preferred way is using an id (defined in the qml
+        file) - this takes precedence over other methods.
+
+        For example, with the following qml code:
+
+        .. code-block:: qml
+
+          import QtQuick 2.0
+
+          Item {
+            id: root
+            width: 320
+            height: 480
+
+            Rectangle {
+                id: rect
+                color: "#272822"
+                width: 320
+                height: 480
+            }
+          }
+
+        You can use the following statements::
+
+          # using id
+          root = quick_window.item(id='root')
+          rect = quick_window.item(id='root.rect') # or just 'rect'
+
+          # using alias
+          # you must have something like the following line in your alias file:
+          # my_rect = QQuickView::QQuickItem::QQuickRectangle
+          rect = quick_window.item(alias='my_rect')
+
+          # using raw path - note the path is relative to the quick window
+          rect = quick_window.item(path='QQuickItem::QQuickRectangle')
+
+        :param alias: alias defined in the aliases file that points to the
+                      item.
+        :param path: path of the item, relative to the view (do not pass
+                     the full path)
+        :param id: id of the qml item.
+        """
+        if not (alias or path or id):
+            raise TypeError("alias, path or id must be defined")
+
+        if alias and not id:
+            path = self.client.aliases[alias]
+            if not path.startswith(self.path):
+                raise TypeError("alias %r does not belong to this quick window"
+                                % path)
+            # remove the window path here, c++ code only requires the
+            # object path from the root item.
+            path = path[len(self.path)+2:]
+
+        data = self.client.send_command(
+            'quick_item_find',
+            quick_window_oid=self.oid,
+            path=path,
+            qid=id,
+        )
+        return Object.create(self.client, data)

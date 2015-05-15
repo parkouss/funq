@@ -40,6 +40,9 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QModelIndex>
 class DelayedResponse;
 class QAbstractItemView;
+class QQuickItem;
+class QQuickWindow;
+
 /**
   * @brief Player is a specialized JsonClient that handle remote Qt object manipulation.
   *
@@ -100,6 +103,14 @@ public slots:
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
 
+    QtJson::JsonObject quick_item_find(const QtJson::JsonObject & command);
+    QtJson::JsonObject quick_item_click(const QtJson::JsonObject & command);
+
+protected:
+    QtJson::JsonObject createQtQuickOnlyError() {
+        return createError("QtQuickOnly", "this method can only be called for a Qt5 app compiled with Qyt Quick.");
+    }
+
 private slots:
     void objectDeleted(QObject * object);
     void _object_set_properties(QObject * object, const QVariantMap & props);
@@ -145,5 +156,16 @@ public:
     }
     T * widget;
 };
+
+#ifdef QT_QUICK_LIB
+class QuickItemLocatorContext : public ObjectLocatorContext {
+public:
+    QuickItemLocatorContext(Player * player,
+                            const QtJson::JsonObject & command,
+                            const QString & objKey);
+    QQuickItem * item;
+    QQuickWindow * window;
+};
+#endif
 
 #endif // PLAYER_H

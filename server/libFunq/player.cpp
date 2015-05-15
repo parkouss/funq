@@ -53,9 +53,16 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "dragndropresponse.h"
 #include "shortcutresponse.h"
 
+#ifdef QT_QUICK_LIB
+#include <QWindow>
+#include <QQuickWindow>
+#include <QQuickItem>
+#endif
+
 using namespace ObjectPath;
 
-void mouse_click(QWidget * w, const QPoint & pos) {
+template<class T>
+void mouse_click(T * w, const QPoint & pos) {
     QPoint global_pos = w->mapToGlobal(pos);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonPress,
@@ -73,7 +80,8 @@ void mouse_click(QWidget * w, const QPoint & pos) {
                         Qt::NoModifier));
 }
 
-void mouse_dclick(QWidget * w, const QPoint & pos) {
+template<class T>
+void mouse_dclick(T * w, const QPoint & pos) {
     mouse_click(w, pos);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonDblClick,
@@ -212,7 +220,7 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
     QtJson::JsonArray outitems;
     foreach (QGraphicsItem * item, items) {
         QtJson::JsonObject outitem;
-        outitem["stackpath"] = graphicsItemPath(item);
+        outitem["gid"] = graphicsItemId(item);
         outitem["viewid"] = viewid;
         QObject * itemObject = dynamic_cast<QObject *>(item);
         if (itemObject) {
@@ -298,20 +306,68 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     return result;
 }
 
+QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
+    QtJson::JsonObject result;
+#ifdef QT_QUICK_LIB
+    WidgetLocatorContext<QQuickWindow> ctx(this, command, "quick_window_oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    QQuickItem * item;
+    qulonglong id;
+    QString qid = command["qid"].toString();
+    if (! qid.isEmpty()) {
+        item = ObjectPath::findQuickItemById(ctx.widget->contentItem(), qid);
+        id = registerObject(item);
+        if (id == 0) {
+            return createError("InvalidQuickItem", QString("Unable to find quick item with id `%1`").arg(qid));
+        }
+    } else {
+        QString path = command["path"].toString();
+        item = ObjectPath::findQuickItem(ctx.widget, path);
+        id = registerObject(item);
+        if (id == 0) {
+            return createError("InvalidQuickItem", QString("Unable to find quick item with path `%1`").arg(path));
+        }
+    }
+    result["oid"] = id;
+    result["quick_window_oid"] = command["quick_window_oid"].toString();
+    dump_object(item, result);
+#else
+    result = createQtQuickOnlyError();
+#endif
+    return result;
+}
+
 QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
-    QWidget * active;
+    QObject * active;
     QString type = command["type"].toString();
     if (type == "modal") {
         active = QApplication::activeModalWidget();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            active = QApplication::modalWindow();
+        }
+#endif
     } else if (type == "popup") {
         active = QApplication::activePopupWidget();
     } else if (type == "focus") {
         active = QApplication::focusWidget();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            active = QApplication::focusWindow();
+        }
+#endif
     }else {
         active = QApplication::activeWindow();
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        if (! active) {
+            QWindowList lst = QGuiApplication::topLevelWindows();
+            if (! lst.isEmpty()) {
+                active = lst.first();
+            }
+        }
+#endif
     }
     if (! active) {
-        type = "window";
         return createError("NoActiveWindow",
                             QString::fromUtf8("There is no active widget (%1)").arg(type));
     }
@@ -332,6 +388,25 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
                            QString::fromUtf8("The object (id:%1) is not registered or has been destroyed").arg(id));
     }
 }
+
+#ifdef QT_QUICK_LIB
+QuickItemLocatorContext::QuickItemLocatorContext(Player * player,
+                                                 const QtJson::JsonObject & command,
+                                                 const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
+    if (! hasError()) {
+        item = qobject_cast<QQuickItem *>(obj);
+        if (!item) {
+            lastError = player->createError("NotAWidget",
+                                            QString::fromUtf8("Object (id:%1) is not a QQuickItem").arg(id));
+        } else {
+            window = item->window();
+            if (! window) {
+                lastError = player->createError("NoWindowForQuickItem", "No QQuickWindow associated to the item.");
+            }
+        }
+    }
+}
+#endif
 
 QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
@@ -382,8 +457,20 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
             }
         }
     } else {
-        foreach (QWidget * widget, QApplication::topLevelWidgets()) {
-            recursive_list_widget(widget, result, with_properties);
+        QList<QWidget *> widgets = QApplication::topLevelWidgets();
+        if (! widgets.isEmpty()) {
+            foreach (QWidget * widget, widgets) {
+                recursive_list_widget(widget, result, with_properties);
+            }
+        } else {
+            // no qwidgets, this is probably a qtquick app - anyway, check for windows
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+            foreach (QWindow * window, QApplication::topLevelWindows()) {
+                QtJson::JsonObject resultWindow;
+                dump_object(window, resultWindow, with_properties);
+                result[resultWindow["path"].toString()] = resultWindow;
+            }
+#endif
         }
     }
     return result;
@@ -409,6 +496,22 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     }
     QtJson::JsonObject result;
     return result;
+}
+
+QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) {
+#ifdef QT_QUICK_LIB
+    QuickItemLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+
+    QPoint sPos = ctx.item->mapToScene(QPointF(0,0)).toPoint();
+    sPos.rx() += ctx.item->width() / 2;
+    sPos.ry() += ctx.item->height() / 2;
+    mouse_click(ctx.window, sPos);
+    QtJson::JsonObject result;
+    return result;
+#else
+    return createQtQuickOnlyError();
+#endif
 }
 
 QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
@@ -506,9 +609,10 @@ void Player::_model_item_action(const QString & action, QAbstractItemView * widg
 QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, command["stackpath"].toString());
+    qulonglong gid = command["gid"].value<qulonglong>();
+    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
-        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
+        return createError("MissingGItem", QString::fromUtf8("The view (id:%1) has no associated item %2").arg(ctx.id).arg(gid));
     }
     ctx.widget->ensureVisible(item); // be sure item is visible
     QString itemaction = command["itemaction"].toString();
@@ -687,16 +791,16 @@ QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
-    QString stackpath = command["stackpath"].toString();
-    QGraphicsItem * item = graphicsItemFromPath(ctx.widget, stackpath);
+    qulonglong gid = command["gid"].value<qulonglong>();
+    QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
         return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 is not in view %2")
-                           .arg(stackpath).arg(ctx.id));
+                           .arg(gid).arg(ctx.id));
     }
     QObject * object = dynamic_cast<QObject *>(item);
     if (!object) {
         return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 in view %2 does not inherit from QObject")
-                           .arg(stackpath).arg(ctx.id));
+                           .arg(gid).arg(ctx.id));
     }
     QtJson::JsonObject result;
     dump_properties(object, result);

@@ -51,6 +51,12 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTableWidget>
 #include <QTableWidgetItem>
 #include <QHeaderView>
+
+#ifdef QT_QUICK_LIB
+#include <QQuickView>
+#include <QQuickItem>
+#endif
+
 #include "objectpath.h"
 #include "player.h"
 #include "shortcutresponse.h"
@@ -178,110 +184,35 @@ private slots:
         
         QCOMPARE(ObjectPath::findObject("QMainWindow:::_:NAMEd"), &obj2);
     }
-    void test_objectpath_graphicsItemPos_toplevel() {
+    void test_objectpath_graphicsItemId() {
         QGraphicsView view;
         QGraphicsScene scene;
         view.setScene(&scene);
-        
+
         QGraphicsRectItem item;
-        
+        QGraphicsRectItem child(&item);
+
         scene.addItem(&item);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
+
+        QCOMPARE(ObjectPath::graphicsItemId(&item), (qulonglong) &item);
+        QCOMPARE(ObjectPath::graphicsItemId(&child), (qulonglong) &child);
     }
-    void test_objectpath_graphicsItemPos_multi_toplevel() {
+    void test_objectpath_graphicsItemFromId() {
         QGraphicsView view;
         QGraphicsScene scene;
         view.setScene(&scene);
-        
-        QGraphicsRectItem item;
-        QGraphicsRectItem item2;
-        
-        scene.addItem(&item);
-        scene.addItem(&item2);
-        
-        item2.setZValue(-1200);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-        QCOMPARE(ObjectPath::graphicsItemPos(&item2), 1);
-    }
-    void test_objectpath_graphicsItemPos_child() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-    }
-    void test_objectpath_graphicsItemPos_children() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
+
+        QGraphicsRectItem notInScene;
         QGraphicsRectItem parent;
         QGraphicsRectItem item(&parent);
         QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
+
         scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPos(&item), 0);
-        QCOMPARE(ObjectPath::graphicsItemPos(&item2), 1);
-    }
-    void test_objectpath_graphicsItemPath_child() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPath(&parent), QString("0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item), QString("0/0"));
-    }
-    void test_objectpath_graphicsItemPath_children() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemPath(&parent), QString("0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item), QString("0/0"));
-        QCOMPARE(ObjectPath::graphicsItemPath(&item2), QString("0/1"));
-    }
-    void test_objectpath_graphicsItemFromPath() {
-        QGraphicsView view;
-        QGraphicsScene scene;
-        view.setScene(&scene);
-        
-        QGraphicsRectItem parent;
-        QGraphicsRectItem item(&parent);
-        QGraphicsRectItem item2(&parent);
-        
-        item.setZValue(-1);
-        item2.setZValue(0);
-        
-        scene.addItem(&parent);
-        
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0"), &parent);
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/0"), &item);
-        QCOMPARE(ObjectPath::graphicsItemFromPath(&view, "0/1"), &item2);
+
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &parent), &parent);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &item), &item);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &item2), &item2);
+        QCOMPARE(ObjectPath::graphicsItemFromId(&view, (qulonglong) &notInScene), (QGraphicsItem *) NULL);
     }
     /*
      * 
@@ -799,6 +730,8 @@ private slots:
          QCOMPARE(items.count(), 4 * 4);
      }
      
+#if QT_VERSION < 0x050000
+    /* TODO: this test crash on ubuntu Using Qt version 5.2.1 in /usr/lib/x86_64-linux-gnu */
      void test_drag_ndrop() {
          TestDragNDropWidget dndwidget;
          
@@ -844,6 +777,138 @@ private slots:
              test_drag_ndrop();
          } 
      }
+#endif
+
+#ifdef QT_QUICK_LIB
+    /* QtQuick tests */
+
+    void test_quick_item_by_path() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("sample1.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        // register the quick view
+        QtJson::JsonObject command_get_view;
+        command_get_view["path"] = "QQuickView";
+        QtJson::JsonObject result_view = player.widget_by_path(command_get_view);
+
+        // search for quick_object
+        QtJson::JsonObject command;
+        command["quick_window_oid"] = result_view["oid"].value<qulonglong>();
+        command["path"] = "QQuickItem::QQuickRectangle";
+
+        QtJson::JsonObject result = player.quick_item_find(command);
+
+        QVERIFY(result["oid"].value<qulonglong>() != 0);
+        QCOMPARE(player.registeredObject(result["oid"].value<qulonglong>()), view.contentItem()->childItems().first()->childItems().first());
+
+        // search for object that does not exists
+        command["path"] = "tototiti::tutu";
+        result = player.quick_item_find(command);
+
+        QCOMPARE(result["success"].toBool(), false);
+        QCOMPARE(result["errName"].toString(), QString("InvalidQuickItem"));
+    }
+
+    void test_quick_item_find_by_id() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("find_by_id.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        qulonglong view_id = player.registerObject(&view);
+
+        QtJson::JsonObject command;
+        QtJson::JsonObject result;
+        qulonglong oid;
+        QQuickItem * item;
+
+        // search for root object
+        command["quick_window_oid"] = view_id;
+        command["qid"] = "root";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRoot"));
+
+        // search for rect object
+        command["qid"] = "rect";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRect"));
+
+        // search for rect object with full id
+        command["qid"] = "root.rect";
+
+        result = player.quick_item_find(command);
+        oid = result["oid"].value<qulonglong>();
+        QVERIFY(oid != 0);
+
+        item = (QQuickItem *) oid;
+        QCOMPARE(item->property("objectName").toString(), QString("MyRect"));
+
+        // search for object that does not exists
+        command["qid"] = "rootrect";
+
+        result = player.quick_item_find(command);
+        QCOMPARE(result["success"].toBool(), false);
+        QCOMPARE(result["errName"].toString(), QString("InvalidQuickItem"));
+    }
+
+    void test_quick_item_click() {
+        QString qml_path = QDir(qApp->applicationDirPath()).filePath("test_click.qml");
+        QQuickView view;
+
+        view.setSource(QUrl::fromLocalFile(qml_path));
+
+        view.show();
+        QTest::qWaitForWindowExposed(&view);
+
+        QBuffer buffer;
+        Player player(&buffer);
+
+        qulonglong view_id = player.registerObject(&view);
+
+        // search for quick_object
+        QtJson::JsonObject command;
+        command["quick_window_oid"] = view_id;
+        command["path"] = "QQuickItem::QQuickRectangle";
+
+        QtJson::JsonObject result = player.quick_item_find(command);
+
+        QQuickItem * item = view.contentItem()->childItems().first()->childItems().first();
+        QCOMPARE(item->property("color").toString(), QString("#272822"));
+
+        // click on it
+        QtJson::JsonObject command_click;
+        command_click["oid"] = result["oid"].value<qulonglong>();
+        player.quick_item_click(command_click);
+
+        qApp->processEvents();
+
+        QCOMPARE(item->property("color").toString(), QString("#ffffff"));
+    }
+#endif
 };
 
 QTEST_MAIN(LibFunqTest)

@@ -14,6 +14,7 @@ https://github.com/parkouss/funq.
    :maxdepth: 2
 
    tutorial
+   qml_tutorial
    funq_conf
    writing_tests
    launching_tests

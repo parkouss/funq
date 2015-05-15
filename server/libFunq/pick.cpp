@@ -86,7 +86,7 @@ void PickFormatter::handle(QObject * object, const QPoint & pos) {
         QGraphicsItem * item = view->itemAt(pos);
         QObject * qitem = dynamic_cast<QObject *>(item);
         if (item) {
-            m_stream << "GITEM: `" << ObjectPath::graphicsItemPath(item) << "` (QObject: " << (qitem !=0) << ")" << endl;
+            m_stream << "GITEM: `" << ObjectPath::graphicsItemId(item) << "` (QObject: " << (qitem !=0) << ")" << endl;
             if (qitem) {
                 print_object_props(qitem, m_stream);
             }

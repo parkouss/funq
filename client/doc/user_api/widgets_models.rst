@@ -3,6 +3,22 @@ Widgets and other classes to interact with tested application
 
 .. currentmodule:: funq.models
 
+The Object base class
+---------------------
+
+.. autoclass:: Object
+
+  .. automethod:: Object.properties
+
+  .. automethod:: Object.set_properties
+
+  .. automethod:: Object.set_property
+
+  .. automethod:: Object.wait_for_properties
+
+  .. automethod:: Object.call_slot
+
+
 The Widget base class
 ---------------------
 
@@ -12,15 +28,9 @@ Example::
 
   my_widget = self.funq.widget('my_widget')
 
+.. inheritance-diagram:: Widget
+
 .. autoclass:: Widget
-
-  .. automethod:: Widget.properties
-
-  .. automethod:: Widget.set_properties
-
-  .. automethod:: Widget.set_property
-
-  .. automethod:: Widget.wait_for_properties
 
   .. automethod:: Widget.click
 
@@ -32,11 +42,9 @@ Example::
 
   .. automethod:: Widget.drag_n_drop
 
-  .. automethod:: Widget.close
-
-  .. automethod:: Widget.call_slot
-
   .. automethod:: Widget.activate_focus
+
+  .. automethod:: Widget.close
 
 Interacting with the data of QT Model/View framework
 ----------------------------------------------------
@@ -173,3 +181,42 @@ Other widgets
   .. automethod:: ComboBox.model_items
 
   .. automethod:: ComboBox.set_current_text
+
+
+.. _quick-objects-api:
+
+Interacting with QtQuick objects
+--------------------------------
+
+.. versionadded:: 1.2.0
+
+If funq-server is built uppon Qt5 with QtQuick enabled, you can manipulate
+QtQuickItems.
+
+Example: ::
+
+  from funq.models import QuickWindow, QuickItem
+
+  # first get the quick view
+  quick_view = self.funq.active_widget()
+  assert isinstance(quick_view, QuickWindow)
+
+  # get an item, click on it and print its color property
+  my_rect = quick_view.item(id='rect')
+  assert isinstance(my_rect, QuickItem)
+  my_rect.click()
+  print(my_rect.properties()["color"])
+
+
+.. inheritance-diagram:: QuickWindow
+
+.. autoclass:: QuickWindow
+
+  .. automethod:: QuickWindow.item
+
+
+.. inheritance-diagram:: QuickItem
+
+.. autoclass:: QuickItem
+
+  .. automethod:: QuickItem.click

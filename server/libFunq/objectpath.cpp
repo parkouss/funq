@@ -39,6 +39,14 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QGraphicsItem>
 #include <QGraphicsView>
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#include <QWindow>
+#include <QQuickItem>
+#include <QQuickWindow>
+#include <QQmlContext>
+#include <QQmlEngine>
+#endif
+
 /**
   * Returns the object name (not unique given its siblings)
   */
@@ -129,6 +137,14 @@ QObject* ObjectPath::findObject(const QString& path)
                 return widget;
             }
         }
+        // did not find any ? - let's try on windows (qtquick)
+#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+        Q_FOREACH(QWindow* window, QApplication::topLevelWindows()) {
+            if (objectName(window) == name) {
+                return window;
+            }
+        }
+#endif
         return 0;
     }
     else
@@ -151,76 +167,82 @@ QObject* ObjectPath::findObject(const QString& path)
     return 0;
 }
 
-int ObjectPath::graphicsItemPos(QGraphicsItem *item) {
-    if (item->parentItem()) {
-        #if QT_VERSION >= 0x050000
-        return item->parentItem()->childItems().indexOf(item);
-        #else
-        return item->parentItem()->children().indexOf(item);
-        #endif
-    }
-    QGraphicsScene * scene = item->scene();
-    int pos = 0;
-    foreach (QGraphicsItem * item_, scene->items()) {
-        if (!item_->parentItem()) {
-            if (item == item_) {
-                return pos;
-            }
-            pos++;
+qulonglong ObjectPath::graphicsItemId(QGraphicsItem *item) {
+    return (qulonglong) item;
+}
+
+QGraphicsItem * ObjectPath::graphicsItemFromId(QGraphicsView * view, const qulonglong & id) {
+    foreach (QGraphicsItem * item, view->items()) {
+        if (((qulonglong) item) == id) {
+            return item;
         }
     }
-    return -1;
+    return NULL;
 }
 
-QString ObjectPath::graphicsItemPath(QGraphicsItem *item) {
-    QStringList path;
-    while (item) {
-        path.prepend(QString::number(ObjectPath::graphicsItemPos(item)));
-        item = item->parentItem();
+/* quick items stuff */
+
+#ifdef QT_QUICK_LIB
+QString quickItemPath(QQuickItem * item) {
+
+    QStringList components;
+    QQuickItem* current = item;
+    while(current)
+    {
+        components.prepend(ObjectPath::objectName(current));
+        current = current->parentItem();
     }
-    return path.join("/");
+    return components.join("::");
 }
 
-QGraphicsItem * ObjectPath::graphicsItemFromPath(QGraphicsView * view, const QString & stackPath) {
-    QStringList path = stackPath.split('/');
-    if (stackPath.isEmpty()) {
+QQuickItem * ObjectPath::findQuickItem(QQuickWindow *window, const QString& path) {
+    QStringList lstpath = path.split("::");
+    if (lstpath.isEmpty() || ! window) {
         return NULL;
     }
-    bool conv_ok;
-    int index;
 
-    index = path.at(0).toInt(&conv_ok);
-    if (!conv_ok || index < 0) {
-        return NULL;
-    }
-    path.removeFirst();
+    QQuickItem* root = window->contentItem();
 
-    // find the root
-    QGraphicsItem * root = NULL;
-    int pos = 0;
-    foreach (QGraphicsItem * item, view->items()) {
-        if (!item->parentItem()) {
-            if (pos == index) {
-                root = item;
+    while (root && !lstpath.isEmpty()) {
+        QString itemName = lstpath.first();
+        lstpath.removeFirst();
+        bool find = false;
+        foreach (QQuickItem * child, root->childItems()) {
+            if (ObjectPath::objectName(child) == itemName) {
+                find = true;
+                root = child;
                 break;
             }
-            pos++;
         }
-    }
-
-    // recursive search
-    while (root && !path.isEmpty()) {
-        index = path.at(0).toInt(&conv_ok);
-        if (!conv_ok || index < 0) {
+        if (! find) {
             return NULL;
         }
-        path.removeFirst();
-        #if QT_VERSION >= 0x050000
-        root = root->childItems().at(index);
-        #else
-        root = root->children().at(index);
-        #endif
     }
-
     return root;
 }
+
+QQuickItem * ObjectPath::findQuickItemById(QQuickItem * root, const QString& qid) {
+    QStringList qids = qid.split(".");
+    if (qids.isEmpty()) {
+        return NULL;
+    }
+    QList<QQuickItem *> items;
+    items << root;
+
+    while (!items.isEmpty()) {
+        QQuickItem * item = items.first();
+        items.removeFirst();
+        QQmlContext * ctx = QQmlEngine::contextForObject(item);
+        if (ctx && ctx->nameForObject(item) == qids.first()) {
+            qids.removeFirst();
+            if (qids.isEmpty()) {
+                return item;
+            }
+            items.clear();
+        }
+        items += item->childItems();
+    }
+    return NULL;
+}
+
+#endif // quick item stuff

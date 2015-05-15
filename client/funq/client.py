@@ -200,7 +200,12 @@ class FunqClient(object):
 
         widget = Widget.create(self, wdata[0])
         if wait_active:
-            widget.wait_for_properties({'enabled': True, 'visible': True})
+            if 'QWindow' in wdata[0]['classes']:
+                # QWindow (Qt5) does not have the enabled property
+                props = {'active': True, 'visible': True}
+            else:
+                props = {'enabled': True, 'visible': True}
+            widget.wait_for_properties(props)
         return widget
 
     def active_widget(self, widget_type='window', timeout=10.0,
@@ -245,7 +250,12 @@ class FunqClient(object):
 
         widget = Widget.create(self, wdata[0])
         if wait_active:
-            widget.wait_for_properties({'enabled': True, 'visible': True})
+            if 'QWindow' in wdata[0]['classes']:
+                # QWindow (Qt5) does not have the enabled property
+                props = {'active': True, 'visible': True}
+            else:
+                props = {'enabled': True, 'visible': True}
+            widget.wait_for_properties(props)
         return widget
 
     def widgets_list(self, with_properties=False):
