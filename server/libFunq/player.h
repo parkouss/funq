@@ -86,26 +86,30 @@ public slots:
     QtJson::JsonObject widget_click(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_close(const QtJson::JsonObject & command);
     DelayedResponse * drag_n_drop(const QtJson::JsonObject & command);
-    QtJson::JsonObject model_items(const QtJson::JsonObject & command);
-    QtJson::JsonObject model_item_action(const QtJson::JsonObject & command);
-    QtJson::JsonObject model_gitem_action(const QtJson::JsonObject & command);
     QtJson::JsonObject desktop_screenshot(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_keyclick(const QtJson::JsonObject & command);
     DelayedResponse * shortcut(const QtJson::JsonObject & command);
     QtJson::JsonObject tabbar_list(const QtJson::JsonObject & command);
-    QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
-    QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);
     QtJson::JsonObject call_slot(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_activate_focus(const QtJson::JsonObject & command);
-    QtJson::JsonObject headerview_list(const QtJson::JsonObject & command);
-    QtJson::JsonObject headerview_click(const QtJson::JsonObject & command);
-    QtJson::JsonObject headerview_path_from_view(const QtJson::JsonObject & command);
-    QtJson::JsonObject grab_graphics_view(const QtJson::JsonObject & command);
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
 
     QtJson::JsonObject quick_item_find(const QtJson::JsonObject & command);
     QtJson::JsonObject quick_item_click(const QtJson::JsonObject & command);
+
+    // player_commands_item_model.cpp
+    QtJson::JsonObject model_items(const QtJson::JsonObject & command);
+    QtJson::JsonObject model_item_action(const QtJson::JsonObject & command);
+    QtJson::JsonObject headerview_list(const QtJson::JsonObject & command);
+    QtJson::JsonObject headerview_click(const QtJson::JsonObject & command);
+    QtJson::JsonObject headerview_path_from_view(const QtJson::JsonObject & command);
+
+    // player_commands_gitems.cpp
+    QtJson::JsonObject model_gitem_action(const QtJson::JsonObject & command);
+    QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
+    QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);
+    QtJson::JsonObject grab_graphics_view(const QtJson::JsonObject & command);
 
 protected:
     QtJson::JsonObject createQtQuickOnlyError() {
@@ -120,53 +124,5 @@ private slots:
 private:
     QHash<qulonglong, QObject*> m_registeredObjects;
 };
-
-/**
-  * @brief Allow to find a previously referenced object.
-  */
-class ObjectLocatorContext {
-public:
-    ObjectLocatorContext(Player * player,
-                         const QtJson::JsonObject & command,
-                         const QString & objKey);
-    virtual ~ObjectLocatorContext() {}
-
-    qulonglong id;
-    QObject * obj;
-    QtJson::JsonObject lastError;
-    inline bool hasError() { return ! lastError.isEmpty(); }
-};
-
-/**
-  * @brief Allow to find a previously referenced widget (with type T).
-  */
-template <class T = QWidget>
-class WidgetLocatorContext : public ObjectLocatorContext {
-public:
-    WidgetLocatorContext(Player * player,
-                         const QtJson::JsonObject & command,
-                         const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
-
-        if (! hasError()) {
-            widget = qobject_cast<T *>(obj);
-            if (!widget) {
-                lastError = player->createError("NotAWidget",
-                                                QString::fromUtf8("Object (id:%1) is not a %2").arg(id).arg(T::staticMetaObject.className()));
-            }
-        }
-    }
-    T * widget;
-};
-
-#ifdef QT_QUICK_LIB
-class QuickItemLocatorContext : public ObjectLocatorContext {
-public:
-    QuickItemLocatorContext(Player * player,
-                            const QtJson::JsonObject & command,
-                            const QString & objKey);
-    QQuickItem * item;
-    QQuickWindow * window;
-};
-#endif
 
 #endif // PLAYER_H

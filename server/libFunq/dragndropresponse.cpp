@@ -37,6 +37,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QMouseEvent>
 #include <QTimer>
 #include "player.h"
+#include "player_utils.h"
 
 void calculate_drag_n_drop_moves(QList<QPoint> & moves,
                                  const QPoint & globalSourcePos,
