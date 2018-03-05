@@ -92,6 +92,13 @@ class TestApplicationConfigFromConf:
         appconf = self.createApplicationConfig()
         assert_equals(appconf.funq_port, 12000)
 
+    def test_host(self):
+        host = '192.162.0.2'
+        self.set_opt('executable', 'toto')
+        self.set_opt('funq_host', host)
+        appconf = self.createApplicationConfig()
+        assert_equals(appconf.funq_host, host)
+
     def test_timeout_connection(self):
         self.set_opt('executable', 'toto')
         self.set_opt('timeout_connection', '5')

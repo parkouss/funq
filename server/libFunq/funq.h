@@ -36,6 +36,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #define FUNQ_H
 
 #include <QObject>
+#include <QHostAddress>
 
 class QTcpServer;
 class Pick;
@@ -52,7 +53,7 @@ public:
     };
 
 protected:
-    explicit Funq(MODE mode, int port);
+    explicit Funq(MODE mode, const QHostAddress & host, int port);
     bool eventFilter(QObject* receiver, QEvent* event);
     
 signals:
@@ -71,8 +72,8 @@ private:
 
     MODE m_mode;
     int m_port;
+    QHostAddress m_host;
     QTcpServer * m_server;
-    
     Pick * m_pick;
 };
 
