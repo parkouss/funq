@@ -28,10 +28,10 @@ Travis-ci build:
 
 Get funq on PyPi (server and client packages):
 
-.. image:: https://pypip.in/version/funq-server/badge.png
+.. image:: https://img.shields.io/pypi/v/funq-server.svg
     :target: https://pypi.python.org/pypi/funq-server/
 
-.. image:: https://pypip.in/version/funq/badge.png
+.. image:: https://img.shields.io/pypi/v/funq.svg
     :target: https://pypi.python.org/pypi/funq/
 
 How does *funq* works
