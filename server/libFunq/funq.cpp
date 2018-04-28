@@ -41,7 +41,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QCoreApplication>
 #include "pick.h"
 
-#define DEFAUT_HOOQ_PORT 9999;
+#define DEFAUT_HOOQ_PORT 9999
 
 #ifdef Q_WS_WIN
 extern Q_GUI_EXPORT bool qt_use_native_dialogs;
@@ -50,8 +50,8 @@ extern Q_GUI_EXPORT bool qt_use_native_dialogs;
 /*static*/
 Funq * Funq::_instance = 0;
 
-Funq::Funq(Funq::MODE mode, int port) :
-    QObject(), m_mode(mode), m_port(port), m_server(0), m_pick(0)
+Funq::Funq(Funq::MODE mode, const QHostAddress & host, int port) :
+    QObject(), m_mode(mode), m_port(port), m_host(host), m_server(0), m_pick(0)
 {
     Q_ASSERT(!_instance);
     _instance = this;
@@ -66,11 +66,11 @@ void Funq::funqInit() {
     if (m_mode == Funq::PLAYER) {
         m_server = new QTcpServer(this);
         connect(m_server, SIGNAL(newConnection()), this, SLOT(onNewConnection()));
-        if (!m_server->listen(QHostAddress::LocalHost, m_port)) {
+        if (!m_server->listen(m_host, m_port)) {
             qDebug() << "Unable to initialize funq. Error:\n\t"
                      << m_server->errorString();
         } else {
-            qDebug() << "funq is initialized on port " << m_port << ".";
+            qDebug() << "funq is initialized on host " << m_host.toString() << " and on port " << m_port << ".";
         }
     } else {
         m_pick = new Pick(new PickFormatter);
@@ -96,6 +96,12 @@ void Funq::active_hook_player(Funq::MODE mode) {
     qt_use_native_dialogs = false;
 #endif
 
+    QHostAddress host(QHostAddress::LocalHost);
+    const char * env_host = getenv("FUNQ_HOST");
+    if (env_host) {
+        host = QHostAddress(QString(env_host));
+    }
+
     int port = DEFAUT_HOOQ_PORT;
     const char * env_port = getenv("FUNQ_PORT");
     if (env_port) {
@@ -105,7 +111,7 @@ void Funq::active_hook_player(Funq::MODE mode) {
         }
     }
 
-    Funq * hook = new Funq(mode, port);
+    Funq * hook = new Funq(mode, host, port);
 
     QObject::connect(
         QCoreApplication::instance(),

@@ -17,7 +17,9 @@ starts with "socket://" then the application will not be launched but
 the tests will try to connect to the address instead. This is the **detached**
 mode, allowing to test an already launched application (note that this
 application will have to be started with the **funq** executable, or
-compiled with libFunq).
+compiled with libFunq). Note that you can change to a valid IP address instead
+of localhost (like 192.168.0.2 as shown above) to connect in a remote
+application.
 
 Here is the list of the facultative availables options:
 
