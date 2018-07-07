@@ -96,7 +96,7 @@ class FunqClient(object):
 
         wait_for(connect, timeout_connection, 0.2)
         self._socket.settimeout(timeout_connection)
-        self._fsocket = self._socket.makefile(mode="rw")
+        self._fsocket = self._socket.makefile(mode="rwb")
 
     def duplicate(self):
         """
@@ -129,8 +129,9 @@ class FunqClient(object):
         Send a message without waiting for an answer.
         """
         kwargs['action'] = action
-        rawdata = json.dumps(kwargs)
-        message = '%s\n%s' % (len(rawdata), rawdata)
+        rawdata = json.dumps(kwargs).encode('utf-8')
+        header = '{}\n'.format(len(rawdata)).encode('utf-8')
+        message = header + rawdata
         f = self._fsocket
         f.write(message)
         f.flush()
@@ -150,7 +151,7 @@ class FunqClient(object):
                             u"Pas de réponse de l'application testée -"
                             u" probablement un crash.")
         to_read = int(header)
-        response = json.loads(f.read(to_read))
+        response = json.loads(f.read(to_read).decode('utf-8'))
         if response.get('success') is False:
             raise FunqError(response["errName"], response["errDesc"])
         return response
