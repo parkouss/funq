@@ -1,4 +1,5 @@
 language: python
+cache: pip
 python:
   - "2.7"
   - "3.4"
@@ -13,10 +14,7 @@ install:
   - "cd client && python setup.py develop && cd .."
   - "cd server/tests && qmake-qt4 && make -j4 && cd ../.."
   - "cd server && python setup.py develop && cd .."
-  # use a wheel version of PySide for functiona tests
-  - pip install --find-links https://parkin.github.io/python-wheelhouse/ --use-wheel PySide;
-  # Travis CI servers use virtualenvs, so we need to finish the install by the following
-  - python ~/virtualenv/python${TRAVIS_PYTHON_VERSION}/bin/pyside_postinstall.py -install
+  - pip install PySide
 # command to run tests
 script:
   - "if [[ $TRAVIS_PYTHON_VERSION == '2.7' ]]; then flake8 client/funq server/funq_server; fi"
