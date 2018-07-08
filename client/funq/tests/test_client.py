@@ -178,13 +178,13 @@ class TestApplicationContext:
 
     @FakePopen.patch_subprocess_popen
     def test_start_with_valgrind(self):
-        class O:
+        class P:
             funq_attach_exe = 'funq'
         appconf = client.ApplicationConfig(
             executable='command',
             with_valgrind=True,
             valgrind_args=[],
-            global_options=O(),
+            global_options=P(),
         )
 
         ctx = client.ApplicationContext(

@@ -74,7 +74,7 @@ class ScreenShoter(object):  # pylint: disable=R0903
             funqclient.take_screenshot(fname, 'PNG')
         except (SystemExit, KeyboardInterrupt):
             raise
-        except:
+        except Exception:
             LOG.exception(u"impossible de prendre un screenshot pour"
                           u" %s", longname)
             return
