@@ -503,9 +503,10 @@ QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) 
     QuickItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) { return ctx.lastError; }
 
-    QPoint sPos = ctx.item->mapToScene(QPointF(0,0)).toPoint();
-    sPos.rx() += ctx.item->width() / 2;
-    sPos.ry() += ctx.item->height() / 2;
+    QPointF relativeCenter(ctx.item->width() / 2.0, ctx.item->height() / 2.0);
+
+    QPoint sPos = ctx.item->mapToScene(relativeCenter).toPoint();
+
     mouse_click(ctx.window, sPos);
     QtJson::JsonObject result;
     return result;
