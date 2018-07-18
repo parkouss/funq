@@ -57,9 +57,16 @@ class WindowsRunnerInjector(RunnerInjector):
                 raise RuntimeError("Error while waiting for subprocess to be"
                                    " launched. Is the executable linked to"
                                    " qt4 ?")
-            proc.scan_modules()
+            try:
+                proc.scan_modules()
+            except WindowsError:
+                # Following exception occurs sometimes, but it still works fine
+                # so let's ignore it: WindowsError: [Error 299] Only part of a
+                # ReadProcessMemory or WriteProcessMemory request was completed
+                pass
             lib_names = [lib.get_name() for lib in proc.iter_modules()]
-            if 'qtguid4' in lib_names or 'qtgui4' in lib_names:
+            qt_lib_names = ['qtguid4', 'qtgui4', 'qt5guid', 'qt5gui']
+            if len(set(qt_lib_names).intersection(set(lib_names))) > 0:
                 break
             time.sleep(0.01)
 
