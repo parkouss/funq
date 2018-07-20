@@ -5,6 +5,8 @@ CONFIG += testcase qtestlib
 
 INCLUDEPATH += ../../libFunq
 
+DEFINES += SOURCE_DIR=\\\"$${PWD}/\\\"
+
 SOURCES = test.cpp
 
 SOURCES += ../../libFunq/objectpath.cpp ../../libFunq/player.cpp ../../libFunq/dragndropresponse.cpp ../../libFunq/shortcutresponse.cpp

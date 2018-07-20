@@ -783,11 +783,8 @@ private slots:
     /* QtQuick tests */
 
     void test_quick_item_by_path() {
-        QString qml_path = QDir(qApp->applicationDirPath()).filePath("sample1.qml");
         QQuickView view;
-
-        view.setSource(QUrl::fromLocalFile(qml_path));
-
+        view.setSource(QUrl::fromLocalFile(SOURCE_DIR "sample1.qml"));
         view.show();
         QTest::qWaitForWindowExposed(&view);
 
@@ -818,11 +815,8 @@ private slots:
     }
 
     void test_quick_item_find_by_id() {
-        QString qml_path = QDir(qApp->applicationDirPath()).filePath("find_by_id.qml");
         QQuickView view;
-
-        view.setSource(QUrl::fromLocalFile(qml_path));
-
+        view.setSource(QUrl::fromLocalFile(SOURCE_DIR "find_by_id.qml"));
         view.show();
         QTest::qWaitForWindowExposed(&view);
 
@@ -876,11 +870,8 @@ private slots:
     }
 
     void test_quick_item_click() {
-        QString qml_path = QDir(qApp->applicationDirPath()).filePath("test_click.qml");
         QQuickView view;
-
-        view.setSource(QUrl::fromLocalFile(qml_path));
-
+        view.setSource(QUrl::fromLocalFile(SOURCE_DIR "test_click.qml"));
         view.show();
         QTest::qWaitForWindowExposed(&view);
 
