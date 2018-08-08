@@ -33,40 +33,11 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
 #include "dragndropresponse.h"
+#include "dragndrophelpers.h"
 #include <QApplication>
 #include <QMouseEvent>
 #include <QTimer>
 #include "player.h"
-
-void calculate_drag_n_drop_moves(QList<QPoint> & moves,
-                                 const QPoint & globalSourcePos,
-                                 const QPoint & globalDestPos,
-                                 int deltaFactor=4) {
-    QPoint delta = globalDestPos - globalSourcePos;
-    delta /= deltaFactor;
-
-    QPoint move = globalSourcePos;
-    QPoint lastMove = globalSourcePos;
-    for (int i = 0; i < deltaFactor; ++i) {
-        move += delta;
-        if (move != lastMove) {
-            lastMove = move;
-            moves << move;
-        }
-    }
-    moves << globalDestPos;
-}
-
-QPoint pointFromString(const QString & data) {
-    QStringList splitted = data.split(",");
-    if (splitted.count() == 2) {
-        QPoint p;
-        p.setX(splitted[0].toInt());
-        p.setY(splitted[1].toInt());
-        return p;
-    }
-    return QPoint();
-}
 
 DragNDropResponse::DragNDropResponse(JsonClient *client, const QtJson::JsonObject &command) :
     DelayedResponse(client, command)

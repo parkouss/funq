@@ -7,6 +7,7 @@ INCLUDEPATH += $${PWD}
 SOURCES += $${PWD}/player.cpp \
     $${PWD}/funq.cpp \
     $${PWD}/objectpath.cpp \
+    $${PWD}/dragndrophelpers.cpp \
     $${PWD}/dragndropresponse.cpp \
     $${PWD}/shortcutresponse.cpp \
     $${PWD}/pick.cpp
