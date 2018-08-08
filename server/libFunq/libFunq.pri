@@ -9,6 +9,7 @@ SOURCES += $${PWD}/player.cpp \
     $${PWD}/objectpath.cpp \
     $${PWD}/dragndrophelpers.cpp \
     $${PWD}/dragndropresponse.cpp \
+    $${PWD}/quickdragndropresponse.cpp \
     $${PWD}/shortcutresponse.cpp \
     $${PWD}/pick.cpp
 
@@ -16,6 +17,7 @@ HEADERS += $${PWD}/player.h \
     $${PWD}/funq.h \
     $${PWD}/objectpath.h \
     $${PWD}/dragndropresponse.h \
+    $${PWD}/quickdragndropresponse.h \
     $${PWD}/shortcutresponse.h \
     $${PWD}/pick.h
 
