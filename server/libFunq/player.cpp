@@ -51,6 +51,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTime>
 #include <QHeaderView>
 #include "dragndropresponse.h"
+#include "quickdragndropresponse.h"
 #include "shortcutresponse.h"
 
 #ifdef QT_QUICK_LIB
@@ -809,7 +810,13 @@ QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) 
 }
 
 DelayedResponse * Player::drag_n_drop(const QtJson::JsonObject & command) {
-    return new DragNDropResponse(this, command);
+    auto id = command["srcoid"].value<qulonglong>();
+    auto* obj = registeredObject(id);
+    auto* item = qobject_cast<QQuickItem *>(obj);
+    if (item)
+        return new QuickDragNDropResponse(this, command);
+    else
+        return new DragNDropResponse(this, command);
 }
 
 QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
