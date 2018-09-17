@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 
 # Copyright: SCLE SFE
-# Contributor: Julien Pagès <j.parkouss@gmail.com>
+# Contributor: Rafael de Lucena Valle <rafaeldelucena@gmail.com>
 #
 # This software is a computer program whose purpose is to test graphical
 # applications written with the QT framework (http://qt.digia.com/).
@@ -32,19 +32,24 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from funq.testcase import FunqTestCase
+from base import QmlAppTestCase
+from funq.client import FunqClient
 
+class TestQmlItemChilden(QmlAppTestCase):
 
-class AppTestCase(FunqTestCase):
-    __app_config_name__ = 'app_test'
+    def get_children_by_property(self, prop, recursive=False):
+        self.funq = FunqClient()
+        widget = self.funq.active_widget()
+        item = widget.item(id='main')
+        children = item.children(recursive=recursive)
+        return [child.properties().get(prop) for child in children.iter() if prop in child.properties()]
 
-    def start_dialog(self, btn_name):
-        btn = self.funq.widget(path='mainWindow::QWidget::' + btn_name)
-        btn.click()
+    def test_non_recursive_children(self):
+        children = self.get_children_by_property('text')
+        self.assertIn('Parent', children)
 
-    def get_status_text(self):
-        return self.funq.widget(path='mainWindow::statusBar::QLabel').properties()['text']
-
-
-class QmlAppTestCase(FunqTestCase):
-    __app_config_name__ = 'qml_app_test'
+    def test_recursive_children(self):
+        children = self.get_children_by_property('text', recursive=True)
+        self.assertIn('Parent', children)
+        self.assertIn('Child', children)
+        self.assertIn('Grandchild', children)
