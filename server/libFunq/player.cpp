@@ -806,7 +806,11 @@ void dump_quick_items(Player * player, const QList<QQuickItem *> & items, const 
     }
     out["items"] = outitems;
 #else
-    createQtQuickOnlyError();
+    (void)player;
+    (void)items;
+    (void)viewid;
+    (void)recursive;
+    (void)out;
 #endif
 }
 
