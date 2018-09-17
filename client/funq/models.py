@@ -916,7 +916,8 @@ class QuickItem(Object):
     Represent a QQuickItem or derived.
 
     You can get a :class:`QuickItem` instance by using
-    :meth:`QuickWindow.item` or by iterate over :meth:`QuickItem.children` result
+    :meth:`QuickWindow.item` or by iterate over :meth:`QuickItem.children`
+    result
 
     :var oid: Internal gitem ID [type: unsigned long long]
     :var path: complete path to the object [type: str]
@@ -950,18 +951,21 @@ class QuickItem(Object):
           for child in children.iter():
               print(child.properties())
         """
-        data = self.client.send_command("quick_item_children", oid=self.oid, recursive=recursive)
+        data = self.client.send_command("quick_item_children", oid=self.oid,
+                                        recursive=recursive)
         return QuickItems.create(self.client, data)
 
     @classmethod
     def create(cls, client, data):
         """
-        Allow to create a :class: `QuickItem` from a dict data decoded from json.
+        Allow to create a :class: `QuickItem` from a dict data decoded from
+        json.
         """
         self = super(QuickItem, cls).create(client, data)
         self.items = [cls.create(client, d) for d in data.get('items', [])]
 
         return self
+
 
 class QuickItems(TreeItems):
     """
