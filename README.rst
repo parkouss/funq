@@ -21,10 +21,13 @@ Tutorial and documentation:
 .. image:: https://readthedocs.org/projects/funq/badge/?version=latest
     :target: http://funq.readthedocs.org
 
-Travis-ci build:
+CI build status:
 
 .. image:: https://travis-ci.org/parkouss/funq.svg?branch=master
     :target: https://travis-ci.org/parkouss/funq
+
+.. image:: https://ci.appveyor.com/api/projects/status/github/parkouss/funq?branch=master&svg=true
+    :target: https://ci.appveyor.com/project/parkouss/funq
 
 Get funq on PyPi (server and client packages):
 
