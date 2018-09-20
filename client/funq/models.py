@@ -41,6 +41,14 @@ import json
 import base64
 
 
+# python 3 compatibility
+# https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
+try:
+    basestring
+except NameError:
+    basestring = str
+
+
 class TreeItem(object):  # pylint: disable=R0903
 
     """

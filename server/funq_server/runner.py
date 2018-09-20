@@ -82,6 +82,8 @@ class Runner(object):
         this_dir = os.path.dirname(os.path.realpath(__file__))
         if self.system == 'Windows':
             library_name = 'Funq.dll'
+        elif self.system == 'Darwin':
+            library_name = 'libFunq.dylib'
         else:
             library_name = 'libFunq.so'
         return os.path.join(this_dir, library_name)
@@ -89,6 +91,8 @@ class Runner(object):
     def _create_injector_class(self):
         if self.system == 'Windows':
             from funq_server.runner_win import WindowsRunnerInjector as RI
+        elif self.system == 'Darwin':
+            from funq_server.runner_mac import MacRunnerInjector as RI
         else:
             from funq_server.runner_linux import LinuxRunnerInjector as RI
         return RI

@@ -55,6 +55,14 @@ from funq.errors import FunqError, TimeOutError
 LOG = logging.getLogger('funq.client')
 
 
+# python 3 compatibility
+# https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
+try:
+    basestring
+except NameError:
+    basestring = str
+
+
 class FunqClient(object):
 
     """
@@ -89,7 +97,7 @@ class FunqClient(object):
             try:
                 self._socket.connect((host, port))
                 return True
-            except socket.error, e:
+            except socket.error as e:
                 if e.errno != errno.ECONNREFUSED:
                     raise
                 return e
@@ -194,7 +202,7 @@ class FunqClient(object):
             try:
                 wdata[0] = self.send_command('widget_by_path', path=path)
                 return True
-            except FunqError, err:
+            except FunqError as err:
                 if err.classname != 'InvalidWidgetPath':
                     raise
                 return err
@@ -244,7 +252,7 @@ class FunqClient(object):
             try:
                 wdata[0] = self.send_command('active_widget', type=widget_type)
                 return True
-            except FunqError, err:
+            except FunqError as err:
                 if err.classname != 'NoActiveWindow':
                     raise
                 return err
