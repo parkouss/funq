@@ -11,6 +11,7 @@ import sys
 import platform
 
 IS_WINDOWS = platform.system() == 'Windows'
+IS_MAC = platform.system() == 'Darwin'
 
 if sys.version_info < (2, 7):
     sys.exit("Python version must be > 2.7")
@@ -56,6 +57,8 @@ class build_libfunq(Command):
         
         if IS_WINDOWS:
             self.funqlib_name = 'Funq.dll'
+        elif IS_MAC:
+            self.funqlib_name = 'libFunq.dylib'
         else:
             self.funqlib_name = 'libFunq.so'
 
