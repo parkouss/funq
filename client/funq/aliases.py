@@ -67,7 +67,7 @@ class HooqAliases(dict):
         try:
             # pylint: disable=W0142
             value = value.format(**self)
-        except KeyError, msg:
+        except KeyError as msg:
             raise HooqAliasesKeyError("Impossible substitution in"
                                       " the alias %s: %s." % (name, msg))
         dict.__setitem__(self, name, value)
