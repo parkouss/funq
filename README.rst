@@ -57,7 +57,7 @@ Known restrictions
 ==================
 
 Funq currently works with python >= 2.7 (it is fully compatible with python 3),
-Qt4 and Qt5 on GNU/Linux.
+Qt4 and Qt5 on GNU/Linux and macOS.
 
 It also works on Windows, but only with Python 2.7 out of the box. With
 Python 3, the tested application has to be compiled with libFunq because the
