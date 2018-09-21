@@ -21,7 +21,7 @@ then
   fi
 
   # python packages
-  pip install flake8 PySide
+  pip install flake8
 
   # xvfb
   export DISPLAY=:99.0

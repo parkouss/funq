@@ -11,7 +11,7 @@ install:
   - cd client && python setup.py develop && cd ..
   - cd server && python setup.py develop && cd ..
   - cd server/tests && qmake && make -j4 && cd ../../
-  - pip install PySide
+  - cd tests-functionnal/funq-test-app && qmake && make -j4 && cd ../..
 
 build_script:
   - cd client && python setup.py test && cd ..
