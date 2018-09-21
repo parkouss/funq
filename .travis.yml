@@ -62,5 +62,4 @@ script:
   - cd tests-functionnal/funq-test-app && qmake && make -j4 && cd ../..
   - cd client && $PYTHON setup.py test; cd ..
   - make -C server/tests/ check
-  # Functional tests are not working yet on MacOS...
-  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd tests-functionnal && nosetests && cd .. ; fi
+  - cd tests-functionnal && nosetests && cd ..
