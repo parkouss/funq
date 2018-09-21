@@ -4,7 +4,7 @@ test: off
 deploy: off
 
 init:
-  - set PATH=C:/Qt/5.9/mingw53_32/bin;C:/Qt/Tools/mingw530_32/bin;%PATH%
+  - set PATH=C:/Qt/5.11/mingw53_32/bin;C:/Qt/Tools/mingw530_32/bin;%PATH%
 
 install:
   - cp C:/Qt/Tools/mingw530_32/bin/mingw32-make.exe C:/Qt/Tools/mingw530_32/bin/make.exe
@@ -15,5 +15,5 @@ install:
 
 build_script:
   - cd client && python setup.py test && cd ..
-# TODO:  - make -C server/tests/ check
-# TODO:  - cd tests-functionnal && nosetests
+  - make -C server/tests/ check
+  - cd tests-functionnal && nosetests && cd ..
