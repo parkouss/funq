@@ -90,11 +90,11 @@ class FunqClient(object):
 
         self.aliases = aliases
 
-        self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-
         def connect():
             """ try to connect """
             try:
+                self._socket = socket.socket(socket.AF_INET,
+                                             socket.SOCK_STREAM)
                 self._socket.connect((host, port))
                 return True
             except socket.error as e:
