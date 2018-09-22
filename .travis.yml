@@ -59,7 +59,8 @@ script:
   - cd client && $PYTHON setup.py develop && cd ..
   - cd server && $PYTHON setup.py develop && cd ..
   - cd server/tests && qmake && make -j4 && cd ../..
+  - cd tests-functionnal/funq-test-app && qmake && make -j4 && cd ../..
   - cd client && $PYTHON setup.py test; cd ..
   - make -C server/tests/ check
-  # PySide is Qt4, so we can't run functional tests with Qt5!
-  - if [[ "$QT_SELECT" == "4" ]]; then cd tests-functionnal && nosetests && cd .. ; fi
+  # Functional tests are not working yet on MacOS...
+  - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then cd tests-functionnal && nosetests && cd .. ; fi

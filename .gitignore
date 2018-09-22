@@ -4,14 +4,27 @@ _build
 build
 dist
 
-server/Makefile
-server/libFunq/Makefile
-server/bin
-server/funq_server/libFunq.so
-moc_*.cpp
-ui_*.h
-*.o
 
+Makefile
+moc_*.*
+ui_*.h
+*.moc
+*.o
+*.so
+*.dll
+*.dylib
+*.exe
+*.app
+*.pro.user
+*.Debug
+*.Release
+.qmake.stash
+
+server/bin
 server/player_tester/Makefile
 server/player_tester/player_tester
 server/player_tester/tutorial
+server/tests/libFunq
+server/tests/protocole
+tests-functionnal/funq-test-app/funq-test-app
+tests-functionnal/screenshot-errors/
