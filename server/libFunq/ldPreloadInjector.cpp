@@ -33,20 +33,35 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
 #include <QCoreApplication>
-#include <QDebug>
+#include <pthread.h>
+#include <unistd.h>
+#include <iostream>
 #include "funq.h"
-#include <dlfcn.h>
 
-int QCoreApplication::exec() {
-
-    typedef int QCoreApplicationExec();
-
-    QCoreApplicationExec * originalExec =
-            (QCoreApplicationExec *) dlsym(RTLD_NEXT, "_ZN16QCoreApplication4execEv");
-    if (!originalExec) {
-        qDebug() << "Unable to locate the original function QCoreApplication::exec(). Aborting.";
-        return 1;
+static void* injectorThread(void*) {
+    // Wait until QApplication instance exists! Many Qt features must not be used before
+    // QApplication is initialized (could lead to strange and fatal errors), so we don't
+    // use Qt at all until QCoreApplication::startingUp() returns true.
+    //
+    // This must be done in a dedicated thread, otherwise the main thread is blocked and
+    // QApplication gets never initialized.
+    while (QCoreApplication::startingUp()) {
+        usleep(50000); // wait 50ms
     }
     Funq::activate();
-    return originalExec();
+    return NULL;
 }
+
+class Injector {
+        pthread_t m_thread;
+  public:
+    Injector() {
+        if (pthread_create(&m_thread, NULL, injectorThread, NULL)) {
+            std::cerr << "Failed to create thread!" << std::endl;
+        }
+    }
+};
+
+// The constructor of this static object will be called at application startup, so we can
+// use the constructor to inject our Funq module (TCP server etc.).
+static Injector injector;

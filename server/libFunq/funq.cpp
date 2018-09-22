@@ -56,7 +56,8 @@ Funq::Funq(Funq::MODE mode, const QHostAddress & host, int port) :
     Q_ASSERT(!_instance);
     _instance = this;
 
-    // this is needed for the dll injection under Windows
+    // Move event processing of this thread (i.e. invoking funqInit()) to the thread of
+    // QApplication because the injection was performed in a dedicated thread.
     moveToThread(qApp->thread());
 
     QTimer::singleShot(0, this, SLOT(funqInit()));
