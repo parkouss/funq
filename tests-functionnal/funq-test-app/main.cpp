@@ -45,6 +45,14 @@ int main(int argc, char* argv[])
 {
     QApplication app(argc, argv);
 
+    if (app.arguments().contains("--show-message-box-at-startup")) {
+        // This is needed to test if the injection of libFunq also works if Qt's main
+        // event loop is not called directly at application startup. A message box blocks
+        // the whole application, so by closing this dialog with funq we can see if funq
+        // was successfully injected into the blocking application.
+        QMessageBox::information(0, "funq", "click me away");
+    }
+
     MainWindow win;
     win.addDialogButton("click", &execDialog<ClickDialog>);
     win.addDialogButton("doubleclick", &execDialog<DoubleClickDialog>);
