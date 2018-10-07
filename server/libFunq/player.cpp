@@ -36,6 +36,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QMetaMethod>
 #include <QStringList>
 #include <QWidget>
+#include <QAction>
 #include "objectpath.h"
 #include <QApplication>
 #include <QMouseEvent>
@@ -479,6 +480,21 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
     if (qApp) {
         qApp->quit();
+    }
+    QtJson::JsonObject result;
+    return result;
+}
+
+QtJson::JsonObject Player::action_trigger(const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QAction> ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+    bool blocking = command["blocking"].toBool();
+    if (blocking) {
+        // block until QAction::trigger() returns
+        ctx.widget->trigger();
+    } else {
+        // trigger the action, but return immediately
+        QTimer::singleShot(0, ctx.widget, SLOT(trigger()));
     }
     QtJson::JsonObject result;
     return result;

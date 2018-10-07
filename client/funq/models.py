@@ -237,6 +237,28 @@ class Object(object):
         )['result_slot']
 
 
+class Action(Object):
+
+    """
+    Allow to manipulate a QAction or derived.
+    """
+
+    def trigger(self, blocking=True, wait_for_enabled=10.0):
+        """
+        Trigger the QAction. If wait_for_enabled is > 0 (default), it will wait
+        until the action becomes active (enabled and visible) before triggering
+        it. If blocking is True (default), funq waits until the triggered
+        action has completed (synchronous trigger). For actions which are
+        blocking by themself (e.g. actions which open a modal dialog), you must
+        set blocking to False (asynchronous trigger), otherwise funq freezes.
+        """
+        if wait_for_enabled > 0.0:
+            self.wait_for_properties({'enabled': True, 'visible': True},
+                                     timeout=wait_for_enabled)
+        self.client.send_command('action_trigger', oid=self.oid,
+                                 blocking=blocking)
+
+
 class Widget(Object):
 
     """
