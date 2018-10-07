@@ -19,6 +19,22 @@ The Object base class
   .. automethod:: Object.call_slot
 
 
+The Action base class
+---------------------
+
+An Action is often obtained with :meth:`funq.client.FunqClient.action` .
+
+Example::
+
+  my_action = self.funq.action('my_action')
+
+.. inheritance-diagram:: Action
+
+.. autoclass:: Action
+
+  .. automethod:: Action.trigger
+
+
 The Widget base class
 ---------------------
 
