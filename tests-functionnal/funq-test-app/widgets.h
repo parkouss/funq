@@ -56,6 +56,38 @@ class SimpleDialog : public QDialog {
         }
 };
 
+class ActionDialog : public SimpleDialog {
+        Q_OBJECT
+    public:
+        ActionDialog(QLabel* statusLabel, QWidget* parent) :
+            SimpleDialog(statusLabel, parent) {
+            QMenuBar* bar = new QMenuBar(this);
+            QMenu* menu = bar->addMenu("menu");
+
+            QAction* nonblockingAction = new QAction("nonblocking", this);
+            nonblockingAction->setObjectName("nonblockingAction");
+            connect(nonblockingAction, SIGNAL(triggered()), this, SLOT(nonblockingActionTriggered()));
+            addAction(nonblockingAction);
+            menu->addAction(nonblockingAction);
+
+            QAction* blockingAction = new QAction("blocking", this);
+            blockingAction->setObjectName("blockingAction");
+            connect(blockingAction, SIGNAL(triggered()), this, SLOT(blockingActionTriggered()));
+            addAction(blockingAction);
+            menu->addAction(blockingAction);
+        }
+
+    private slots:
+        void nonblockingActionTriggered() {
+            showResult("nonblocking triggered !");
+        }
+
+        void blockingActionTriggered() {
+            showResult("blocking triggered !");
+            QMessageBox::information(0, "funq", "click me away"); // blocking!
+        }
+};
+
 class ClickDialog : public SimpleDialog {
         Q_OBJECT
     public:
