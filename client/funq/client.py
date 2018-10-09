@@ -49,7 +49,7 @@ import logging
 
 from funq.aliases import HooqAliases
 from funq.tools import wait_for
-from funq.models import Widget
+from funq.models import Action, Widget
 from funq.errors import FunqError, TimeOutError
 
 LOG = logging.getLogger('funq.client')
@@ -169,6 +169,49 @@ class FunqClient(object):
         Ask the tested application to quit by calling qApp->quit().
         """
         self._raw_send('quit', {})
+
+    def action(self, alias=None, path=None, timeout=10.0,
+               timeout_interval=0.1, wait_active=True):
+        """
+        Returns an instance of a :class:`funq.models.Action` or derived
+        identified with an alias or with its complete path.
+
+        Example::
+
+          action = client.action('my_alias')
+
+        :param alias: alias defined in the aliases file.
+        :param path: complete path for the action
+        :param timeout: if > 0, tries to get the action until timeout
+                        is reached (second)
+        :param timeout_interval: time between two atempts to get an action
+                                 (seconds)
+        :param wait_active: If true - the default -, wait until the action
+                            become visible and enabled.
+        """
+        if not (alias or path):
+            raise TypeError("alias or path must be defined")
+
+        if alias:
+            path = self.aliases[alias]
+
+        wdata = [None]
+
+        def get_action():
+            """ Try to get the action """
+            try:
+                wdata[0] = self.send_command('widget_by_path', path=path)
+                return True
+            except FunqError as err:
+                if err.classname != 'InvalidWidgetPath':
+                    raise
+                return err
+        wait_for(get_action, timeout, timeout_interval)
+
+        action = Action.create(self, wdata[0])
+        if wait_active:
+            action.wait_for_properties({'enabled': True, 'visible': True})
+        return action
 
     def widget(self, alias=None, path=None, timeout=10.0,
                timeout_interval=0.1, wait_active=True):
