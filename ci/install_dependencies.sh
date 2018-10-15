@@ -8,16 +8,24 @@ if [[ "${TRAVIS_OS_NAME-}" == "linux" ]]
 then
 
   # common
-  sudo apt-get update -qq
-  sudo apt-get install -qq build-essential xvfb
+  sudo apt-get update -q
+  sudo apt-get install -q build-essential xvfb
 
   # qt
   if [[ "$QT_SELECT" == "4" ]]
   then
-    sudo apt-get install -qq libqt4-dev qt4-dev-tools
-  elif [[ "$QT_SELECT" == "5" ]]
-  then
-    sudo apt-get install -qq qtbase5-dev qtdeclarative5-dev qtdeclarative5-qtquick2-plugin qttools5-dev-tools
+    sudo apt-get install -q libqt4-dev qt4-dev-tools
+  else
+    # Add corresponding PPA from https://launchpad.net/~beineri
+    MAJOR=`echo "$QT_SELECT" | cut -d'.' -f 1`
+    MINOR=`echo "$QT_SELECT" | cut -d'.' -f 2`
+    PATCH=`echo "$QT_SELECT" | cut -d'.' -f 3`
+    PREFIX="" && [[ "$MINOR" -ge 10 ]] && PREFIX="-"
+    SEPARATOR="" && [[ "$MINOR" -ge 10 ]] && SEPARATOR="."
+    sudo add-apt-repository "ppa:beineri/opt-qt${PREFIX}${MAJOR}${SEPARATOR}${MINOR}${SEPARATOR}${PATCH}-trusty" -y
+    sudo apt-get update -q
+    sudo apt-get install -q "qt${MAJOR}${MINOR}base" "qt${MAJOR}${MINOR}tools" "qt${MAJOR}${MINOR}declarative"
+    source "/opt/qt${MAJOR}${MINOR}/bin/qt${MAJOR}${MINOR}-env.sh"
   fi
 
   # python packages

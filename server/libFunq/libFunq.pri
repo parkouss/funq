@@ -1,6 +1,7 @@
 include(../protocole/protocole.pri)
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets quick
+QT += testlib
 
 INCLUDEPATH += $${PWD}
 
