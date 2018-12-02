@@ -276,6 +276,19 @@ class Widget(Object):
                                      timeout=wait_for_enabled)
         self.client.send_command('widget_click', oid=self.oid)
 
+    def rclick(self, wait_for_enabled=10.0):
+        """
+        Right click on the widget. If wait_for_enabled is > 0 (default), it
+        will wait until the widget become active (enabled and visible) before
+        sending click.
+        """
+        if wait_for_enabled > 0.0:
+            self.wait_for_properties({'enabled': True, 'visible': True},
+                                     timeout=wait_for_enabled)
+        self.client.send_command('widget_click',
+                                 oid=self.oid,
+                                 mouseAction='rightclick')
+
     def dclick(self, wait_for_enabled=10.0):
         """
         Double click on the widget. If wait_for_enabled is > 0 (default), it
@@ -406,6 +419,21 @@ class ModelItem(TreeItem):
         """
         self._action(
             "click", origin=origin, offset_x=offset_x, offset_y=offset_y
+        )
+
+    def rclick(self, origin="center", offset_x=0, offset_y=0):
+        """
+        Right click on this item.
+
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object. Availables values: "center", "left" or "right".
+        :param offset_x: x position relative to the origin.
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin.
+                         Negative value allowed.
+        """
+        self._action(
+            "rightclick", origin=origin, offset_x=offset_x, offset_y=offset_y
         )
 
     def dclick(self, origin="center", offset_x=0, offset_y=0):
@@ -678,6 +706,12 @@ class GItem(TreeItem):
         Click on this gitem.
         """
         self._action("click")
+
+    def rclick(self):
+        """
+        Right click on this gitem.
+        """
+        self._action("rightclick")
 
     def dclick(self):
         """

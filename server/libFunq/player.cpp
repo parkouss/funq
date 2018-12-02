@@ -63,27 +63,27 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 using namespace ObjectPath;
 
 template<class T>
-void mouse_click(T * w, const QPoint & pos) {
+void mouse_click(T * w, const QPoint & pos, Qt::MouseButton button) {
     QPoint global_pos = w->mapToGlobal(pos);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonPress,
                         pos,
                         global_pos,
-                        Qt::LeftButton,
+                        button,
                         Qt::NoButton,
                         Qt::NoModifier));
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonRelease,
                         pos,
                         global_pos,
-                        Qt::LeftButton,
+                        button,
                         Qt::NoButton,
                         Qt::NoModifier));
 }
 
 template<class T>
 void mouse_dclick(T * w, const QPoint & pos) {
-    mouse_click(w, pos);
+    mouse_click(w, pos, Qt::LeftButton);
     qApp->postEvent(w,
         new QMouseEvent(QEvent::MouseButtonDblClick,
                         pos,
@@ -507,8 +507,10 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     QPoint pos = ctx.widget->rect().center();
     if (action == "doubleclick") {
         mouse_dclick(ctx.widget, pos);
+    } else if (action == "rightclick") {
+        mouse_click(ctx.widget, pos, Qt::RightButton);
     } else {
-        mouse_click(ctx.widget, pos);
+        mouse_click(ctx.widget, pos, Qt::LeftButton);
     }
     QtJson::JsonObject result;
     return result;
@@ -523,7 +525,7 @@ QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) 
 
     QPoint sPos = ctx.item->mapToScene(relativeCenter).toPoint();
 
-    mouse_click(ctx.window, sPos);
+    mouse_click(ctx.window, sPos, Qt::LeftButton);
     QtJson::JsonObject result;
     return result;
 #else
@@ -604,7 +606,9 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     } else if (itemaction == "edit") {
         emit emit_model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "click") {
-        mouse_click(ctx.widget->viewport(), cursorPosition);
+        mouse_click(ctx.widget->viewport(), cursorPosition, Qt::LeftButton);
+    } else if (itemaction == "rightclick") {
+        mouse_click(ctx.widget->viewport(), cursorPosition, Qt::RightButton);
     } else if (itemaction == "doubleclick") {
         mouse_dclick(ctx.widget->viewport(), cursorPosition);
     } else {
@@ -635,11 +639,11 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
     QString itemaction = command["itemaction"].toString();
 
     QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
-    if (itemaction == "click") {
+    if (itemaction == "click" || itemaction == "rightclick") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
         }
-        mouse_click(ctx.widget->viewport(), viewPos);
+        mouse_click(ctx.widget->viewport(), viewPos, itemaction == "rightclick" ? Qt::RightButton : Qt::LeftButton);
     } else if (itemaction == "doubleclick") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
@@ -759,7 +763,7 @@ QtJson::JsonObject Player::headerview_click(const QtJson::JsonObject & command) 
         mousePos.setX(ctx.widget->width()/2);
         mousePos.setY(pos + ctx.widget->offset() + 5);
     }
-    mouse_click(ctx.widget->viewport(), mousePos);
+    mouse_click(ctx.widget->viewport(), mousePos, Qt::LeftButton);
     QtJson::JsonObject result;
     return result;
 }
