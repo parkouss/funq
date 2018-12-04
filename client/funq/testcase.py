@@ -141,8 +141,8 @@ def parameterized(func_suffix, *args, **kwargs):
               print value, named
 
     :param func_suffix: will be used as a suffix for the new method
-    :param \*args: arguments to pass to the new method
-    :param \*\*kwargs: named arguments to pass to the new method
+    :param `*args`: arguments to pass to the new method
+    :param `**kwargs`: named arguments to pass to the new method
     """
     def wrapped(func):
         if not hasattr(func, 'parameters'):
