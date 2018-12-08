@@ -104,10 +104,10 @@ class ClickDialog : public SimpleDialog {
         }
 };
 
-class RightClickDialog : public SimpleDialog {
+class WidgetClickDialog : public SimpleDialog {
         Q_OBJECT
     public:
-        RightClickDialog(QLabel* statusLabel, QWidget* parent) :
+        WidgetClickDialog(QLabel* statusLabel, QWidget* parent) :
             SimpleDialog(statusLabel, parent) {
             QWidget* w = new QWidget();
             w->resize(100, 100);
@@ -115,10 +115,14 @@ class RightClickDialog : public SimpleDialog {
         }
 
         void mouseReleaseEvent(QMouseEvent *e) {
-            if (e->button() == Qt::RightButton) {
+            if (e->button() == Qt::LeftButton) {
+                showResult("left clicked !");
+            } else if (e->button() == Qt::RightButton) {
                 showResult("right clicked !");
+            } else if (e->button() == Qt::MiddleButton) {
+                showResult("middle clicked !");
             } else {
-                showResult("clicked with wrong mouse button :(");
+                showResult("clicked with unhandled mouse button :(");
             }
         }
 };

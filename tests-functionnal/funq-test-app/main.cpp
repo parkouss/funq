@@ -56,7 +56,7 @@ int main(int argc, char* argv[])
     MainWindow win;
     win.addDialogButton("action", &execDialog<ActionDialog>);
     win.addDialogButton("click", &execDialog<ClickDialog>);
-    win.addDialogButton("rightclick", &execDialog<RightClickDialog>);
+    win.addDialogButton("widgetclick", &execDialog<WidgetClickDialog>);
     win.addDialogButton("doubleclick", &execDialog<DoubleClickDialog>);
     win.addDialogButton("keyclick", &execDialog<KeyClickDialog>);
     win.addDialogButton("retrieve", &execDialog<RetrieveWidget>);

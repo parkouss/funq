@@ -509,6 +509,8 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
         mouse_dclick(ctx.widget, pos);
     } else if (action == "rightclick") {
         mouse_click(ctx.widget, pos, Qt::RightButton);
+    } else if (action == "middleclick") {
+        mouse_click(ctx.widget, pos, Qt::MiddleButton);
     } else {
         mouse_click(ctx.widget, pos, Qt::LeftButton);
     }
@@ -609,6 +611,8 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
         mouse_click(ctx.widget->viewport(), cursorPosition, Qt::LeftButton);
     } else if (itemaction == "rightclick") {
         mouse_click(ctx.widget->viewport(), cursorPosition, Qt::RightButton);
+    } else if (itemaction == "middleclick") {
+        mouse_click(ctx.widget->viewport(), cursorPosition, Qt::MiddleButton);
     } else if (itemaction == "doubleclick") {
         mouse_dclick(ctx.widget->viewport(), cursorPosition);
     } else {
@@ -639,11 +643,17 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
     QString itemaction = command["itemaction"].toString();
 
     QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
-    if (itemaction == "click" || itemaction == "rightclick") {
+    if (itemaction == "click" || itemaction == "rightclick" || itemaction == "middleclick") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
         }
-        mouse_click(ctx.widget->viewport(), viewPos, itemaction == "rightclick" ? Qt::RightButton : Qt::LeftButton);
+        if (itemaction == "rightclick") {
+            mouse_click(ctx.widget->viewport(), viewPos, Qt::RightButton);
+        } else if (itemaction == "middleclick") {
+            mouse_click(ctx.widget->viewport(), viewPos, Qt::MiddleButton);
+        } else {
+            mouse_click(ctx.widget->viewport(), viewPos, Qt::LeftButton);
+        }
     } else if (itemaction == "doubleclick") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();

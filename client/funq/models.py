@@ -265,29 +265,31 @@ class Widget(Object):
     Allow to manipulate a QWidget or derived.
     """
 
-    def click(self, wait_for_enabled=10.0):
+    def click(self, wait_for_enabled=10.0, btn='left'):
         """
-        Click on the widget. If wait_for_enabled is > 0 (default), it will wait
-        until the widget become active (enabled and visible) before sending
-        click.
-        """
-        if wait_for_enabled > 0.0:
-            self.wait_for_properties({'enabled': True, 'visible': True},
-                                     timeout=wait_for_enabled)
-        self.client.send_command('widget_click', oid=self.oid)
+        Click on the widget.
 
-    def rclick(self, wait_for_enabled=10.0):
-        """
-        Right click on the widget. If wait_for_enabled is > 0 (default), it
-        will wait until the widget become active (enabled and visible) before
-        sending click.
+        If wait_for_enabled is > 0 (default), it will wait until the widget
+        become active (enabled and visible) before sending click.
+
+        The target mouse button can be configured with the `btn` parameter: It
+        can be either 'left', 'middle' or 'right'. Default is 'left'.
+
         """
         if wait_for_enabled > 0.0:
             self.wait_for_properties({'enabled': True, 'visible': True},
                                      timeout=wait_for_enabled)
+        if btn == 'left':
+            action = 'click'
+        elif btn == 'right':
+            action = 'rightclick'
+        elif btn == 'middle':
+            action = 'middleclick'
+        else:
+            raise ValueError('Invalid mouse button: %s', btn)
         self.client.send_command('widget_click',
                                  oid=self.oid,
-                                 mouseAction='rightclick')
+                                 mouseAction=action)
 
     def dclick(self, wait_for_enabled=10.0):
         """
@@ -406,7 +408,7 @@ class ModelItem(TreeItem):
         """
         self._action("edit")
 
-    def click(self, origin="center", offset_x=0, offset_y=0):
+    def click(self, origin="center", offset_x=0, offset_y=0, btn="left"):
         """
         Click on this item.
 
@@ -416,24 +418,19 @@ class ModelItem(TreeItem):
                          Negative value allowed.
         :param offset_y: y position relative to the origin.
                          Negative value allowed.
+        :param btn: The mouse button to click.
+                    Available values: "left", "middle" or "right".
         """
+        if btn == "left":
+            action = "click"
+        elif btn == "right":
+            action = "rightclick"
+        elif btn == "middle":
+            action = "middleclick"
+        else:
+            raise ValueError("Invalid mouse button: %s", btn)
         self._action(
-            "click", origin=origin, offset_x=offset_x, offset_y=offset_y
-        )
-
-    def rclick(self, origin="center", offset_x=0, offset_y=0):
-        """
-        Right click on this item.
-
-        :param origin: Origin of the cursor coordinates of the ModelItem
-                       object. Availables values: "center", "left" or "right".
-        :param offset_x: x position relative to the origin.
-                         Negative value allowed.
-        :param offset_y: y position relative to the origin.
-                         Negative value allowed.
-        """
-        self._action(
-            "rightclick", origin=origin, offset_x=offset_x, offset_y=offset_y
+            action, origin=origin, offset_x=offset_x, offset_y=offset_y
         )
 
     def dclick(self, origin="center", offset_x=0, offset_y=0):
@@ -701,17 +698,19 @@ class GItem(TreeItem):
                                  itemaction=itemaction,
                                  gid=self.gid)
 
-    def click(self):
+    def click(self, btn="left"):
         """
         Click on this gitem.
         """
-        self._action("click")
-
-    def rclick(self):
-        """
-        Right click on this gitem.
-        """
-        self._action("rightclick")
+        if btn == "left":
+            action = "click"
+        elif btn == "right":
+            action = "rightclick"
+        elif btn == "middle":
+            action = "middleclick"
+        else:
+            raise ValueError("Invalid mouse button: %s", btn)
+        self._action(action)
 
     def dclick(self):
         """
