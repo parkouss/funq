@@ -104,6 +104,25 @@ class ClickDialog : public SimpleDialog {
         }
 };
 
+class RightClickDialog : public SimpleDialog {
+        Q_OBJECT
+    public:
+        RightClickDialog(QLabel* statusLabel, QWidget* parent) :
+            SimpleDialog(statusLabel, parent) {
+            QWidget* w = new QWidget();
+            w->resize(100, 100);
+            layout()->addWidget(w);
+        }
+
+        void mouseReleaseEvent(QMouseEvent *e) {
+            if (e->button() == Qt::RightButton) {
+                showResult("right clicked !");
+            } else {
+                showResult("clicked with wrong mouse button :(");
+            }
+        }
+};
+
 class DoubleClickDialog : public SimpleDialog {
         Q_OBJECT
     public:

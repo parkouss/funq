@@ -42,7 +42,13 @@ class TestClick(AppTestCase):
         btn = self.funq.widget(path='mainWindow::ClickDialog::QPushButton')
         btn.click()
         self.assertEquals(self.get_status_text(), 'clicked !')
-    
+
+    def test_right_click(self):
+        self.start_dialog('rightclick')
+        btn = self.funq.widget(path='mainWindow::RightClickDialog')
+        btn.rclick()
+        self.assertEquals(self.get_status_text(), 'right clicked !')
+
     def test_double_click(self):
         self.start_dialog('doubleclick')
         btn = self.funq.widget(path='mainWindow::DoubleClickDialog')
