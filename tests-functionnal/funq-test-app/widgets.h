@@ -104,6 +104,29 @@ class ClickDialog : public SimpleDialog {
         }
 };
 
+class WidgetClickDialog : public SimpleDialog {
+        Q_OBJECT
+    public:
+        WidgetClickDialog(QLabel* statusLabel, QWidget* parent) :
+            SimpleDialog(statusLabel, parent) {
+            QWidget* w = new QWidget();
+            w->resize(100, 100);
+            layout()->addWidget(w);
+        }
+
+        void mouseReleaseEvent(QMouseEvent *e) {
+            if (e->button() == Qt::LeftButton) {
+                showResult("left clicked !");
+            } else if (e->button() == Qt::RightButton) {
+                showResult("right clicked !");
+            } else if (e->button() == Qt::MiddleButton) {
+                showResult("middle clicked !");
+            } else {
+                showResult("clicked with unhandled mouse button :(");
+            }
+        }
+};
+
 class DoubleClickDialog : public SimpleDialog {
         Q_OBJECT
     public:

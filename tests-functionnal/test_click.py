@@ -42,13 +42,25 @@ class TestClick(AppTestCase):
         btn = self.funq.widget(path='mainWindow::ClickDialog::QPushButton')
         btn.click()
         self.assertEquals(self.get_status_text(), 'clicked !')
-    
+
+    def test_right_click(self):
+        self.start_dialog('widgetclick')
+        btn = self.funq.widget(path='mainWindow::WidgetClickDialog')
+        btn.click(btn='right')
+        self.assertEquals(self.get_status_text(), 'right clicked !')
+
+    def test_middle_click(self):
+        self.start_dialog('widgetclick')
+        btn = self.funq.widget(path='mainWindow::WidgetClickDialog')
+        btn.click(btn='middle')
+        self.assertEquals(self.get_status_text(), 'middle clicked !')
+
     def test_double_click(self):
         self.start_dialog('doubleclick')
         btn = self.funq.widget(path='mainWindow::DoubleClickDialog')
         btn.dclick()
         self.assertEquals(self.get_status_text(), 'double clicked !')
-    
+
     @parameterized('sometext', 'Hello this is me !')
     @parameterized('someothertext', 'AAAA BBBBBBBBBBBBBBBBBB CCCCCCCCCCCCCCCCCCCC')
     def test_key_click(self, text):
