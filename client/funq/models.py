@@ -857,6 +857,22 @@ class QuickItem(Object):
             oid=self.oid
         )
 
+    def drag_n_drop(self, src_pos=None,
+                    dest_widget=None, dest_pos=None):
+        """
+        Do a drag and drop from this widget.
+
+        :param src_pos: starting position of the drag. Must be a tuple (x, y)
+                        in widget coordinates or None (the center of the widget
+                        will then be used)
+        :param dest_widget: destination widget. If None, src_widget will be
+                            used.
+        :param dest_pos: ending position (the drop). Must be a tuple (x, y)
+                         in widget coordinates or None (the center of the dest
+                         widget will then be used)
+        """
+        self.client.drag_n_drop(self, src_pos=src_pos, dest_widget=dest_widget,
+                                dest_pos=dest_pos)
 
 class QuickWindow(Widget):
     """

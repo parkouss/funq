@@ -101,6 +101,8 @@ private:
     QTimer m_timer;
     QString m_action;
     bool m_hasResponded;
+
+protected:
     int m_nbCall;
 };
 
