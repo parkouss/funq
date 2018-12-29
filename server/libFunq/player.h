@@ -59,12 +59,6 @@ public:
     qulonglong registerObject(QObject * object);
     QObject * registeredObject(const qulonglong & id);
 
-signals:
-    void emit_object_set_properties(QObject * object,
-                                    const QVariantMap & props);
-    void emit_model_item_action(const QString &, QAbstractItemView *,
-                                const QModelIndex &);
-
 public slots:
     /*
      * These slots are automatically transformed into available commands
@@ -123,11 +117,13 @@ protected:
                            "compiled with Qyt Quick.");
     }
 
-private slots:
-    void objectDeleted(QObject * object);
+private:
     void _object_set_properties(QObject * object, const QVariantMap & props);
     void _model_item_action(const QString &, QAbstractItemView *,
                             const QModelIndex &);
+
+private slots:
+    void objectDeleted(QObject * object);
 
 private:
     QHash<qulonglong, QObject *> m_registeredObjects;
