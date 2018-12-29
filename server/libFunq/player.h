@@ -6,16 +6,16 @@ This software is a computer program whose purpose is to test graphical
 applications written with the QT framework (http://qt.digia.com/).
 
 This software is governed by the CeCILL v2.1 license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -24,9 +24,9 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL v2.1 license and that you accept its terms.
@@ -36,32 +36,35 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #define PLAYER_H
 
 #include "jsonclient.h"
-#include <QWidget>
+
 #include <QModelIndex>
+#include <QWidget>
 class DelayedResponse;
 class QAbstractItemView;
 class QQuickItem;
 class QQuickWindow;
 
 /**
-  * @brief Player is a specialized JsonClient that handle remote Qt object manipulation.
-  *
-  * It handle referencing of used QObjects, and define actions that are available for
-  * a client.
-  */
-class Player : public JsonClient
-{
+ * @brief Player is a specialized JsonClient that handle remote Qt object
+ * manipulation.
+ *
+ * It handle referencing of used QObjects, and define actions that are available
+ * for a client.
+ */
+class Player : public JsonClient {
     Q_OBJECT
 public:
-    explicit Player(QIODevice * device, QObject *parent = 0);
-    
+    explicit Player(QIODevice * device, QObject * parent = 0);
+
     qulonglong registerObject(QObject * object);
     QObject * registeredObject(const qulonglong & id);
 
 signals:
-    void emit_object_set_properties(QObject * object, const QVariantMap & props);
-    void emit_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &);
-    
+    void emit_object_set_properties(QObject * object,
+                                    const QVariantMap & props);
+    void emit_model_item_action(const QString &, QAbstractItemView *,
+                                const QModelIndex &);
+
 public slots:
     /*
      * These slots are automatically transformed into available commands
@@ -81,7 +84,8 @@ public slots:
     QtJson::JsonObject widget_by_path(const QtJson::JsonObject & command);
     QtJson::JsonObject active_widget(const QtJson::JsonObject & command);
     QtJson::JsonObject object_properties(const QtJson::JsonObject & command);
-    QtJson::JsonObject object_set_properties(const QtJson::JsonObject & command);
+    QtJson::JsonObject object_set_properties(
+        const QtJson::JsonObject & command);
     QtJson::JsonObject action_trigger(const QtJson::JsonObject & command);
     QtJson::JsonObject widgets_list(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_click(const QtJson::JsonObject & command);
@@ -97,10 +101,12 @@ public slots:
     QtJson::JsonObject graphicsitems(const QtJson::JsonObject & command);
     QtJson::JsonObject gitem_properties(const QtJson::JsonObject & command);
     QtJson::JsonObject call_slot(const QtJson::JsonObject & command);
-    QtJson::JsonObject widget_activate_focus(const QtJson::JsonObject & command);
+    QtJson::JsonObject widget_activate_focus(
+        const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_list(const QtJson::JsonObject & command);
     QtJson::JsonObject headerview_click(const QtJson::JsonObject & command);
-    QtJson::JsonObject headerview_path_from_view(const QtJson::JsonObject & command);
+    QtJson::JsonObject headerview_path_from_view(
+        const QtJson::JsonObject & command);
     QtJson::JsonObject grab_graphics_view(const QtJson::JsonObject & command);
 
     QtJson::JsonObject quit(const QtJson::JsonObject & command);
@@ -110,49 +116,53 @@ public slots:
 
 protected:
     QtJson::JsonObject createQtQuickOnlyError() {
-        return createError("QtQuickOnly", "this method can only be called for a Qt5 app compiled with Qyt Quick.");
+        return createError("QtQuickOnly",
+                           "this method can only be called for a Qt5 app "
+                           "compiled with Qyt Quick.");
     }
 
 private slots:
     void objectDeleted(QObject * object);
     void _object_set_properties(QObject * object, const QVariantMap & props);
-    void _model_item_action(const QString &, QAbstractItemView *, const QModelIndex &);
+    void _model_item_action(const QString &, QAbstractItemView *,
+                            const QModelIndex &);
 
 private:
-    QHash<qulonglong, QObject*> m_registeredObjects;
+    QHash<qulonglong, QObject *> m_registeredObjects;
 };
 
 /**
-  * @brief Allow to find a previously referenced object.
-  */
+ * @brief Allow to find a previously referenced object.
+ */
 class ObjectLocatorContext {
 public:
-    ObjectLocatorContext(Player * player,
-                         const QtJson::JsonObject & command,
+    ObjectLocatorContext(Player * player, const QtJson::JsonObject & command,
                          const QString & objKey);
     virtual ~ObjectLocatorContext() {}
 
     qulonglong id;
     QObject * obj;
     QtJson::JsonObject lastError;
-    inline bool hasError() { return ! lastError.isEmpty(); }
+    inline bool hasError() { return !lastError.isEmpty(); }
 };
 
 /**
-  * @brief Allow to find a previously referenced widget (with type T).
-  */
+ * @brief Allow to find a previously referenced widget (with type T).
+ */
 template <class T = QWidget>
 class WidgetLocatorContext : public ObjectLocatorContext {
 public:
-    WidgetLocatorContext(Player * player,
-                         const QtJson::JsonObject & command,
-                         const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
-
-        if (! hasError()) {
+    WidgetLocatorContext(Player * player, const QtJson::JsonObject & command,
+                         const QString & objKey)
+        : ObjectLocatorContext(player, command, objKey) {
+        if (!hasError()) {
             widget = qobject_cast<T *>(obj);
             if (!widget) {
-                lastError = player->createError("NotAWidget",
-                                                QString::fromUtf8("Object (id:%1) is not a %2").arg(id).arg(T::staticMetaObject.className()));
+                lastError = player->createError(
+                    "NotAWidget",
+                    QString::fromUtf8("Object (id:%1) is not a %2")
+                        .arg(id)
+                        .arg(T::staticMetaObject.className()));
             }
         }
     }
@@ -162,12 +172,11 @@ public:
 #ifdef QT_QUICK_LIB
 class QuickItemLocatorContext : public ObjectLocatorContext {
 public:
-    QuickItemLocatorContext(Player * player,
-                            const QtJson::JsonObject & command,
+    QuickItemLocatorContext(Player * player, const QtJson::JsonObject & command,
                             const QString & objKey);
     QQuickItem * item;
     QQuickWindow * window;
 };
 #endif
 
-#endif // PLAYER_H
+#endif  // PLAYER_H

@@ -6,16 +6,16 @@ This software is a computer program whose purpose is to test graphical
 applications written with the QT framework (http://qt.digia.com/).
 
 This software is governed by the CeCILL v2.1 license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -24,73 +24,64 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
-same conditions as regards security. 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
+same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
 knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
 #include "player.h"
-#include <QMetaMethod>
-#include <QStringList>
-#include <QWidget>
-#include <QAction>
-#include "objectpath.h"
-#include <QApplication>
-#include <QMouseEvent>
-#include <QAbstractItemModel>
-#include <QAbstractItemView>
-#include <QTableView>
-#include <QTreeView>
-#include <QBuffer>
-#include <QDesktopWidget>
-#include <QGraphicsView>
-#include <QGraphicsItem>
-#include <QTimer>
-#include <QTime>
-#include <QHeaderView>
+
 #include "dragndropresponse.h"
+#include "objectpath.h"
 #include "shortcutresponse.h"
 
+#include <QAbstractItemModel>
+#include <QAbstractItemView>
+#include <QAction>
+#include <QApplication>
+#include <QBuffer>
+#include <QDesktopWidget>
+#include <QGraphicsItem>
+#include <QGraphicsView>
+#include <QHeaderView>
+#include <QMetaMethod>
+#include <QMouseEvent>
+#include <QStringList>
+#include <QTableView>
+#include <QTime>
+#include <QTimer>
+#include <QTreeView>
+#include <QWidget>
+
 #ifdef QT_QUICK_LIB
-#include <QWindow>
-#include <QQuickWindow>
 #include <QQuickItem>
+#include <QQuickWindow>
+#include <QWindow>
 #endif
 
 using namespace ObjectPath;
 
-template<class T>
+template <class T>
 void mouse_click(T * w, const QPoint & pos, Qt::MouseButton button) {
     QPoint global_pos = w->mapToGlobal(pos);
     qApp->postEvent(w,
-        new QMouseEvent(QEvent::MouseButtonPress,
-                        pos,
-                        global_pos,
-                        button,
-                        Qt::NoButton,
-                        Qt::NoModifier));
+                    new QMouseEvent(QEvent::MouseButtonPress, pos, global_pos,
+                                    button, Qt::NoButton, Qt::NoModifier));
     qApp->postEvent(w,
-        new QMouseEvent(QEvent::MouseButtonRelease,
-                        pos,
-                        global_pos,
-                        button,
-                        Qt::NoButton,
-                        Qt::NoModifier));
+                    new QMouseEvent(QEvent::MouseButtonRelease, pos, global_pos,
+                                    button, Qt::NoButton, Qt::NoModifier));
 }
 
-template<class T>
+template <class T>
 void mouse_dclick(T * w, const QPoint & pos) {
     mouse_click(w, pos, Qt::LeftButton);
-    qApp->postEvent(w,
-        new QMouseEvent(QEvent::MouseButtonDblClick,
-                        pos,
-                        w->mapToGlobal(pos),
-                        Qt::LeftButton,
-                        Qt::NoButton,
-                        Qt::NoModifier));
+    qApp->postEvent(
+        w,
+        new QMouseEvent(QEvent::MouseButtonDblClick, pos, w->mapToGlobal(pos),
+                        Qt::LeftButton, Qt::NoButton, Qt::NoModifier));
 }
 
 void activate_focus(QWidget * w) {
@@ -112,7 +103,8 @@ void dump_properties(QObject * object, QtJson::JsonObject & out) {
     }
 }
 
-void dump_object(QObject * object, QtJson::JsonObject & out, bool with_properties = false) {
+void dump_object(QObject * object, QtJson::JsonObject & out,
+                 bool with_properties = false) {
     out["path"] = objectPath(object);
     QStringList classes;
     const QMetaObject * mo = object->metaObject();
@@ -135,21 +127,19 @@ QString item_model_path(QAbstractItemModel * model, const QModelIndex & item) {
     QStringList path;
     QModelIndex parent = model->parent(item);
     while (parent.isValid()) {
-        path << (QString::number(parent.row())
-                 + "-"
-                 + QString::number(parent.column()));
+        path << (QString::number(parent.row()) + "-" +
+                 QString::number(parent.column()));
         parent = model->parent(parent);
     }
     // reverse list
-    for(int k=0, s=path.size(), max=(s/2); k<max; k++) path.swap(k,s-(1+k));
+    for (int k = 0, s = path.size(), max = (s / 2); k < max; k++)
+        path.swap(k, s - (1 + k));
     return path.join("/");
 }
 
-
-void dump_item_model_attrs(QAbstractItemModel * model,
-                      QtJson::JsonObject & out,
-                      const QModelIndex & index,
-                      const qulonglong & viewid) {
+void dump_item_model_attrs(QAbstractItemModel * model, QtJson::JsonObject & out,
+                           const QModelIndex & index,
+                           const qulonglong & viewid) {
     out["viewid"] = viewid;
     QString path = item_model_path(model, index);
     if (!path.isEmpty()) {
@@ -157,31 +147,33 @@ void dump_item_model_attrs(QAbstractItemModel * model,
     }
     out["row"] = index.row();
     out["column"] = index.column();
-    out["value"] = model->data( index ).toString();
+    out["value"] = model->data(index).toString();
 
     QVariant checkable = model->data(index, Qt::CheckStateRole);
     if (checkable.isValid()) {
-        Qt::CheckState state = static_cast<Qt::CheckState>(
-                    checkable.toUInt());
+        Qt::CheckState state = static_cast<Qt::CheckState>(checkable.toUInt());
         QString stringState;
-        switch(state) {
-            case Qt::Unchecked: stringState = "unchecked"; break;
-            case Qt::PartiallyChecked: stringState = "partiallyChecked"; break;
-            case Qt::Checked: stringState = "checked"; break;
+        switch (state) {
+            case Qt::Unchecked:
+                stringState = "unchecked";
+                break;
+            case Qt::PartiallyChecked:
+                stringState = "partiallyChecked";
+                break;
+            case Qt::Checked:
+                stringState = "checked";
+                break;
         }
         out["check_state"] = stringState;
     }
 }
 
-void dump_items_model(QAbstractItemModel * model,
-                      QtJson::JsonObject & out,
-                      const QModelIndex & parent,
-                      const qulonglong & viewid,
+void dump_items_model(QAbstractItemModel * model, QtJson::JsonObject & out,
+                      const QModelIndex & parent, const qulonglong & viewid,
                       bool recursive = true) {
-
     QtJson::JsonArray items;
-    for(int i = 0; i < model->rowCount(parent); ++i) {
-        for(int j = 0; j < model->columnCount(parent); ++j) {
+    for (int i = 0; i < model->rowCount(parent); ++i) {
+        for (int j = 0; j < model->columnCount(parent); ++j) {
             QModelIndex index = model->index(i, j, parent);
             QtJson::JsonObject item;
             dump_item_model_attrs(model, item, index, viewid);
@@ -194,10 +186,8 @@ void dump_items_model(QAbstractItemModel * model,
     out["items"] = items;
 }
 
-QModelIndex get_model_item(QAbstractItemModel * model,
-                            const QString & path,
-                            int row,
-                            int column) {
+QModelIndex get_model_item(QAbstractItemModel * model, const QString & path,
+                           int row, int column) {
     QModelIndex parent;
     if (!path.isEmpty()) {
         QStringList parts = path.split("/");
@@ -206,9 +196,8 @@ QModelIndex get_model_item(QAbstractItemModel * model,
             if (tmp.count() != 2) {
                 return QModelIndex();
             }
-            parent = model->index(tmp.at(0).toInt(),
-                                  tmp.at(1).toInt(), parent);
-            if (! parent.isValid()) {
+            parent = model->index(tmp.at(0).toInt(), tmp.at(1).toInt(), parent);
+            if (!parent.isValid()) {
                 return parent;
             }
         }
@@ -217,7 +206,8 @@ QModelIndex get_model_item(QAbstractItemModel * model,
     return model->index(row, column, parent);
 }
 
-void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong & viewid, QtJson::JsonObject & out) {
+void dump_graphics_items(const QList<QGraphicsItem *> & items,
+                         const qulonglong & viewid, QtJson::JsonObject & out) {
     QtJson::JsonArray outitems;
     foreach (QGraphicsItem * item, items) {
         QtJson::JsonObject outitem;
@@ -234,56 +224,63 @@ void dump_graphics_items(const QList<QGraphicsItem *>  & items, const qulonglong
             outitem["classes"] = classes;
             outitem["objectname"] = itemObject->objectName();
         }
-        #if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         dump_graphics_items(item->childItems(), viewid, outitem);
-        #else
+#else
         dump_graphics_items(item->children(), viewid, outitem);
-        #endif
+#endif
         outitems << outitem;
     }
     out["items"] = outitems;
 }
 
-Player::Player(QIODevice *device, QObject *parent) :
-    JsonClient(device, parent)
-{
-    connect(this, SIGNAL(emit_object_set_properties(QObject *, const QVariantMap &)),
+Player::Player(QIODevice * device, QObject * parent)
+    : JsonClient(device, parent) {
+    connect(this,
+            SIGNAL(emit_object_set_properties(QObject *, const QVariantMap &)),
             this, SLOT(_object_set_properties(QObject *, const QVariantMap &)),
             Qt::QueuedConnection);
-    connect(this, SIGNAL(emit_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &)),
-            this, SLOT(_model_item_action(const QString &, QAbstractItemView *, const QModelIndex &)),
+    connect(this,
+            SIGNAL(emit_model_item_action(const QString &, QAbstractItemView *,
+                                          const QModelIndex &)),
+            this,
+            SLOT(_model_item_action(const QString &, QAbstractItemView *,
+                                    const QModelIndex &)),
             Qt::QueuedConnection);
 }
 
-qulonglong Player::registerObject(QObject *object) {
+qulonglong Player::registerObject(QObject * object) {
     if (!object) {
         return 0;
     }
-    qulonglong id = (qulonglong) object;
+    qulonglong id = (qulonglong)object;
     if (!m_registeredObjects.contains(id)) {
-        connect(object, SIGNAL(destroyed(QObject*)), this, SLOT(objectDeleted(QObject*)));
+        connect(object, SIGNAL(destroyed(QObject *)), this,
+                SLOT(objectDeleted(QObject *)));
         m_registeredObjects[id] = object;
     }
     return id;
 }
 
-QObject * Player::registeredObject(const qulonglong &id) {
+QObject * Player::registeredObject(const qulonglong & id) {
     return m_registeredObjects[id];
 }
 
-void Player::objectDeleted(QObject *object) {
-    qulonglong id = (qulonglong) object;
+void Player::objectDeleted(QObject * object) {
+    qulonglong id = (qulonglong)object;
     m_registeredObjects.remove(id);
 }
 
 QtJson::JsonObject Player::list_actions(const QtJson::JsonObject &) {
-    const QMetaObject* metaObject = this->metaObject();
+    const QMetaObject * metaObject = this->metaObject();
     QStringList methods;
-    for(int i = metaObject->methodOffset(); i < metaObject->methodCount(); ++i) {
+    for (int i = metaObject->methodOffset(); i < metaObject->methodCount();
+         ++i) {
         QMetaMethod method = metaObject->method(i);
         if (method.methodType() == QMetaMethod::Slot) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-            methods << QString::fromLatin1(metaObject->method(i).methodSignature());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+            methods << QString::fromLatin1(
+                metaObject->method(i).methodSignature());
 #else
             methods << QString::fromLatin1(metaObject->method(i).signature());
 #endif
@@ -299,7 +296,9 @@ QtJson::JsonObject Player::widget_by_path(const QtJson::JsonObject & command) {
     QObject * o = findObject(path);
     qulonglong id = registerObject(o);
     if (id == 0) {
-        return createError("InvalidWidgetPath", QString("Unable to find widget with path `%1`").arg(path));
+        return createError(
+            "InvalidWidgetPath",
+            QString("Unable to find widget with path `%1`").arg(path));
     }
     QtJson::JsonObject result;
     result["oid"] = id;
@@ -311,22 +310,28 @@ QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
 #ifdef QT_QUICK_LIB
     WidgetLocatorContext<QQuickWindow> ctx(this, command, "quick_window_oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QQuickItem * item;
     qulonglong id;
     QString qid = command["qid"].toString();
-    if (! qid.isEmpty()) {
+    if (!qid.isEmpty()) {
         item = ObjectPath::findQuickItemById(ctx.widget->contentItem(), qid);
         id = registerObject(item);
         if (id == 0) {
-            return createError("InvalidQuickItem", QString("Unable to find quick item with id `%1`").arg(qid));
+            return createError(
+                "InvalidQuickItem",
+                QString("Unable to find quick item with id `%1`").arg(qid));
         }
     } else {
         QString path = command["path"].toString();
         item = ObjectPath::findQuickItem(ctx.widget, path);
         id = registerObject(item);
         if (id == 0) {
-            return createError("InvalidQuickItem", QString("Unable to find quick item with path `%1`").arg(path));
+            return createError(
+                "InvalidQuickItem",
+                QString("Unable to find quick item with path `%1`").arg(path));
         }
     }
     result["oid"] = id;
@@ -343,8 +348,8 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
     QString type = command["type"].toString();
     if (type == "modal") {
         active = QApplication::activeModalWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-        if (! active) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        if (!active) {
             active = QApplication::modalWindow();
         }
 #endif
@@ -352,25 +357,26 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
         active = QApplication::activePopupWidget();
     } else if (type == "focus") {
         active = QApplication::focusWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-        if (! active) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        if (!active) {
             active = QApplication::focusWindow();
         }
 #endif
-    }else {
+    } else {
         active = QApplication::activeWindow();
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
-        if (! active) {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
+        if (!active) {
             QWindowList lst = QGuiApplication::topLevelWindows();
-            if (! lst.isEmpty()) {
+            if (!lst.isEmpty()) {
                 active = lst.first();
             }
         }
 #endif
     }
-    if (! active) {
-        return createError("NoActiveWindow",
-                            QString::fromUtf8("There is no active widget (%1)").arg(type));
+    if (!active) {
+        return createError(
+            "NoActiveWindow",
+            QString::fromUtf8("There is no active widget (%1)").arg(type));
     }
     qulonglong id = registerObject(active);
     QtJson::JsonObject result;
@@ -385,54 +391,70 @@ ObjectLocatorContext::ObjectLocatorContext(Player * player,
     id = command[oidKey].value<qulonglong>();
     obj = player->registeredObject(id);
     if (!obj) {
-        lastError = player->createError("NotRegisteredObject",
-                           QString::fromUtf8("The object (id:%1) is not registered or has been destroyed").arg(id));
+        lastError = player->createError(
+            "NotRegisteredObject",
+            QString::fromUtf8(
+                "The object (id:%1) is not registered or has been destroyed")
+                .arg(id));
     }
 }
 
 #ifdef QT_QUICK_LIB
-QuickItemLocatorContext::QuickItemLocatorContext(Player * player,
-                                                 const QtJson::JsonObject & command,
-                                                 const QString & objKey) : ObjectLocatorContext(player, command, objKey) {
-    if (! hasError()) {
+QuickItemLocatorContext::QuickItemLocatorContext(
+    Player * player, const QtJson::JsonObject & command, const QString & objKey)
+    : ObjectLocatorContext(player, command, objKey) {
+    if (!hasError()) {
         item = qobject_cast<QQuickItem *>(obj);
         if (!item) {
-            lastError = player->createError("NotAWidget",
-                                            QString::fromUtf8("Object (id:%1) is not a QQuickItem").arg(id));
+            lastError = player->createError(
+                "NotAWidget",
+                QString::fromUtf8("Object (id:%1) is not a QQuickItem")
+                    .arg(id));
         } else {
             window = item->window();
-            if (! window) {
-                lastError = player->createError("NoWindowForQuickItem", "No QQuickWindow associated to the item.");
+            if (!window) {
+                lastError = player->createError(
+                    "NoWindowForQuickItem",
+                    "No QQuickWindow associated to the item.");
             }
         }
     }
 }
 #endif
 
-QtJson::JsonObject Player::object_properties(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::object_properties(
+    const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QtJson::JsonObject result;
     dump_properties(ctx.obj, result);
     return result;
 }
 
-QtJson::JsonObject Player::object_set_properties(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::object_set_properties(
+    const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QVariantMap properties = command["properties"].value<QVariantMap>();
     emit_object_set_properties(ctx.obj, properties);
     QtJson::JsonObject result;
     return result;
 }
 
-void Player::_object_set_properties(QObject * object, const QVariantMap & properties) {
-    for(QtJson::JsonObject::const_iterator iter = properties.begin(); iter != properties.end(); ++iter) {
+void Player::_object_set_properties(QObject * object,
+                                    const QVariantMap & properties) {
+    for (QtJson::JsonObject::const_iterator iter = properties.begin();
+         iter != properties.end(); ++iter) {
         object->setProperty(iter.key().toStdString().c_str(), iter.value());
     }
 }
 
-void recursive_list_widget(QWidget * widget, QtJson::JsonObject & out, bool with_properties) {
+void recursive_list_widget(QWidget * widget, QtJson::JsonObject & out,
+                           bool with_properties) {
     QtJson::JsonObject resultWidgets, resultWidget;
     dump_object(widget, resultWidget, with_properties);
     foreach (QObject * obj, widget->children()) {
@@ -450,7 +472,9 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
     QtJson::JsonObject result;
     if (command.contains("oid")) {
         ObjectLocatorContext ctx(this, command, "oid");
-        if (ctx.hasError()) { return ctx.lastError; }
+        if (ctx.hasError()) {
+            return ctx.lastError;
+        }
         foreach (QObject * obj, ctx.obj->children()) {
             QWidget * subWidget = qobject_cast<QWidget *>(obj);
             if (subWidget) {
@@ -459,13 +483,14 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
         }
     } else {
         QList<QWidget *> widgets = QApplication::topLevelWidgets();
-        if (! widgets.isEmpty()) {
+        if (!widgets.isEmpty()) {
             foreach (QWidget * widget, widgets) {
                 recursive_list_widget(widget, result, with_properties);
             }
         } else {
-            // no qwidgets, this is probably a qtquick app - anyway, check for windows
-#if (QT_VERSION >= QT_VERSION_CHECK(5,0,0))
+            // no qwidgets, this is probably a qtquick app - anyway, check for
+            // windows
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             foreach (QWindow * window, QApplication::topLevelWindows()) {
                 QtJson::JsonObject resultWindow;
                 dump_object(window, resultWindow, with_properties);
@@ -487,7 +512,9 @@ QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
 
 QtJson::JsonObject Player::action_trigger(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QAction> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     bool blocking = command["blocking"].toBool();
     if (blocking) {
         // block until QAction::trigger() returns
@@ -502,7 +529,9 @@ QtJson::JsonObject Player::action_trigger(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QString action = command["mouseAction"].toString();
     QPoint pos = ctx.widget->rect().center();
     if (action == "doubleclick") {
@@ -518,10 +547,13 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::quick_item_click(
+    const QtJson::JsonObject & command) {
 #ifdef QT_QUICK_LIB
     QuickItemLocatorContext ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
 
     QPointF relativeCenter(ctx.item->width() / 2.0, ctx.item->height() / 2.0);
 
@@ -537,7 +569,9 @@ QtJson::JsonObject Player::quick_item_click(const QtJson::JsonObject & command) 
 
 QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
 
     QTimer::singleShot(0, ctx.widget, SLOT(close()));
 
@@ -547,31 +581,49 @@ QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QtJson::JsonObject result;
     QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
+        return createError(
+            "MissingModel",
+            QString::fromUtf8("The view (id:%1) has no associated model")
+                .arg(ctx.id));
     }
-    bool recursive = ! (model->inherits("QTableModel") || ctx.widget->inherits("QTableView") || ctx.widget->inherits("QListView"));
+    bool recursive = !(model->inherits("QTableModel") ||
+                       ctx.widget->inherits("QTableView") ||
+                       ctx.widget->inherits("QListView"));
     dump_items_model(model, result, QModelIndex(), ctx.id, recursive);
     return result;
 }
 
-QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::model_item_action(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("The view (id:%1) has no associated model").arg(ctx.id));
+        return createError(
+            "MissingModel",
+            QString::fromUtf8("The view (id:%1) has no associated model")
+                .arg(ctx.id));
     }
-    QModelIndex index = get_model_item(model, command["itempath"].toString(), command["row"].toInt(), command["column"].toInt());
+    QModelIndex index =
+        get_model_item(model, command["itempath"].toString(),
+                       command["row"].toInt(), command["column"].toInt());
     if (!index.isValid()) {
-        return createError("MissingModelItem", QString::fromUtf8("Unable to find an item identified by %1").arg(command["itempath"].toString()));
+        return createError(
+            "MissingModelItem",
+            QString::fromUtf8("Unable to find an item identified by %1")
+                .arg(command["itempath"].toString()));
     }
-    ctx.widget->scrollTo(index); // item visible
+    ctx.widget->scrollTo(index);  // item visible
     QString itemaction = command["itemaction"].toString();
-    
+
     QPoint cursorPosition;
 
     if (itemaction == "click" || itemaction == "doubleclick") {
@@ -616,13 +668,17 @@ QtJson::JsonObject Player::model_item_action(const QtJson::JsonObject & command)
     } else if (itemaction == "doubleclick") {
         mouse_dclick(ctx.widget->viewport(), cursorPosition);
     } else {
-        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
+        return createError(
+            "MissingItemAction",
+            QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }
     QtJson::JsonObject result;
     return result;
 }
 
-void Player::_model_item_action(const QString & action, QAbstractItemView * widget, const QModelIndex & index) {
+void Player::_model_item_action(const QString & action,
+                                QAbstractItemView * widget,
+                                const QModelIndex & index) {
     if (action == "select") {
         widget->setCurrentIndex(index);
     } else if (action == "edit") {
@@ -631,19 +687,28 @@ void Player::_model_item_action(const QString & action, QAbstractItemView * widg
     }
 }
 
-QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::model_gitem_action(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     qulonglong gid = command["gid"].value<qulonglong>();
     QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
-        return createError("MissingGItem", QString::fromUtf8("The view (id:%1) has no associated item %2").arg(ctx.id).arg(gid));
+        return createError(
+            "MissingGItem",
+            QString::fromUtf8("The view (id:%1) has no associated item %2")
+                .arg(ctx.id)
+                .arg(gid));
     }
-    ctx.widget->ensureVisible(item); // be sure item is visible
+    ctx.widget->ensureVisible(item);  // be sure item is visible
     QString itemaction = command["itemaction"].toString();
 
-    QPoint viewPos = ctx.widget->mapFromScene(item->mapToScene(item->boundingRect().center()));
-    if (itemaction == "click" || itemaction == "rightclick" || itemaction == "middleclick") {
+    QPoint viewPos = ctx.widget->mapFromScene(
+        item->mapToScene(item->boundingRect().center()));
+    if (itemaction == "click" || itemaction == "rightclick" ||
+        itemaction == "middleclick") {
         if (ctx.widget->scene() && ctx.widget->scene()->mouseGrabberItem()) {
             ctx.widget->scene()->mouseGrabberItem()->ungrabMouse();
         }
@@ -660,13 +725,16 @@ QtJson::JsonObject Player::model_gitem_action(const QtJson::JsonObject & command
         }
         mouse_dclick(ctx.widget->viewport(), viewPos);
     } else {
-        return createError("MissingItemAction", QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
+        return createError(
+            "MissingItemAction",
+            QString::fromUtf8("itemaction %1 unknown").arg(itemaction));
     }
     QtJson::JsonObject result;
     return result;
 }
 
-QtJson::JsonObject Player::desktop_screenshot(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::desktop_screenshot(
+    const QtJson::JsonObject & command) {
     QString format = command["format"].toString();
     if (format.isEmpty()) {
         format = "PNG";
@@ -685,17 +753,23 @@ QtJson::JsonObject Player::widget_keyclick(const QtJson::JsonObject & command) {
     QWidget * widget;
     if (command.contains("oid")) {
         WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-        if (ctx.hasError()) { return ctx.lastError; }
+        if (ctx.hasError()) {
+            return ctx.lastError;
+        }
         widget = ctx.widget;
     } else {
         widget = qApp->activeWindow();
     }
     QString text = command["text"].toString();
-    for (int i=0; i<text.count(); ++i) {
+    for (int i = 0; i < text.count(); ++i) {
         QChar ch = text[i];
-        int key = (int) ch.toLatin1();
-        qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyPress, key, Qt::NoModifier, ch));
-        qApp->postEvent(widget, new QKeyEvent(QKeyEvent::KeyRelease, key, Qt::NoModifier, ch));
+        int key = (int)ch.toLatin1();
+        qApp->postEvent(
+            widget,
+            new QKeyEvent(QKeyEvent::KeyPress, key, Qt::NoModifier, ch));
+        qApp->postEvent(
+            widget,
+            new QKeyEvent(QKeyEvent::KeyRelease, key, Qt::NoModifier, ch));
     }
     QtJson::JsonObject result;
     return result;
@@ -707,9 +781,11 @@ DelayedResponse * Player::shortcut(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QTabBar> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QStringList texts;
-    for (int i=0; i< ctx.widget->count(); ++i) {
+    for (int i = 0; i < ctx.widget->count(); ++i) {
         texts << ctx.widget->tabText(i);
     }
     QtJson::JsonObject result;
@@ -719,14 +795,21 @@ QtJson::JsonObject Player::tabbar_list(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::headerview_list(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QHeaderView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QAbstractItemModel * model = ctx.widget->model();
     if (!model) {
-        return createError("MissingModel", QString::fromUtf8("The header view (id:%1) has no associated model").arg(ctx.id));
+        return createError(
+            "MissingModel",
+            QString::fromUtf8("The header view (id:%1) has no associated model")
+                .arg(ctx.id));
     }
     QStringList texts;
-    int nbItems = ctx.widget->orientation() == Qt::Vertical ? model->rowCount() : model->columnCount();
-    for (int i=0; i<nbItems; i++) {
+    int nbItems = ctx.widget->orientation() == Qt::Vertical
+        ? model->rowCount()
+        : model->columnCount();
+    for (int i = 0; i < nbItems; i++) {
         texts << model->headerData(i, ctx.widget->orientation()).toString();
     }
     QtJson::JsonObject result;
@@ -734,43 +817,63 @@ QtJson::JsonObject Player::headerview_list(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::headerview_click(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::headerview_click(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QHeaderView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     int logicalIndex;
     QVariant indexOrName = command["indexOrName"];
     if (indexOrName.type() == QVariant::String) {
         QString name = indexOrName.toString();
         QAbstractItemModel * model = ctx.widget->model();
         if (!model) {
-            return createError("MissingModel", QString::fromUtf8("The header view (id:%1) has no associated model").arg(ctx.id));
+            return createError(
+                "MissingModel",
+                QString::fromUtf8(
+                    "The header view (id:%1) has no associated model")
+                    .arg(ctx.id));
         }
         bool found = false;
-        int nbItems = ctx.widget->orientation() == Qt::Horizontal ? model->rowCount() : model->columnCount();
-        for (int i=0; i<nbItems; i++) {
-            if (name == model->headerData(i, ctx.widget->orientation()).toString()) {
+        int nbItems = ctx.widget->orientation() == Qt::Horizontal
+            ? model->rowCount()
+            : model->columnCount();
+        for (int i = 0; i < nbItems; i++) {
+            if (name ==
+                model->headerData(i, ctx.widget->orientation()).toString()) {
                 logicalIndex = i;
                 found = true;
                 break;
             }
         }
         if (!found) {
-            return createError("MissingHeaderViewText", QString::fromUtf8("The header view (id:%1) has no text column `%2`").arg(ctx.id).arg(name));
+            return createError(
+                "MissingHeaderViewText",
+                QString::fromUtf8(
+                    "The header view (id:%1) has no text column `%2`")
+                    .arg(ctx.id)
+                    .arg(name));
         }
     } else {
         logicalIndex = ctx.widget->logicalIndex(command["indexOrName"].toInt());
     }
-    
+
     int pos = ctx.widget->sectionPosition(logicalIndex);
     if (pos == -1) {
-        return createError("InvalidHeaderViewIndex", QString::fromUtf8("The header view (id:%1) has no index %2 or it is hidden").arg(ctx.id).arg(logicalIndex));
+        return createError(
+            "InvalidHeaderViewIndex",
+            QString::fromUtf8(
+                "The header view (id:%1) has no index %2 or it is hidden")
+                .arg(ctx.id)
+                .arg(logicalIndex));
     }
     QPoint mousePos;
     if (ctx.widget->orientation() == Qt::Horizontal) {
-        mousePos.setY(ctx.widget->height()/2);
+        mousePos.setY(ctx.widget->height() / 2);
         mousePos.setX(pos + ctx.widget->offset() + 5);
     } else {
-        mousePos.setX(ctx.widget->width()/2);
+        mousePos.setX(ctx.widget->width() / 2);
         mousePos.setY(pos + ctx.widget->offset() + 5);
     }
     mouse_click(ctx.widget->viewport(), mousePos, Qt::LeftButton);
@@ -778,10 +881,13 @@ QtJson::JsonObject Player::headerview_click(const QtJson::JsonObject & command) 
     return result;
 }
 
-QtJson::JsonObject Player::headerview_path_from_view(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::headerview_path_from_view(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
-    
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
+
     QHeaderView * header = NULL;
     QTableView * tview = qobject_cast<QTableView *>(ctx.widget);
     if (tview) {
@@ -796,9 +902,12 @@ QtJson::JsonObject Player::headerview_path_from_view(const QtJson::JsonObject & 
             header = trview->header();
         }
     }
-    
-    if (! header) {
-        return createError("InvalidHeaderView", QString::fromUtf8("No header view found for the view (id:%1)").arg(ctx.id));
+
+    if (!header) {
+        return createError(
+            "InvalidHeaderView",
+            QString::fromUtf8("No header view found for the view (id:%1)")
+                .arg(ctx.id));
     }
     QtJson::JsonObject result;
     result["headerpath"] = objectPath(header);
@@ -807,31 +916,43 @@ QtJson::JsonObject Player::headerview_path_from_view(const QtJson::JsonObject & 
 
 QtJson::JsonObject Player::graphicsitems(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QList<QGraphicsItem *> topLevelItems;
-    foreach(QGraphicsItem * item, ctx.widget->items()) {
-        if (! item->parentItem()) {
+    foreach (QGraphicsItem * item, ctx.widget->items()) {
+        if (!item->parentItem()) {
             topLevelItems << item;
         }
     }
-     QtJson::JsonObject result;
-     dump_graphics_items(topLevelItems, ctx.id, result);
-     return result;
+    QtJson::JsonObject result;
+    dump_graphics_items(topLevelItems, ctx.id, result);
+    return result;
 }
 
-QtJson::JsonObject Player::gitem_properties(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::gitem_properties(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     qulonglong gid = command["gid"].value<qulonglong>();
     QGraphicsItem * item = graphicsItemFromId(ctx.widget, gid);
     if (!item) {
-        return createError("MissingGItem", QString::fromUtf8("QGraphicsitem %1 is not in view %2")
-                           .arg(gid).arg(ctx.id));
+        return createError(
+            "MissingGItem",
+            QString::fromUtf8("QGraphicsitem %1 is not in view %2")
+                .arg(gid)
+                .arg(ctx.id));
     }
     QObject * object = dynamic_cast<QObject *>(item);
     if (!object) {
-        return createError("GItemNotQObject", QString::fromUtf8("QGraphicsitem %1 in view %2 does not inherit from QObject")
-                           .arg(gid).arg(ctx.id));
+        return createError(
+            "GItemNotQObject",
+            QString::fromUtf8(
+                "QGraphicsitem %1 in view %2 does not inherit from QObject")
+                .arg(gid)
+                .arg(ctx.id));
     }
     QtJson::JsonObject result;
     dump_properties(object, result);
@@ -844,16 +965,19 @@ DelayedResponse * Player::drag_n_drop(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QString slot_name = command["slot_name"].toString();
     QVariant result_slot;
-    bool invokedMeth = QMetaObject::invokeMethod(ctx.widget, slot_name.toLocal8Bit().data(),
-                                      Qt::DirectConnection,
-                                      Q_RETURN_ARG(QVariant, result_slot),
-                                      Q_ARG(QVariant, command["params"]));
+    bool invokedMeth = QMetaObject::invokeMethod(
+        ctx.widget, slot_name.toLocal8Bit().data(), Qt::DirectConnection,
+        Q_RETURN_ARG(QVariant, result_slot),
+        Q_ARG(QVariant, command["params"]));
     if (!invokedMeth) {
-        return createError("NoMethodInvoked", QString::fromUtf8("The slot %1 could not be called")
-                           .arg(slot_name));
+        return createError("NoMethodInvoked",
+                           QString::fromUtf8("The slot %1 could not be called")
+                               .arg(slot_name));
     }
 
     QtJson::JsonObject result;
@@ -861,18 +985,24 @@ QtJson::JsonObject Player::call_slot(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::widget_activate_focus(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::widget_activate_focus(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     activate_focus(ctx.widget);
 
     QtJson::JsonObject result;
     return result;
 }
 
-QtJson::JsonObject Player::grab_graphics_view(const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::grab_graphics_view(
+    const QtJson::JsonObject & command) {
     WidgetLocatorContext<QGraphicsView> ctx(this, command, "oid");
-    if (ctx.hasError()) { return ctx.lastError; }
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
     QString format = command["format"].toString();
     if (format.isEmpty()) {
         format = "PNG";

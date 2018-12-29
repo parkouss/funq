@@ -40,212 +40,219 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #endif
 
 class SimpleDialog : public QDialog {
-        Q_OBJECT
-        QLabel* _statusLabel;
-    public:
-        SimpleDialog(QLabel* statusLabel, QWidget* parent) :
-            QDialog(parent) , _statusLabel(statusLabel) {
-            setLayout(new QVBoxLayout());
-        }
+    Q_OBJECT
+    QLabel * _statusLabel;
 
-        virtual ~SimpleDialog() {}
+public:
+    SimpleDialog(QLabel * statusLabel, QWidget * parent)
+        : QDialog(parent), _statusLabel(statusLabel) {
+        setLayout(new QVBoxLayout());
+    }
 
-    protected slots:
-        void showResult(const QString& msg) {
-            _statusLabel->setText(msg);
-        }
+    virtual ~SimpleDialog() {}
+
+protected slots:
+    void showResult(const QString & msg) { _statusLabel->setText(msg); }
 };
 
 class ActionDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        ActionDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QMenuBar* bar = new QMenuBar(this);
-            QMenu* menu = bar->addMenu("menu");
+    Q_OBJECT
+public:
+    ActionDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QMenuBar * bar = new QMenuBar(this);
+        QMenu * menu = bar->addMenu("menu");
 
-            QAction* nonblockingAction = new QAction("nonblocking", this);
-            nonblockingAction->setObjectName("nonblockingAction");
-            connect(nonblockingAction, SIGNAL(triggered()), this, SLOT(nonblockingActionTriggered()));
-            addAction(nonblockingAction);
-            menu->addAction(nonblockingAction);
+        QAction * nonblockingAction = new QAction("nonblocking", this);
+        nonblockingAction->setObjectName("nonblockingAction");
+        connect(nonblockingAction, SIGNAL(triggered()), this,
+                SLOT(nonblockingActionTriggered()));
+        addAction(nonblockingAction);
+        menu->addAction(nonblockingAction);
 
-            QAction* blockingAction = new QAction("blocking", this);
-            blockingAction->setObjectName("blockingAction");
-            connect(blockingAction, SIGNAL(triggered()), this, SLOT(blockingActionTriggered()));
-            addAction(blockingAction);
-            menu->addAction(blockingAction);
-        }
+        QAction * blockingAction = new QAction("blocking", this);
+        blockingAction->setObjectName("blockingAction");
+        connect(blockingAction, SIGNAL(triggered()), this,
+                SLOT(blockingActionTriggered()));
+        addAction(blockingAction);
+        menu->addAction(blockingAction);
+    }
 
-    private slots:
-        void nonblockingActionTriggered() {
-            showResult("nonblocking triggered !");
-        }
+private slots:
+    void nonblockingActionTriggered() { showResult("nonblocking triggered !"); }
 
-        void blockingActionTriggered() {
-            showResult("blocking triggered !");
-            QMessageBox::information(0, "funq", "click me away"); // blocking!
-        }
+    void blockingActionTriggered() {
+        showResult("blocking triggered !");
+        QMessageBox::information(0, "funq", "click me away");  // blocking!
+    }
 };
 
 class ClickDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        ClickDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QPushButton* btn = new QPushButton("click me");
-            connect(btn, SIGNAL(clicked()), this, SLOT(btnClicked()));
-            layout()->addWidget(btn);
-        }
+    Q_OBJECT
+public:
+    ClickDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QPushButton * btn = new QPushButton("click me");
+        connect(btn, SIGNAL(clicked()), this, SLOT(btnClicked()));
+        layout()->addWidget(btn);
+    }
 
-    private slots:
-        void btnClicked() {
-            showResult("clicked !");
-        }
+private slots:
+    void btnClicked() { showResult("clicked !"); }
 };
 
 class WidgetClickDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        WidgetClickDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QWidget* w = new QWidget();
-            w->resize(100, 100);
-            layout()->addWidget(w);
-        }
+    Q_OBJECT
+public:
+    WidgetClickDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QWidget * w = new QWidget();
+        w->resize(100, 100);
+        layout()->addWidget(w);
+    }
 
-        void mouseReleaseEvent(QMouseEvent *e) {
-            if (e->button() == Qt::LeftButton) {
-                showResult("left clicked !");
-            } else if (e->button() == Qt::RightButton) {
-                showResult("right clicked !");
-            } else if (e->button() == Qt::MiddleButton) {
-                showResult("middle clicked !");
-            } else {
-                showResult("clicked with unhandled mouse button :(");
-            }
+    void mouseReleaseEvent(QMouseEvent * e) {
+        if (e->button() == Qt::LeftButton) {
+            showResult("left clicked !");
+        } else if (e->button() == Qt::RightButton) {
+            showResult("right clicked !");
+        } else if (e->button() == Qt::MiddleButton) {
+            showResult("middle clicked !");
+        } else {
+            showResult("clicked with unhandled mouse button :(");
         }
+    }
 };
 
 class DoubleClickDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        DoubleClickDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QWidget* w = new QWidget();
-            w->resize(100, 100);
-            layout()->addWidget(w);
-        }
+    Q_OBJECT
+public:
+    DoubleClickDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QWidget * w = new QWidget();
+        w->resize(100, 100);
+        layout()->addWidget(w);
+    }
 
-        void mouseDoubleClickEvent(QMouseEvent* e) {
-            Q_UNUSED(e);
-            showResult("double clicked !");
-        }
+    void mouseDoubleClickEvent(QMouseEvent * e) {
+        Q_UNUSED(e);
+        showResult("double clicked !");
+    }
 };
 
 class KeyClickDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        KeyClickDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QLineEdit* edt = new QLineEdit();
-            connect(edt, SIGNAL(textEdited(QString)), this, SLOT(showResult(QString)));
-            layout()->addWidget(edt);
-        }
+    Q_OBJECT
+public:
+    KeyClickDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QLineEdit * edt = new QLineEdit();
+        connect(edt, SIGNAL(textEdited(QString)), this,
+                SLOT(showResult(QString)));
+        layout()->addWidget(edt);
+    }
 };
 
 class RetrieveWidget : public SimpleDialog {
-        Q_OBJECT
-    public:
-        RetrieveWidget(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            layout()->addWidget(new QLabel("hello"));
-            layout()->addWidget(new QComboBox());
-        }
+    Q_OBJECT
+public:
+    RetrieveWidget(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        layout()->addWidget(new QLabel("hello"));
+        layout()->addWidget(new QComboBox());
+    }
 };
 
 class ShortcutDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        ShortcutDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QStringList sequences;
-            sequences << "F2" << "DOWN" << "ENTER" << "CTRL+C";
-            foreach (const QString& sequence, sequences) {
-                QShortcut* shortcut = new QShortcut(QKeySequence(sequence), this);
-                connect(shortcut, SIGNAL(activated()), this, SLOT(shortcutActivated()));
-            }
+    Q_OBJECT
+public:
+    ShortcutDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QStringList sequences;
+        sequences << "F2"
+                  << "DOWN"
+                  << "ENTER"
+                  << "CTRL+C";
+        foreach (const QString & sequence, sequences) {
+            QShortcut * shortcut = new QShortcut(QKeySequence(sequence), this);
+            connect(shortcut, SIGNAL(activated()), this,
+                    SLOT(shortcutActivated()));
         }
+    }
 
-    private slots:
-        void shortcutActivated() {
-            QString sequence = qobject_cast<QShortcut*>(sender())->key().toString();
-            showResult("Shortcut: " + sequence.toUpper());
-        }
+private slots:
+    void shortcutActivated() {
+        QString sequence =
+            qobject_cast<QShortcut *>(sender())->key().toString();
+        showResult("Shortcut: " + sequence.toUpper());
+    }
 };
 
 class TableDialog : public SimpleDialog {
-        Q_OBJECT
-    public:
-        TableDialog(QLabel* statusLabel, QWidget* parent) :
-            SimpleDialog(statusLabel, parent) {
-            QTableWidget* table = new QTableWidget(2, 3);
-            table->setHorizontalHeaderLabels(QStringList() << "C1" << "C2" << "C3");
-            table->setVerticalHeaderLabels(QStringList() << "R1" << "R2");
-            for (int i = 0; i < 3; ++i) {
-                for (int j = 0; j < 2; ++j) {
-                    table->setItem(i, j, new QTableWidgetItem(""));
-                }
+    Q_OBJECT
+public:
+    TableDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QTableWidget * table = new QTableWidget(2, 3);
+        table->setHorizontalHeaderLabels(QStringList() << "C1"
+                                                       << "C2"
+                                                       << "C3");
+        table->setVerticalHeaderLabels(QStringList() << "R1"
+                                                     << "R2");
+        for (int i = 0; i < 3; ++i) {
+            for (int j = 0; j < 2; ++j) {
+                table->setItem(i, j, new QTableWidgetItem(""));
             }
-            table->horizontalHeader()->setObjectName("H");
-            connect(table->horizontalHeader(), SIGNAL(sectionClicked(int)),
-                    this, SLOT(hheaderClicked(int)));
-            table->verticalHeader()->setObjectName("V");
-            connect(table->verticalHeader(), SIGNAL(sectionClicked(int)),
-                    this, SLOT(vheaderClicked(int)));
-            layout()->addWidget(table);
         }
+        table->horizontalHeader()->setObjectName("H");
+        connect(table->horizontalHeader(), SIGNAL(sectionClicked(int)), this,
+                SLOT(hheaderClicked(int)));
+        table->verticalHeader()->setObjectName("V");
+        connect(table->verticalHeader(), SIGNAL(sectionClicked(int)), this,
+                SLOT(vheaderClicked(int)));
+        layout()->addWidget(table);
+    }
 
-    private slots:
-        void hheaderClicked(int logicalIndex) {
-            showResult("H Header clicked: " + QString::number(logicalIndex));
-        }
+private slots:
+    void hheaderClicked(int logicalIndex) {
+        showResult("H Header clicked: " + QString::number(logicalIndex));
+    }
 
-        void vheaderClicked(int logicalIndex) {
-            showResult("V Header clicked: " + QString::number(logicalIndex));
-        }
+    void vheaderClicked(int logicalIndex) {
+        showResult("V Header clicked: " + QString::number(logicalIndex));
+    }
 };
 
 class MainWindow : public QMainWindow {
-        Q_OBJECT
-        QLabel* _statusLabel;
+    Q_OBJECT
+    QLabel * _statusLabel;
 
-    public:
-        typedef void (*ButtonHandler)(QLabel*, QWidget*);
+public:
+    typedef void (*ButtonHandler)(QLabel *, QWidget *);
 
-        MainWindow() {
-            setObjectName("mainWindow");
-            setCentralWidget(new QWidget());
-            centralWidget()->setLayout(new QVBoxLayout());
-            QStatusBar* statusbar = new QStatusBar();
-            statusbar->setObjectName("statusBar");
-            statusbar->insertPermanentWidget(0, _statusLabel = new QLabel());
-            setStatusBar(statusbar);
-        }
+    MainWindow() {
+        setObjectName("mainWindow");
+        setCentralWidget(new QWidget());
+        centralWidget()->setLayout(new QVBoxLayout());
+        QStatusBar * statusbar = new QStatusBar();
+        statusbar->setObjectName("statusBar");
+        statusbar->insertPermanentWidget(0, _statusLabel = new QLabel());
+        setStatusBar(statusbar);
+    }
 
-        void addDialogButton(const QString& name, ButtonHandler handler) {
-            QPushButton* btn = new QPushButton(name);
-            btn->setObjectName(name);
-            btn->setProperty("handler", QVariant::fromValue(handler));
-            connect(btn, SIGNAL(clicked()), this, SLOT(btnClicked()));
-            centralWidget()->layout()->addWidget(btn);
-        }
+    void addDialogButton(const QString & name, ButtonHandler handler) {
+        QPushButton * btn = new QPushButton(name);
+        btn->setObjectName(name);
+        btn->setProperty("handler", QVariant::fromValue(handler));
+        connect(btn, SIGNAL(clicked()), this, SLOT(btnClicked()));
+        centralWidget()->layout()->addWidget(btn);
+    }
 
-    private slots:
-        void btnClicked() {
-            ButtonHandler handler = sender()->property("handler").value<ButtonHandler>();
-            if (handler) (*handler)(_statusLabel, this);
-        }
+private slots:
+    void btnClicked() {
+        ButtonHandler handler =
+            sender()->property("handler").value<ButtonHandler>();
+        if (handler) (*handler)(_statusLabel, this);
+    }
 };
 
 Q_DECLARE_METATYPE(MainWindow::ButtonHandler);
