@@ -743,11 +743,14 @@ private slots:
 
         QtJson::JsonObject commandPath;
         commandPath["path"] = "QMainWindow::QTableView";
-
         QtJson::JsonObject resultPath = player.widget_by_path(commandPath);
 
+        QtJson::JsonObject commandModel;
+        commandModel["oid"] = resultPath["oid"];
+        QtJson::JsonObject resultModel = player.model(commandModel);
+
         QtJson::JsonObject command;
-        command["oid"] = resultPath["oid"];
+        command["oid"] = resultModel["oid"];
 
         QtJson::JsonObject result = player.model_items(command);
 

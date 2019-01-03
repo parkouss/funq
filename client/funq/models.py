@@ -259,6 +259,21 @@ class Action(Object):
                                  blocking=blocking)
 
 
+class AbstractItemModel(Object):
+
+    """
+    Allow to manipulate a QAbstractItemModel or derived.
+    """
+
+    def items(self):
+        """
+        Returns an instance of :class:`ModelItems` with all items of this
+        model.
+        """
+        data = self.client.send_command('model_items', oid=self.oid)
+        return ModelItems.create(self.client, data)
+
+
 class Widget(Object):
 
     """
@@ -369,10 +384,9 @@ class Widget(Object):
 class ModelItem(TreeItem):
 
     """
-    Allow to manipulate a modelitem in a QAbstractModelItem or derived.
+    Allow to manipulate a modelitem in a QAbstractItemModel or derived.
 
-    :var viewid: ID of the view attached to the model containing this item
-                 [type: long]
+    :var modelid: ID of the model containing this item [type: long]
     :var row: item row number [type: int]
     :var column: item column number [type: int]
     :var value: item text value [type: unicode]
@@ -381,7 +395,7 @@ class ModelItem(TreeItem):
     :var items: list of subitems [type: :class:`ModelItem`]
     """
 
-    viewid = None
+    modelid = None
     row = None
     column = None
     itempath = None
@@ -399,7 +413,7 @@ class ModelItem(TreeItem):
 class ModelItems(TreeItems):
 
     """
-    Allow to manipulate all modelitems in a QAbstractModelItem or derived.
+    Allow to manipulate all modelitems in a QAbstractItemModel or derived.
 
     :var items: list of :class:`ModelItem`
     """
@@ -478,13 +492,13 @@ class AbstractItemView(Widget):
     editor_class_names = ('QLineEdit', 'QComboBox', 'QSpinBox',
                           'QDoubleSpinBox')
 
-    def model_items(self):
+    def model(self):
         """
-        Returns an instance of :class:`ModelItems` based on the model
-        associated to the view.
+        Returns the model (:class:`AbstractItemModel`) which is displayed in
+        this item view widget.
         """
-        data = self.client.send_command('model_items', oid=self.oid)
-        return ModelItems.create(self.client, data)
+        data = self.client.send_command('model', oid=self.oid)
+        return AbstractItemModel.create(self.client, data)
 
     def _item_action(self, item, itemaction, origin=None, offset_x=None,
                      offset_y=None):
@@ -804,19 +818,13 @@ class ComboBox(Widget):
     """
     CPP_CLASS = 'QComboBox'
 
-    def model_items(self):
+    def model(self):
         """
-        Returns the items  (:class:`ModelItems`) associated to this combobox.
+        Returns the model (:class:`AbstractItemModel`) which contains the items
+        of this combobox.
         """
-        # create and show QComboBoxListView
-        self.click()
-        # get this QComboBoxListView widget
-        internal_qt_name = '::QComboBoxPrivateContainer::QComboBoxListView'
-        combo_edit_view = self.client.widget(path=self.path + internal_qt_name)
-        model_items = combo_edit_view.model_items()
-        # This properly close the QComboBoxListView widget
-        combo_edit_view.click()
-        return model_items
+        data = self.client.send_command('model', oid=self.oid)
+        return AbstractItemModel.create(self.client, data)
 
     def set_current_text(self, text):
         """
@@ -825,10 +833,9 @@ class ComboBox(Widget):
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
                             ' - got %s' % type(text))
-        model_items = self.model_items()
         column = self.properties()['modelColumn']
         index = -1
-        for item in model_items.items:
+        for item in self.model().items().iter():
             if column == int(item.column) and item.value == text:
                 index = int(item.row)
                 break
