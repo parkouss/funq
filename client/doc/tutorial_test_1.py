@@ -10,6 +10,7 @@ one test method.
 from funq.testcase import FunqTestCase
 import time
 
+
 class MyTestCase(FunqTestCase):
     # identify the configuration
     __app_config_name__ = 'applitest'

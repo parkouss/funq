@@ -34,6 +34,7 @@
 
 from base import AppTestCase
 
+
 class TestAction(AppTestCase):
 
     def test_blocking_trigger_to_nonblocking_action(self):

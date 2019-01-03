@@ -35,11 +35,13 @@
 from base import AppTestCase
 from funq.errors import FunqError
 
+
 class TestInjection(AppTestCase):
 
     def setUp(self):
         # Show a blocking message box *before* Qt's main event loop is entered!
         self.__app_config__.args = ['--show-message-box-at-startup']
+
         def restore_args():
             self.__app_config__.args = []
         self.addCleanup(restore_args)
