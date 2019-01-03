@@ -63,6 +63,7 @@ int main(int argc, char * argv[]) {
     win.addDialogButton("retrieve", &execDialog<RetrieveWidget>);
     win.addDialogButton("shortcut", &execDialog<ShortcutDialog>);
     win.addDialogButton("table", &execDialog<TableDialog>);
+    win.addDialogButton("combobox", &execDialog<ComboBoxDialog>);
     win.resize(800, 600);
     win.show();
 
