@@ -7,6 +7,8 @@ This file is part of the funq tutorial. It currently defines
 one test method.
 """
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 from funq.testcase import FunqTestCase
 import time
 

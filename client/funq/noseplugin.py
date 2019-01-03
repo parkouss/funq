@@ -36,13 +36,15 @@
 Module that integrates funq with nosetests.
 """
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 from funq.client import ApplicationRegistry
 from funq.testcase import MultiFunqTestCase, FunqTestCase, \
     register_funq_app_registry
 from funq.screenshoter import ScreenShoter
 from funq import tools
 from nose.plugins import Plugin
-from ConfigParser import ConfigParser
+from six.moves.configparser import ConfigParser
 import os
 import codecs
 import logging
@@ -149,7 +151,7 @@ class FunqPlugin(Plugin):
         FunqPlugin._instance = self
 
     def beforeTest(self, test):
-        message = u"Starting test `%s`" % test.id()
+        message = "Starting test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -160,7 +162,7 @@ class FunqPlugin(Plugin):
                 f.write('\n')
 
     def afterTest(self, test):
-        message = u"Ending test `%s`" % test.id()
+        message = "Ending test `%s`" % test.id()
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -171,12 +173,12 @@ class FunqPlugin(Plugin):
                 f.write('\n')
 
     def describeTest(self, test):
-        return u'%s' % test.id()
+        return '%s' % test.id()
 
     def take_screenshot(self, test):
         if isinstance(test, MultiFunqTestCase):
             if test.__app_config__:
-                for k, v in test.__app_config__.iteritems():
+                for k, v in test.__app_config__.items():
                     if v.screenshot_on_error:
                         self.screenshoter.take_screenshot(
                             test.funq[k],

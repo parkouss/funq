@@ -6,8 +6,9 @@ This file is part of the funq tutorial. It briefly shows widget
 interaction.
 """
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 from funq.testcase import FunqTestCase
-from funq.client import FunqError
 
 
 class TestCase2(FunqTestCase):
@@ -22,7 +23,7 @@ class TestCase2(FunqTestCase):
         btn_test = self.funq.widget('btnTest')
         properties = btn_test.properties()
 
-        self.assertEquals(properties['text'], 'Test')
+        self.assertEqual(properties['text'], 'Test')
 
     def test_open_dialog(self):
         """
@@ -31,7 +32,7 @@ class TestCase2(FunqTestCase):
         self.funq.widget('btnTest').click()
         dlg_label = self.funq.widget('dialog1_label')
 
-        self.assertEquals(dlg_label.properties()['text'], "Button clicked")
+        self.assertEqual(dlg_label.properties()['text'], "Button clicked")
 
     def test_tableview_content(self):
         """
@@ -39,12 +40,12 @@ class TestCase2(FunqTestCase):
         """
         view = self.funq.widget('tableview')
         items = list(view.model_items().iter())
-        self.assertEquals(len(items), 16)
+        self.assertEqual(len(items), 16)
 
         for item in items:
             text = "row {r}, column {c}".format(r=item.row,
                                                 c=item.column)
-            self.assertEquals(item.value, text)
+            self.assertEqual(item.value, text)
 
     def test_some_treeview_content(self):
         """
@@ -52,8 +53,8 @@ class TestCase2(FunqTestCase):
         """
         model = self.funq.widget('treeview').model_items()
 
-        item = model.item_by_named_path([u"item 1", u"item 1-2"])
-        parent_item = model.item_by_named_path([u"item 1"])
+        item = model.item_by_named_path(["item 1", "item 1-2"])
+        parent_item = model.item_by_named_path(["item 1"])
 
-        self.assertEquals(item.value, u"item 1-2")
+        self.assertEqual(item.value, "item 1-2")
         self.assertIn(item, parent_item.items)
