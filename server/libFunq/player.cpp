@@ -43,6 +43,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QAction>
 #include <QApplication>
 #include <QBuffer>
+#include <QComboBox>
 #include <QDesktopWidget>
 #include <QGraphicsItem>
 #include <QGraphicsView>
@@ -577,6 +578,33 @@ QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
 
     QtJson::JsonObject result;
     return result;
+}
+
+QtJson::JsonObject Player::model(const QtJson::JsonObject & command) {
+    ObjectLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
+
+    QAbstractItemModel * model = 0;
+    if (QAbstractItemView * view = qobject_cast<QAbstractItemView *>(ctx.obj)) {
+        model = view->model();
+    } else if (QComboBox * cbx = qobject_cast<QComboBox *>(ctx.obj)) {
+        model = cbx->model();
+    }
+
+    qulonglong modelId = registerObject(model);
+    if (modelId != 0) {
+        QtJson::JsonObject result;
+        result["oid"] = modelId;
+        dump_object(model, result);
+        return result;
+    } else {
+        return createError(
+            "MissingModel",
+            QString("Unable to find model for object with id `%1`")
+                .arg(ctx.id));
+    }
 }
 
 QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
