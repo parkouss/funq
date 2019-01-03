@@ -387,17 +387,6 @@ class ModelItem(TreeItem):
     itempath = None
     check_state = None
 
-    def _action(self, itemaction, origin=None, offset_x=None, offset_y=None):
-        """ Send the 'model_item_action' action """
-        self.client.send_command('model_item_action',
-                                 oid=self.viewid,
-                                 itemaction=itemaction,
-                                 row=self.row, column=self.column,
-                                 origin=origin,
-                                 offset_x=offset_x,
-                                 offset_y=offset_y,
-                                 itempath=self.itempath)
-
     def is_checkable(self):
         """Returns True if the item is checkable"""
         return self.check_state is not None
@@ -405,58 +394,6 @@ class ModelItem(TreeItem):
     def is_checked(self):
         """Returns True if the item is checked"""
         return self.check_state == 'checked'
-
-    def select(self):
-        """
-        Select this item.
-        """
-        self._action("select")
-
-    def edit(self):
-        """
-        Edit this item.
-        """
-        self._action("edit")
-
-    def click(self, origin="center", offset_x=0, offset_y=0, btn="left"):
-        """
-        Click on this item.
-
-        :param origin: Origin of the cursor coordinates of the ModelItem
-                       object. Availables values: "center", "left" or "right".
-        :param offset_x: x position relative to the origin.
-                         Negative value allowed.
-        :param offset_y: y position relative to the origin.
-                         Negative value allowed.
-        :param btn: The mouse button to click.
-                    Available values: "left", "middle" or "right".
-        """
-        if btn == "left":
-            action = "click"
-        elif btn == "right":
-            action = "rightclick"
-        elif btn == "middle":
-            action = "middleclick"
-        else:
-            raise ValueError("Invalid mouse button: %s", btn)
-        self._action(
-            action, origin=origin, offset_x=offset_x, offset_y=offset_y
-        )
-
-    def dclick(self, origin="center", offset_x=0, offset_y=0):
-        """
-        Double click on this item.
-
-        :param origin: Origin of the cursor coordinates of the ModelItem
-                       object.
-        :param offset_x: x position relative to the origin.
-                         Negative value allowed.
-        :param offset_y: y position relative to the origin.
-                         Negative value allowed.
-        """
-        self._action(
-            "doubleclick", origin=origin, offset_x=offset_x, offset_y=offset_y
-        )
 
 
 class ModelItems(TreeItems):
@@ -548,6 +485,82 @@ class AbstractItemView(Widget):
         """
         data = self.client.send_command('model_items', oid=self.oid)
         return ModelItems.create(self.client, data)
+
+    def _item_action(self, item, itemaction, origin=None, offset_x=None,
+                     offset_y=None):
+        """ Send the 'model_item_action' action for a given item """
+        self.client.send_command('model_item_action',
+                                 oid=self.oid,
+                                 itemaction=itemaction,
+                                 row=item.row, column=item.column,
+                                 origin=origin,
+                                 offset_x=offset_x,
+                                 offset_y=offset_y,
+                                 itempath=item.itempath)
+
+    def select_item(self, item):
+        """
+        Select the specified item.
+
+        :param ModelItem item: The item to select (object retrieved from
+                               (:meth:`model`)).
+        """
+        self._item_action(item, "select")
+
+    def edit_item(self, item):
+        """
+        Edit the specified item.
+
+        :param ModelItem item: The item to edit (object retrieved from
+                               (:meth:`model`)).
+        """
+        self._item_action(item, "edit")
+
+    def click_item(self, item, origin="center", offset_x=0, offset_y=0,
+                   btn="left"):
+        """
+        Click on the specified item.
+
+        :param ModelItem item: The item to click (object retrieved from
+                               (:meth:`model`)).
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object. Availables values: "center", "left" or "right".
+        :param offset_x: x position relative to the origin.
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin.
+                         Negative value allowed.
+        :param btn: The mouse button to click.
+                    Available values: "left", "middle" or "right".
+        """
+        if btn == "left":
+            action = "click"
+        elif btn == "right":
+            action = "rightclick"
+        elif btn == "middle":
+            action = "middleclick"
+        else:
+            raise ValueError("Invalid mouse button: %s", btn)
+        self._item_action(
+            item, action, origin=origin, offset_x=offset_x, offset_y=offset_y
+        )
+
+    def dclick_item(self, item, origin="center", offset_x=0, offset_y=0):
+        """
+        Double click on the specified item.
+
+        :param ModelItem item: The item to click (object retrieved from
+                               (:meth:`model`)).
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object.
+        :param offset_x: x position relative to the origin.
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin.
+                         Negative value allowed.
+        """
+        self._item_action(
+            item, "doubleclick", origin=origin, offset_x=offset_x,
+            offset_y=offset_y
+        )
 
     def current_editor(self, editor_class_name=None):
         """
