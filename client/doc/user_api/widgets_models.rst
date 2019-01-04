@@ -62,6 +62,8 @@ Example::
 
   .. automethod:: Widget.close
 
+  .. automethod:: Widget.grab
+
 Interacting with the data of QT Model/View framework
 ----------------------------------------------------
 
@@ -162,7 +164,7 @@ Example::
   .. automethod:: GraphicsView.gitems
 
   .. automethod:: GraphicsView.dump_gitems
-  
+
   .. automethod:: GraphicsView.grab_scene
 
 
