@@ -332,7 +332,7 @@ class FunqClient(object):
         """
         Take a screenshot of the active desktop.
         """
-        data = self.send_command('desktop_screenshot', format=format_)
+        data = self.send_command('grab', format=format_)
         if isinstance(stream, basestring):
             stream = open(stream, 'wb')
         raw = base64.standard_b64decode(data['data'])
