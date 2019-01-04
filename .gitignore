@@ -28,3 +28,4 @@ server/tests/libFunq
 server/tests/protocole
 tests-functionnal/funq-test-app/funq-test-app
 tests-functionnal/screenshot-errors/
+tests-functionnal/screenshots/

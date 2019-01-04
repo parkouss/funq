@@ -733,15 +733,26 @@ QtJson::JsonObject Player::model_gitem_action(
     return result;
 }
 
-QtJson::JsonObject Player::desktop_screenshot(
-    const QtJson::JsonObject & command) {
+QtJson::JsonObject Player::grab(const QtJson::JsonObject & command) {
+    QPixmap pixmap;
+    if (command.contains("oid")) {
+        // grab a single widget
+        WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+        if (ctx.hasError()) {
+            return ctx.lastError;
+        }
+        pixmap = QPixmap::grabWidget(ctx.widget);
+    } else {
+        // grab the whole screen
+        pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+    }
     QString format = command["format"].toString();
     if (format.isEmpty()) {
         format = "PNG";
     }
-    QPixmap window = QPixmap::grabWindow(QApplication::desktop()->winId());
+
     QBuffer buffer;
-    window.save(&buffer, "PNG");
+    pixmap.save(&buffer, "PNG");
 
     QtJson::JsonObject result;
     result["format"] = format;

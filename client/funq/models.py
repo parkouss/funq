@@ -355,6 +355,16 @@ class Widget(Object):
         """
         self.client.send_command('widget_close', oid=self.oid)
 
+    def grab(self, format="PNG"):
+        """
+        Save the widgets content as an image.
+
+        :param string format: The format of the grabbed image.
+        :return: The image as a binary blob in the given format.
+        """
+        data = self.client.send_command('grab', format=format, oid=self.oid)
+        return base64.standard_b64decode(data['data'])
+
 
 class ModelItem(TreeItem):
 
