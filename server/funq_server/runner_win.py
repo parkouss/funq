@@ -45,7 +45,7 @@ class WindowsRunnerInjector(RunnerInjector):
         # wait for the process to be be running...
         proc = winappdbg.Process(self._proc.pid)
         start = time.time()
-        while 1:
+        while True:
             # wait for QT to be loaded
             if self._proc.poll() is not None:
                 raise RuntimeError("The process has finished with an error"

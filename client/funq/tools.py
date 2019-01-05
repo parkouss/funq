@@ -65,7 +65,7 @@ def wait_for(func, timeout, timeout_interval=0.1):
     """
     timeout = apply_snooze_factor(timeout)
     elapsed = 0.0
-    while 1:
+    while True:
         res = func()
         if res is True:
             return True

@@ -23,11 +23,14 @@ install_requires = []
 if IS_WINDOWS:
     install_requires.append('winappdbg')
 
+
 def read(*paths):
-	this_dir = os.path.dirname(os.path.realpath(__file__))
-	return open(os.path.join(this_dir, *paths)).read()
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    return open(os.path.join(this_dir, *paths)).read()
+
 
 version = re.search("__version__ = '(.+)'", read('funq_server/__init__.py')).group(1)
+
 
 class build_libfunq(Command):
     """
@@ -43,10 +46,10 @@ class build_libfunq(Command):
         ('inplace', 'i',
          "ignore build-lib and put compiled extensions into the source " +
          "directory alongside your pure Python modules"),
-        ]
-    
+    ]
+
     boolean_options = ['inplace', 'debug', 'force']
-    
+
     def initialize_options(self):
         self.build_lib = None
         self.force = None
@@ -54,7 +57,7 @@ class build_libfunq(Command):
         self.debug = None
         self.qmake_path = None
         self.make_path = None
-        
+
         if IS_WINDOWS:
             self.funqlib_name = 'Funq.dll'
         elif IS_MAC:
@@ -71,11 +74,11 @@ class build_libfunq(Command):
             self.qmake_path = os.environ.get('FUNQ_QMAKE_PATH') or 'qmake'
         if self.make_path is None:
             self.make_path = os.environ.get('FUNQ_MAKE_PATH') or 'make'
-    
+
     def funqlib_out_path(self):
         funqlib_base_dir = '.' if self.inplace else self.build_lib
         return os.path.join(funqlib_base_dir, 'funq_server', self.funqlib_name)
-    
+
     def run(self):
         if self.force:
             subprocess.call([self.make_path, 'clean'], shell=True)
@@ -90,7 +93,7 @@ class build_libfunq(Command):
             make_cmd += ['debug' if self.debug else 'release']
         print('running %s' % make_cmd)
         subprocess.check_call(make_cmd, shell=True)
-        
+
         lib_path = self.funqlib_out_path()
         lib_dir = os.path.dirname(lib_path)
         if not os.path.isdir(lib_dir):
@@ -100,19 +103,23 @@ class build_libfunq(Command):
     def get_outputs(self):
         return [self.funqlib_out_path()]
 
+
 class build(_build):
     sub_commands = _build.sub_commands + [('build_libfunq', None)]
+
 
 class install(_install):
     def run(self):
         self.run_command('build_libfunq')
         _install.run(self)
 
+
 class develop(_develop):
     def run(self):
         self.reinitialize_command('build_libfunq', inplace=1)
         self.run_command('build_libfunq')
         _develop.run(self)
+
 
 setup(
     name='funq-server',
@@ -123,12 +130,12 @@ setup(
     long_description=read("README"),
     version=version,
     packages=['funq_server'],
-    entry_points = {
+    entry_points={
         'console_scripts': [
             'funq = funq_server.runner:main'
         ]
     },
-    cmdclass = {
+    cmdclass={
         'build_libfunq': build_libfunq,
         'build': build,
         'install': install,
