@@ -43,6 +43,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QAction>
 #include <QApplication>
 #include <QBuffer>
+#include <QComboBox>
 #include <QDesktopWidget>
 #include <QGraphicsItem>
 #include <QGraphicsView>
@@ -139,8 +140,8 @@ QString item_model_path(QAbstractItemModel * model, const QModelIndex & item) {
 
 void dump_item_model_attrs(QAbstractItemModel * model, QtJson::JsonObject & out,
                            const QModelIndex & index,
-                           const qulonglong & viewid) {
-    out["viewid"] = viewid;
+                           const qulonglong & modelId) {
+    out["modelid"] = modelId;
     QString path = item_model_path(model, index);
     if (!path.isEmpty()) {
         out["itempath"] = path;
@@ -169,16 +170,16 @@ void dump_item_model_attrs(QAbstractItemModel * model, QtJson::JsonObject & out,
 }
 
 void dump_items_model(QAbstractItemModel * model, QtJson::JsonObject & out,
-                      const QModelIndex & parent, const qulonglong & viewid,
+                      const QModelIndex & parent, const qulonglong & modelId,
                       bool recursive = true) {
     QtJson::JsonArray items;
     for (int i = 0; i < model->rowCount(parent); ++i) {
         for (int j = 0; j < model->columnCount(parent); ++j) {
             QModelIndex index = model->index(i, j, parent);
             QtJson::JsonObject item;
-            dump_item_model_attrs(model, item, index, viewid);
+            dump_item_model_attrs(model, item, index, modelId);
             if (j == 0 && recursive && model->hasChildren(index)) {
-                dump_items_model(model, item, index, viewid);
+                dump_items_model(model, item, index, modelId);
             }
             items << item;
         }
@@ -579,22 +580,50 @@ QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
     return result;
 }
 
-QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
-    WidgetLocatorContext<QAbstractItemView> ctx(this, command, "oid");
+QtJson::JsonObject Player::model(const QtJson::JsonObject & command) {
+    ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) {
         return ctx.lastError;
     }
-    QtJson::JsonObject result;
-    QAbstractItemModel * model = ctx.widget->model();
-    if (!model) {
+
+    QAbstractItemModel * model = 0;
+    if (QAbstractItemView * view = qobject_cast<QAbstractItemView *>(ctx.obj)) {
+        model = view->model();
+    } else if (QComboBox * cbx = qobject_cast<QComboBox *>(ctx.obj)) {
+        model = cbx->model();
+    }
+
+    qulonglong modelId = registerObject(model);
+    if (modelId != 0) {
+        QtJson::JsonObject result;
+        result["oid"] = modelId;
+        dump_object(model, result);
+        return result;
+    } else {
         return createError(
             "MissingModel",
-            QString::fromUtf8("The view (id:%1) has no associated model")
+            QString("Unable to find model for object with id `%1`")
                 .arg(ctx.id));
     }
-    bool recursive = !(model->inherits("QTableModel") ||
-                       ctx.widget->inherits("QTableView") ||
-                       ctx.widget->inherits("QListView"));
+}
+
+QtJson::JsonObject Player::model_items(const QtJson::JsonObject & command) {
+    ObjectLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
+
+    QAbstractItemModel * model = qobject_cast<QAbstractItemModel *>(ctx.obj);
+    if (!model) {
+        return createError(
+            "NotAModel",
+            QString("Object with id `%1` is not a QAbstractItemModel")
+                .arg(ctx.id));
+    }
+
+    QtJson::JsonObject result;
+    bool recursive = !(ctx.obj->inherits("QAbstractTableModel") ||
+                       ctx.obj->inherits("QAbstractListModel"));
     dump_items_model(model, result, QModelIndex(), ctx.id, recursive);
     return result;
 }

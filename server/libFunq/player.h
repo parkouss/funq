@@ -91,6 +91,7 @@ public slots:
     QtJson::JsonObject widget_click(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_close(const QtJson::JsonObject & command);
     DelayedResponse * drag_n_drop(const QtJson::JsonObject & command);
+    QtJson::JsonObject model(const QtJson::JsonObject & command);
     QtJson::JsonObject model_items(const QtJson::JsonObject & command);
     QtJson::JsonObject model_item_action(const QtJson::JsonObject & command);
     QtJson::JsonObject model_gitem_action(const QtJson::JsonObject & command);

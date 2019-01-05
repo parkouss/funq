@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for grabbing the content of widgets as a picture
 
+### Changed
+- Refactor model/view related classes (moved/renamed several methods)
+
+### Fixed
+- Random failures of ComboBox.model_items()
+
 ## [1.1.5] - 2018-12-06
 ### Added
 - Support for macOS

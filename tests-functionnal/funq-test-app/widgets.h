@@ -198,9 +198,10 @@ public:
                                                        << "C3");
         table->setVerticalHeaderLabels(QStringList() << "R1"
                                                      << "R2");
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 2; ++j) {
-                table->setItem(i, j, new QTableWidgetItem(""));
+        for (int col = 0; col < 3; ++col) {
+            for (int row = 0; row < 2; ++row) {
+                QString text = QString("%1.%2").arg(col).arg(row);
+                table->setItem(row, col, new QTableWidgetItem(text));
             }
         }
         table->horizontalHeader()->setObjectName("H");
@@ -219,6 +220,26 @@ private slots:
 
     void vheaderClicked(int logicalIndex) {
         showResult("V Header clicked: " + QString::number(logicalIndex));
+    }
+};
+
+class ComboBoxDialog : public SimpleDialog {
+    Q_OBJECT
+public:
+    ComboBoxDialog(QLabel * statusLabel, QWidget * parent)
+        : SimpleDialog(statusLabel, parent) {
+        QComboBox * combobox = new QComboBox();
+        for (int i = 0; i < 10; ++i) {
+            combobox->addItem(QString("Item %1").arg(i));
+        }
+        connect(combobox, SIGNAL(currentIndexChanged(QString)), this,
+                SLOT(currentIndexChanged(QString)));
+        layout()->addWidget(combobox);
+    }
+
+private slots:
+    void currentIndexChanged(const QString & text) {
+        showResult("Text: " + text);
     }
 };
 

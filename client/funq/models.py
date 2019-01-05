@@ -259,6 +259,21 @@ class Action(Object):
                                  blocking=blocking)
 
 
+class AbstractItemModel(Object):
+
+    """
+    Allow to manipulate a QAbstractItemModel or derived.
+    """
+
+    def items(self):
+        """
+        Returns an instance of :class:`ModelItems` with all items of this
+        model.
+        """
+        data = self.client.send_command('model_items', oid=self.oid)
+        return ModelItems.create(self.client, data)
+
+
 class Widget(Object):
 
     """
@@ -369,10 +384,9 @@ class Widget(Object):
 class ModelItem(TreeItem):
 
     """
-    Allow to manipulate a modelitem in a QAbstractModelItem or derived.
+    Allow to manipulate a modelitem in a QAbstractItemModel or derived.
 
-    :var viewid: ID of the view attached to the model containing this item
-                 [type: long]
+    :var modelid: ID of the model containing this item [type: long]
     :var row: item row number [type: int]
     :var column: item column number [type: int]
     :var value: item text value [type: unicode]
@@ -381,22 +395,11 @@ class ModelItem(TreeItem):
     :var items: list of subitems [type: :class:`ModelItem`]
     """
 
-    viewid = None
+    modelid = None
     row = None
     column = None
     itempath = None
     check_state = None
-
-    def _action(self, itemaction, origin=None, offset_x=None, offset_y=None):
-        """ Send the 'model_item_action' action """
-        self.client.send_command('model_item_action',
-                                 oid=self.viewid,
-                                 itemaction=itemaction,
-                                 row=self.row, column=self.column,
-                                 origin=origin,
-                                 offset_x=offset_x,
-                                 offset_y=offset_y,
-                                 itempath=self.itempath)
 
     def is_checkable(self):
         """Returns True if the item is checkable"""
@@ -406,63 +409,11 @@ class ModelItem(TreeItem):
         """Returns True if the item is checked"""
         return self.check_state == 'checked'
 
-    def select(self):
-        """
-        Select this item.
-        """
-        self._action("select")
-
-    def edit(self):
-        """
-        Edit this item.
-        """
-        self._action("edit")
-
-    def click(self, origin="center", offset_x=0, offset_y=0, btn="left"):
-        """
-        Click on this item.
-
-        :param origin: Origin of the cursor coordinates of the ModelItem
-                       object. Availables values: "center", "left" or "right".
-        :param offset_x: x position relative to the origin.
-                         Negative value allowed.
-        :param offset_y: y position relative to the origin.
-                         Negative value allowed.
-        :param btn: The mouse button to click.
-                    Available values: "left", "middle" or "right".
-        """
-        if btn == "left":
-            action = "click"
-        elif btn == "right":
-            action = "rightclick"
-        elif btn == "middle":
-            action = "middleclick"
-        else:
-            raise ValueError("Invalid mouse button: %s", btn)
-        self._action(
-            action, origin=origin, offset_x=offset_x, offset_y=offset_y
-        )
-
-    def dclick(self, origin="center", offset_x=0, offset_y=0):
-        """
-        Double click on this item.
-
-        :param origin: Origin of the cursor coordinates of the ModelItem
-                       object.
-        :param offset_x: x position relative to the origin.
-                         Negative value allowed.
-        :param offset_y: y position relative to the origin.
-                         Negative value allowed.
-        """
-        self._action(
-            "doubleclick", origin=origin, offset_x=offset_x, offset_y=offset_y
-        )
-
 
 class ModelItems(TreeItems):
 
     """
-    Allow to manipulate all modelitems in a QAbstractModelItem or derived.
+    Allow to manipulate all modelitems in a QAbstractItemModel or derived.
 
     :var items: list of :class:`ModelItem`
     """
@@ -541,13 +492,89 @@ class AbstractItemView(Widget):
     editor_class_names = ('QLineEdit', 'QComboBox', 'QSpinBox',
                           'QDoubleSpinBox')
 
-    def model_items(self):
+    def model(self):
         """
-        Returns an instance of :class:`ModelItems` based on the model
-        associated to the view.
+        Returns the model (:class:`AbstractItemModel`) which is displayed in
+        this item view widget.
         """
-        data = self.client.send_command('model_items', oid=self.oid)
-        return ModelItems.create(self.client, data)
+        data = self.client.send_command('model', oid=self.oid)
+        return AbstractItemModel.create(self.client, data)
+
+    def _item_action(self, item, itemaction, origin=None, offset_x=None,
+                     offset_y=None):
+        """ Send the 'model_item_action' action for a given item """
+        self.client.send_command('model_item_action',
+                                 oid=self.oid,
+                                 itemaction=itemaction,
+                                 row=item.row, column=item.column,
+                                 origin=origin,
+                                 offset_x=offset_x,
+                                 offset_y=offset_y,
+                                 itempath=item.itempath)
+
+    def select_item(self, item):
+        """
+        Select the specified item.
+
+        :param ModelItem item: The item to select (object retrieved from
+                               (:meth:`model`)).
+        """
+        self._item_action(item, "select")
+
+    def edit_item(self, item):
+        """
+        Edit the specified item.
+
+        :param ModelItem item: The item to edit (object retrieved from
+                               (:meth:`model`)).
+        """
+        self._item_action(item, "edit")
+
+    def click_item(self, item, origin="center", offset_x=0, offset_y=0,
+                   btn="left"):
+        """
+        Click on the specified item.
+
+        :param ModelItem item: The item to click (object retrieved from
+                               (:meth:`model`)).
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object. Availables values: "center", "left" or "right".
+        :param offset_x: x position relative to the origin.
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin.
+                         Negative value allowed.
+        :param btn: The mouse button to click.
+                    Available values: "left", "middle" or "right".
+        """
+        if btn == "left":
+            action = "click"
+        elif btn == "right":
+            action = "rightclick"
+        elif btn == "middle":
+            action = "middleclick"
+        else:
+            raise ValueError("Invalid mouse button: %s", btn)
+        self._item_action(
+            item, action, origin=origin, offset_x=offset_x, offset_y=offset_y
+        )
+
+    def dclick_item(self, item, origin="center", offset_x=0, offset_y=0):
+        """
+        Double click on the specified item.
+
+        :param ModelItem item: The item to click (object retrieved from
+                               (:meth:`model`)).
+        :param origin: Origin of the cursor coordinates of the ModelItem
+                       object.
+        :param offset_x: x position relative to the origin.
+                         Negative value allowed.
+        :param offset_y: y position relative to the origin.
+                         Negative value allowed.
+        """
+        self._item_action(
+            item, "doubleclick", origin=origin, offset_x=offset_x,
+            offset_y=offset_y
+        )
 
     def current_editor(self, editor_class_name=None):
         """
@@ -791,19 +818,13 @@ class ComboBox(Widget):
     """
     CPP_CLASS = 'QComboBox'
 
-    def model_items(self):
+    def model(self):
         """
-        Returns the items  (:class:`ModelItems`) associated to this combobox.
+        Returns the model (:class:`AbstractItemModel`) which contains the items
+        of this combobox.
         """
-        # create and show QComboBoxListView
-        self.click()
-        # get this QComboBoxListView widget
-        internal_qt_name = '::QComboBoxPrivateContainer::QComboBoxListView'
-        combo_edit_view = self.client.widget(path=self.path + internal_qt_name)
-        model_items = combo_edit_view.model_items()
-        # This properly close the QComboBoxListView widget
-        combo_edit_view.click()
-        return model_items
+        data = self.client.send_command('model', oid=self.oid)
+        return AbstractItemModel.create(self.client, data)
 
     def set_current_text(self, text):
         """
@@ -812,10 +833,13 @@ class ComboBox(Widget):
         if not isinstance(text, basestring):
             raise TypeError('the text parameter must be a string'
                             ' - got %s' % type(text))
-        model_items = self.model_items()
         column = self.properties()['modelColumn']
         index = -1
-        for item in model_items.items:
+        # WORKAROUND: Call items() via function pointer to prevent py2to3 from
+        # performing an illegal conversion which doesn't work on Python 3. This
+        # should be removed once we have "real" Python 3 compatibility.
+        items_func = AbstractItemModel.items
+        for item in items_func(self.model()).iter():
             if column == int(item.column) and item.value == text:
                 index = int(item.row)
                 break
