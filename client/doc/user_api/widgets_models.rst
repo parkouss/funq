@@ -64,6 +64,10 @@ Example::
 
   .. automethod:: Widget.grab
 
+  .. automethod:: Widget.map_position_from
+
+  .. automethod:: Widget.map_position_to
+
 Interacting with the data of QT Model/View framework
 ----------------------------------------------------
 

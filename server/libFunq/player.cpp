@@ -580,6 +580,50 @@ QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
     return result;
 }
 
+QtJson::JsonObject Player::widget_map_position(
+    const QtJson::JsonObject & command) {
+    WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+    if (ctx.hasError()) {
+        return ctx.lastError;
+    }
+    QWidget * parent = 0;
+    if (!command["parent_oid"].isNull()) {
+        WidgetLocatorContext<QWidget> parentCtx(this, command, "parent_oid");
+        if (parentCtx.hasError()) {
+            return ctx.lastError;
+        } else {
+            parent = parentCtx.widget;
+        }
+    }
+    QString direction = command["direction"].toString();
+    QPoint pos;
+    pos.setX(command["x"].toInt());
+    pos.setY(command["y"].toInt());
+
+    if (direction == "from") {
+        if (parent) {
+            pos = ctx.widget->mapFrom(parent, pos);
+        } else {
+            pos = ctx.widget->mapFromGlobal(pos);
+        }
+    } else if (direction == "to") {
+        if (parent) {
+            pos = ctx.widget->mapTo(parent, pos);
+        } else {
+            pos = ctx.widget->mapToGlobal(pos);
+        }
+    } else {
+        return createError(
+            "InvalidDirection",
+            QString::fromUtf8("The direction '%1' is invalid").arg(direction));
+    }
+
+    QtJson::JsonObject result;
+    result["x"] = pos.x();
+    result["y"] = pos.y();
+    return result;
+}
+
 QtJson::JsonObject Player::model(const QtJson::JsonObject & command) {
     ObjectLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) {

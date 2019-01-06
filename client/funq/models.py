@@ -380,6 +380,45 @@ class Widget(Object):
         data = self.client.send_command('grab', format=format, oid=self.oid)
         return base64.standard_b64decode(data['data'])
 
+    def map_position_from(self, x, y, parent):
+        """
+        Map a given parent's coordinate or global coordinate to a local widget
+        coordinate. See Qt's documentation of `QWidget::mapFrom()` and
+        `QWidget::mapFromGlobal()` for details.
+
+        :param int x: X coordinate relative to parent.
+        :param int y: Y coordinate relative to parent.
+        :param parent: One of this widget's parent (:class:`ModelItem`)
+                       or `None` to map from global coordinates.
+        :return: Local widget coordinates as tuple (X, Y).
+        """
+        parent_oid = parent.oid if parent else None
+        response = self.client.send_command('widget_map_position',
+                                            oid=self.oid,
+                                            parent_oid=parent_oid,
+                                            direction='from', x=x, y=y)
+        return response['x'], response['y']
+
+    def map_position_to(self, x, y, parent):
+        """
+        Map a given widget coordinate to a parent's coordinate or global
+        coordinate. See Qt's documentation of `QWidget::mapTo()` and
+        `QWidget::mapToGlobal()` for details.
+
+        :param int x: Local X coordinate.
+        :param int y: Local Y coordinate.
+        :param parent: One of this widget's parent ([type: :class:`ModelItem`])
+                       or None to map to global coordinates.
+        :return: Coordinates relative to the given parent widget, or
+                 global coordinates as tuple (X, Y).
+        """
+        parent_oid = parent.oid if parent else None
+        response = self.client.send_command('widget_map_position',
+                                            oid=self.oid,
+                                            parent_oid=parent_oid,
+                                            direction='to', x=x, y=y)
+        return response['x'], response['y']
+
 
 class ModelItem(TreeItem):
 
