@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 - Random failures of ComboBox.model_items()
+- Race conditions between object_properties and object_set_properties
 
 ## [1.1.5] - 2018-12-06
 ### Added

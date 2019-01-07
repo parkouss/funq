@@ -237,17 +237,6 @@ void dump_graphics_items(const QList<QGraphicsItem *> & items,
 
 Player::Player(QIODevice * device, QObject * parent)
     : JsonClient(device, parent) {
-    connect(this,
-            SIGNAL(emit_object_set_properties(QObject *, const QVariantMap &)),
-            this, SLOT(_object_set_properties(QObject *, const QVariantMap &)),
-            Qt::QueuedConnection);
-    connect(this,
-            SIGNAL(emit_model_item_action(const QString &, QAbstractItemView *,
-                                          const QModelIndex &)),
-            this,
-            SLOT(_model_item_action(const QString &, QAbstractItemView *,
-                                    const QModelIndex &)),
-            Qt::QueuedConnection);
 }
 
 qulonglong Player::registerObject(QObject * object) {
@@ -441,7 +430,7 @@ QtJson::JsonObject Player::object_set_properties(
         return ctx.lastError;
     }
     QVariantMap properties = command["properties"].value<QVariantMap>();
-    emit_object_set_properties(ctx.obj, properties);
+    _object_set_properties(ctx.obj, properties);
     QtJson::JsonObject result;
     return result;
 }
@@ -729,9 +718,9 @@ QtJson::JsonObject Player::model_item_action(
     }
 
     if (itemaction == "select") {
-        emit emit_model_item_action(itemaction, ctx.widget, index);
+        _model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "edit") {
-        emit emit_model_item_action(itemaction, ctx.widget, index);
+        _model_item_action(itemaction, ctx.widget, index);
     } else if (itemaction == "click") {
         mouse_click(ctx.widget->viewport(), cursorPosition, Qt::LeftButton);
     } else if (itemaction == "rightclick") {
