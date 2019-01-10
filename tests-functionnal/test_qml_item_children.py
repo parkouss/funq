@@ -35,6 +35,7 @@
 from base import QmlAppTestCase
 from funq.client import FunqClient
 
+
 class TestQmlItemChilden(QmlAppTestCase):
 
     def get_children_by_property(self, prop, recursive=False):
@@ -42,7 +43,8 @@ class TestQmlItemChilden(QmlAppTestCase):
         widget = self.funq.active_widget()
         item = widget.item(id='main')
         children = item.children(recursive=recursive)
-        return [child.properties().get(prop) for child in children.iter() if prop in child.properties()]
+        return [child.properties().get(prop)
+                for child in children.iter() if prop in child.properties()]
 
     def test_non_recursive_children(self):
         children = self.get_children_by_property('text')
