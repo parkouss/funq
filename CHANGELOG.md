@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - Support for grabbing the content of widgets as a picture
 - Support for converting widget coordinates
+- Support QML children items
 
 ### Changed
 - Refactor model/view related classes (moved/renamed several methods)
