@@ -73,8 +73,6 @@ void JsonClient::onMessageReceived() {
     // localise la méthode
     success = false;
     QMetaMethod method;
-    QByteArray action_str = action.toLatin1();
-    size_t len_signature = strlen(action_str.data());
     for (int i = metaObject()->methodOffset(); i < metaObject()->methodCount();
          ++i) {
         method = metaObject()->method(i);

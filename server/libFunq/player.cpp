@@ -328,6 +328,7 @@ QtJson::JsonObject Player::quick_item_find(const QtJson::JsonObject & command) {
     result["quick_window_oid"] = command["quick_window_oid"].toString();
     dump_object(item, result);
 #else
+    Q_UNUSED(command);
     result = createQtQuickOnlyError();
 #endif
     return result;
@@ -553,6 +554,7 @@ QtJson::JsonObject Player::quick_item_click(
     QtJson::JsonObject result;
     return result;
 #else
+    Q_UNUSED(command);
     return createQtQuickOnlyError();
 #endif
 }

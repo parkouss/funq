@@ -80,7 +80,7 @@ void ShortcutResponse::execute(int call) {
     } else if (call == 2) {
         // taken from
         // http://stackoverflow.com/questions/14283764/how-can-i-simulate-emission-of-a-standard-key-sequence
-        for (uint i = 0; i < m_binding.count(); ++i) {
+        for (int i = 0; i < static_cast<int>(m_binding.count()); ++i) {
             uint key = m_binding[i];
             Qt::KeyboardModifiers modifiers =
                 static_cast<Qt::KeyboardModifiers>(key &
@@ -89,7 +89,7 @@ void ShortcutResponse::execute(int call) {
             QTest::keyPress(m_target, static_cast<Qt::Key>(key), modifiers);
         }
     } else if (call == 3) {
-        for (uint i = 0; i < m_binding.count(); ++i) {
+        for (int i = 0; i < static_cast<int>(m_binding.count()); ++i) {
             uint key = m_binding[i];
             Qt::KeyboardModifiers modifiers =
                 static_cast<Qt::KeyboardModifiers>(key &
