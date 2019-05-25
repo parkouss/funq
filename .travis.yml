@@ -7,6 +7,10 @@ notifications:
     on_success: change
     on_failure: change
 
+env:
+  global:
+    - FUNQ_CXXFLAGS="-Wall -Wextra -Werror"  # make CI fail on warnings
+
 matrix:
   fast_finish: true
   include:
@@ -108,8 +112,8 @@ script:
   - flake8 client/funq server/funq_server
   - cd client && $PYTHON setup.py develop && cd ..
   - cd server && $PYTHON setup.py develop && cd ..
-  - cd server/tests && qmake && make -j4 && cd ../..
-  - cd tests-functionnal/funq-test-app && qmake && make -j4 && cd ../..
+  - cd server/tests && qmake QMAKE_CXXFLAGS="$FUNQ_CXXFLAGS" && make -j4 && cd ../..
+  - cd tests-functionnal/funq-test-app && qmake QMAKE_CXXFLAGS="$FUNQ_CXXFLAGS" && make -j4 && cd ../..
   - cd client && $PYTHON setup.py test; cd ..
   - make -C server/tests/ check
   - cd tests-functionnal && nosetests && cd ..
