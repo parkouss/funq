@@ -3,6 +3,9 @@ build: off
 test: off
 deploy: off
 
+environment:
+  FUNQ_CXXFLAGS: "-Wall -Wextra -Werror"  # make CI fail on warnings
+
 init:
   - set PATH=C:/Qt/5.11/mingw53_32/bin;C:/Qt/Tools/mingw530_32/bin;%PATH%
 
@@ -10,8 +13,8 @@ install:
   - cp C:/Qt/Tools/mingw530_32/bin/mingw32-make.exe C:/Qt/Tools/mingw530_32/bin/make.exe
   - cd client && python setup.py develop && cd ..
   - cd server && python setup.py develop && cd ..
-  - cd server/tests && qmake && make -j4 && cd ../../
-  - cd tests-functionnal/funq-test-app && qmake && make -j4 && cd ../..
+  - cd server/tests && qmake QMAKE_CXXFLAGS="%FUNQ_CXXFLAGS%" && make -j4 && cd ../../
+  - cd tests-functionnal/funq-test-app && qmake QMAKE_CXXFLAGS="%FUNQ_CXXFLAGS%" && make -j4 && cd ../..
 
 build_script:
   - cd client && python setup.py test && cd ..

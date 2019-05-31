@@ -322,7 +322,7 @@ private slots:
 
         w.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&w);
+        QVERIFY(QTest::qWaitForWindowExposed(&w));
 #else
         QTest::qWaitForWindowShown(&w);
 #endif
@@ -441,7 +441,7 @@ private slots:
         QMainWindow mw;
         mw.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&mw);
+        QVERIFY(QTest::qWaitForWindowExposed(&mw));
 #else
         QTest::qWaitForWindowShown(&mw);
 #endif
@@ -519,7 +519,7 @@ private slots:
         QShortcut shortcut(Qt::Key_F2, &mw, 0, 0, Qt::ApplicationShortcut);
         mw.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&mw);
+        QVERIFY(QTest::qWaitForWindowExposed(&mw));
 #else
         QTest::qWaitForWindowShown(&mw);
 #endif
@@ -642,7 +642,7 @@ private slots:
 
         table.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&table);
+        QVERIFY(QTest::qWaitForWindowExposed(&table));
 #else
         QTest::qWaitForWindowShown(&table);
 #endif
@@ -702,7 +702,7 @@ private slots:
 
         table.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&table);
+        QVERIFY(QTest::qWaitForWindowExposed(&table));
 #else
         QTest::qWaitForWindowShown(&table);
 #endif
@@ -767,7 +767,7 @@ private slots:
 
         dndwidget.show();
 #if QT_VERSION >= 0x050000
-        QTest::qWaitForWindowExposed(&dndwidget);
+        QVERIFY(QTest::qWaitForWindowExposed(&dndwidget));
 #else
         QTest::qWaitForWindowShown(&dndwidget);
 #endif
@@ -820,7 +820,7 @@ private slots:
         QQuickView view;
         view.setSource(QUrl::fromLocalFile(SOURCE_DIR "sample1.qml"));
         view.show();
-        QTest::qWaitForWindowExposed(&view);
+        QVERIFY(QTest::qWaitForWindowExposed(&view));
 
         QBuffer buffer;
         Player player(&buffer);
@@ -855,7 +855,7 @@ private slots:
         QQuickView view;
         view.setSource(QUrl::fromLocalFile(SOURCE_DIR "find_by_id.qml"));
         view.show();
-        QTest::qWaitForWindowExposed(&view);
+        QVERIFY(QTest::qWaitForWindowExposed(&view));
 
         QBuffer buffer;
         Player player(&buffer);
@@ -910,7 +910,7 @@ private slots:
         QQuickView view;
         view.setSource(QUrl::fromLocalFile(SOURCE_DIR "test_click.qml"));
         view.show();
-        QTest::qWaitForWindowExposed(&view);
+        QVERIFY(QTest::qWaitForWindowExposed(&view));
 
         QBuffer buffer;
         Player player(&buffer);
