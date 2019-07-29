@@ -59,6 +59,10 @@ Example::
   .. automethod:: Widget.drag_n_drop
 
   .. automethod:: Widget.activate_focus
+  
+  .. automethod:: Widget.move
+  
+  .. automethod:: Widget.resize
 
   .. automethod:: Widget.close
 
