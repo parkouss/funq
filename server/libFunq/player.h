@@ -83,6 +83,8 @@ public slots:
     QtJson::JsonObject action_trigger(const QtJson::JsonObject & command);
     QtJson::JsonObject widgets_list(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_click(const QtJson::JsonObject & command);
+    QtJson::JsonObject widget_move(const QtJson::JsonObject & command);
+    QtJson::JsonObject widget_resize(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_close(const QtJson::JsonObject & command);
     QtJson::JsonObject widget_map_position(const QtJson::JsonObject & command);
     DelayedResponse * drag_n_drop(const QtJson::JsonObject & command);
