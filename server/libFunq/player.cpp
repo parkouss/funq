@@ -559,6 +559,48 @@ QtJson::JsonObject Player::quick_item_click(
 #endif
 }
 
+QtJson::JsonObject Player::widget_move(const QtJson::JsonObject & command) {
+  WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+  if (ctx.hasError()) {
+      return ctx.lastError;
+  }
+
+  QPoint pos = ctx.widget->pos();
+  if (!command["x"].isNull()) {
+    pos.setX(command["x"].toInt());
+  }
+  if (!command["y"].isNull()) {
+    pos.setY(command["y"].toInt());
+  }
+  ctx.widget->move(pos);
+
+  QtJson::JsonObject result;
+  result["x"] = ctx.widget->x();
+  result["y"] = ctx.widget->y();
+  return result;
+}
+
+QtJson::JsonObject Player::widget_resize(const QtJson::JsonObject & command) {
+  WidgetLocatorContext<QWidget> ctx(this, command, "oid");
+  if (ctx.hasError()) {
+      return ctx.lastError;
+  }
+
+  QSize size = ctx.widget->size();
+  if (!command["width"].isNull()) {
+    size.setWidth(command["width"].toInt());
+  }
+  if (!command["height"].isNull()) {
+    size.setHeight(command["height"].toInt());
+  }
+  ctx.widget->resize(size);
+
+  QtJson::JsonObject result;
+  result["width"] = ctx.widget->width();
+  result["height"] = ctx.widget->height();
+  return result;
+}
+
 QtJson::JsonObject Player::widget_close(const QtJson::JsonObject & command) {
     WidgetLocatorContext<QWidget> ctx(this, command, "oid");
     if (ctx.hasError()) {

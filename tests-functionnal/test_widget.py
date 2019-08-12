@@ -38,6 +38,70 @@ from funq.testcase import parameterized
 
 class TestWidget(AppTestCase):
 
+    def test_move_x(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        props_before = widget.properties()
+        new_x, new_y = widget.move(x=5)
+        self.assertEquals(new_x, 5)
+        self.assertEquals(new_y, props_before['y'])
+        props_after = widget.properties()
+        self.assertEquals(props_after['x'], new_x)
+        self.assertEquals(props_after['y'], new_y)
+
+    def test_move_y(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        props_before = widget.properties()
+        new_x, new_y = widget.move(y=6)
+        self.assertEquals(new_x, props_before['x'])
+        self.assertEquals(new_y, 6)
+        props_after = widget.properties()
+        self.assertEquals(props_after['x'], new_x)
+        self.assertEquals(props_after['y'], new_y)
+
+    def test_move_xy(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        new_x, new_y = widget.move(x=13, y=37)
+        self.assertEquals(new_x, 13)
+        self.assertEquals(new_y, 37)
+        props_after = widget.properties()
+        self.assertEquals(props_after['x'], new_x)
+        self.assertEquals(props_after['y'], new_y)
+
+    def test_resize_width(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        props_before = widget.properties()
+        new_width, new_height = widget.resize(width=42)
+        self.assertEquals(new_width, 42)
+        self.assertEquals(new_height, props_before['height'])
+        props_after = widget.properties()
+        self.assertEquals(props_after['width'], new_width)
+        self.assertEquals(props_after['height'], new_height)
+
+    def test_resize_height(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        props_before = widget.properties()
+        new_width, new_height = widget.resize(height=24)
+        self.assertEquals(new_width, props_before['width'])
+        self.assertEquals(new_height, 24)
+        props_after = widget.properties()
+        self.assertEquals(props_after['width'], new_width)
+        self.assertEquals(props_after['height'], new_height)
+
+    def test_resize_both(self):
+        self.start_dialog('widgetclick')
+        widget = self.funq.widget(path='mainWindow::WidgetClickDialog::QWidget')
+        new_width, new_height = widget.resize(width=13, height=37)
+        self.assertEquals(new_width, 13)
+        self.assertEquals(new_height, 37)
+        props_after = widget.properties()
+        self.assertEquals(props_after['width'], new_width)
+        self.assertEquals(props_after['height'], new_height)
+
     def test_map_position_to_from_global(self):
         btn = self.funq.widget(path='mainWindow::QWidget::click')
         local_pos = (10, 20)

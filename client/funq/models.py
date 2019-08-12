@@ -364,6 +364,32 @@ class Widget(Object):
         self.client.drag_n_drop(self, src_pos=src_pos, dest_widget=dest_widget,
                                 dest_pos=dest_pos)
 
+    def move(self, x=None, y=None):
+        """
+        Move the widget, using QWidget::move(). One can either only change X or
+        Y coordinate, or both at the same time.
+
+        :param int x: New X coordinate (optional).
+        :param int y: New Y coordinate (optional).
+        :return: New position as tuple (X, Y).
+        """
+        response = self.client.send_command('widget_move', oid=self.oid,
+                                            x=x, y=y)
+        return response['x'], response['y']
+
+    def resize(self, width=None, height=None):
+        """
+        Resize the widget, using QWidget::resize(). One can either only change
+        width or height, or both at the same time.
+
+        :param int width: New width (optional).
+        :param int height: New height (optional).
+        :return: New size as tuple (width, height).
+        """
+        response = self.client.send_command('widget_resize', oid=self.oid,
+                                            width=width, height=height)
+        return response['width'], response['height']
+
     def close(self):
         """
         Ask to close a widget, using QWidget::close().
