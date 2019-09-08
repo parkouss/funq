@@ -16,8 +16,6 @@ still use the sources, or link with funq libraries for a personal use
 Please feel free to contribute to this project by creating github issues,
 pull requests, or simply staring the project! It will be greatly appreciated.
 
-Tutorial and documentation:
-
 .. image:: https://readthedocs.org/projects/funq/badge/?version=latest
     :target: http://funq.readthedocs.org
 
@@ -60,19 +58,17 @@ You can easily install it from PyPi with pip or setuptools::
   pip install funq-server
   pip install funq
 
-.. note::
+Note that funq-server will need qmake to build the C++ part of the server,
+and this installation will be Qt-compatible with the same Qt version of
+qmake.
 
-  Note that funq-server will need qmake to build the C++ part of the server,
-  and this installation will be Qt-compatible with the same Qt version of
-  qmake.
+To specify the path to qmake, you can define the **FUNQ_QMAKE_PATH**
+environment variable: ::
 
-  To specify the path to qmake, you can define the **FUNQ_QMAKE_PATH**
-  environment variable: ::
+  FUNQ_QMAKE_PATH=/usr/bin/qmake-qt5 pip install funq-server
 
-    FUNQ_QMAKE_PATH=/usr/bin/qmake-qt5 pip install funq-server
-
-  Also, if you're not using virtualenv you may have to take root
-  privileges to install **funq**.
+Also, if you're not using virtualenv you may have to take root
+privileges to install **funq**.
 
 You can instead get the sources and install it::
 
@@ -80,22 +76,18 @@ You can instead get the sources and install it::
   pip install server
   pip install client
 
-.. note::
+For contributors, you may want to use **pip install -e** instead of
+**pip install** commands. Note that **virtualenv** is highly recommended,
+so you can easily manage multiple python2/python3/Qt4/Qt5 environments.
 
-  For contributors, you may want to use **pip install -e** instead of
-  **pip install** commands. Note that **virtualenv** is highly recommended,
-  so you can easily manage multiple python2/python3/Qt4/Qt5 environments.
+When installing funq-server from sources, you can create a server/setup.cfg
+file to specify the qmake path::
 
-.. note::
+  [build_libfunq]
+  qmake_path = /usr/bin/qmake-qt5
 
-  When installing funq-server from sources, you can create a server/setup.cfg
-  file to specify the qmake path::
-
-    [build_libfunq]
-    qmake_path = /usr/bin/qmake-qt5
-
-  before running the *pip install* command, or use the **FUNQ_QMAKE_PATH**
-  environment variable.
+Before running the *pip install* command, or use the **FUNQ_QMAKE_PATH**
+environment variable.
 
 How does *funq* works
 =====================
