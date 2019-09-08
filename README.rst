@@ -108,6 +108,10 @@ You can instead get the sources and install it::
 
   before running the *pip install* command, or use the **FUNQ_QMAKE_PATH**
   environment variable.
+  
+Documentation
+=============
+Documentation is available at https://funq.readthedocs.io/
 
 Thanks to
 =========
