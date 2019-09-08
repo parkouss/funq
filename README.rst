@@ -1,8 +1,8 @@
 The *funq* project
 ==================
 
-**funq** is a tool to write FUNctional tests for Qt applications
-using python.
+**funq** is a tool to write FUNctional tests for Qt applications, both Widgets
+and QML, using python.
 
 It is licenced under the CeCILL v2.1 licence (very close to the GPL v2).
 See the LICENCE.txt file distributed in the sources for more information.
@@ -37,32 +37,18 @@ Get funq on PyPi (server and client packages):
 .. image:: https://img.shields.io/pypi/v/funq.svg
     :target: https://pypi.python.org/pypi/funq/
 
-How does *funq* works
-=====================
+Examples
+========
 
-**funq** is divided in two parts:
+Run your application like::
+funq-server YourApp -h 0.0.0.0 -p 9000
 
-- **funq-server** is the server part of the project, composed of an
-  executable called **funq** and a dynamic library **libFunq**. The
-  **funq** executable allows to inject some code in a Qt application
-  to start a TCP server that will allow to interact with the application.
-  This is currently not working with Python 3 on Windows, but you can still
-  build you application with libFunq as a workaround.
+Then you can run this application like
+from funq.client import FunqClient
 
-- **funq** is a python package that offers an API to interact with a
-  **libFunq** TCP server. It is the client side of the project, and uses
-  nosetests to launch FUNctional Qt tests.
+funq = FunqClient("123.123.123.123", 9000)
+funq.widget('btnTest').click()
 
-Known restrictions
-==================
-
-Funq currently works with python >= 2.7 (it is fully compatible with python 3),
-Qt4 and Qt5 on GNU/Linux and macOS.
-
-It also works on Windows, but only with Python 2.7 out of the box. With
-Python 3, the tested application has to be compiled with libFunq because the
-package *winappdbg* (needed for the DLL injection) is not available for Python 3
-(any help welcome!).
 
 Installation
 ============
@@ -108,7 +94,34 @@ You can instead get the sources and install it::
 
   before running the *pip install* command, or use the **FUNQ_QMAKE_PATH**
   environment variable.
-  
+
+How does *funq* works
+=====================
+
+**funq** is divided in two parts:
+
+- **funq-server** is the server part of the project, composed of an
+  executable called **funq** and a dynamic library **libFunq**. The
+  **funq** executable allows to inject some code in a Qt application
+  to start a TCP server that will allow to interact with the application.
+  This is currently not working with Python 3 on Windows, but you can still
+  build you application with libFunq as a workaround.
+
+- **funq** is a python package that offers an API to interact with a
+  **libFunq** TCP server. It is the client side of the project, and uses
+  nosetests to launch FUNctional Qt tests.
+
+Known restrictions
+==================
+
+Funq currently works with python >= 2.7 (it is fully compatible with python 3),
+Qt4 and Qt5 on GNU/Linux and macOS.
+
+It also works on Windows, but only with Python 2.7 out of the box. With
+Python 3, the tested application has to be compiled with libFunq because the
+package *winappdbg* (needed for the DLL injection) is not available for Python 3
+(any help welcome!).
+
 Documentation
 =============
 Documentation is available at https://funq.readthedocs.io/
