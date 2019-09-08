@@ -41,13 +41,13 @@ Examples
 ========
 
 Run your application like::
-funq-server YourApp -h 0.0.0.0 -p 9000
+  funq-server --host 0.0.0.0 --port 9000 YourApp
 
-Then you can run this application like
-from funq.client import FunqClient
+Then you can run this application like::
+  from funq.client import FunqClient
 
-funq = FunqClient("123.123.123.123", 9000)
-funq.widget('btnTest').click()
+  funq = FunqClient("192.168.0.17", 9000)
+  funq.widget('btnTest').click()
 
 
 Installation
