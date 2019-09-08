@@ -16,6 +16,8 @@ still use the sources, or link with funq libraries for a personal use
 Please feel free to contribute to this project by creating github issues,
 pull requests, or simply staring the project! It will be greatly appreciated.
 
+Documentation:
+
 .. image:: https://readthedocs.org/projects/funq/badge/?version=latest
     :target: http://funq.readthedocs.org
 
