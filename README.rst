@@ -41,9 +41,11 @@ Examples
 ========
 
 Run your application like::
-  funq-server --host 0.0.0.0 --port 9000 YourApp
 
-Then you can run this application like::
+  funq --host 0.0.0.0 --port 9000 YourApp
+
+Then you can call from python like this::
+
   from funq.client import FunqClient
 
   funq = FunqClient("192.168.0.17", 9000)
