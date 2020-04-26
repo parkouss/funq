@@ -152,6 +152,7 @@ void DragNDropResponse::execute(int call) {
                 new QMouseEvent(QEvent::MouseButtonRelease, m_destPos,
                                 m_destPosGlobal, Qt::LeftButton, Qt::NoButton,
                                 Qt::NoModifier));
+            break;
         }
         case 5:  // and reply
             writeResponse(QtJson::JsonObject());
