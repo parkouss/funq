@@ -86,17 +86,15 @@ class build_libfunq(Command):
     def run(self):
         if self.force:
             subprocess.call([self.make_path, 'clean'], shell=True)
-        buildtype = 'Debug' if self.debug else 'Release'
-        qmake_cmd = [self.qmake_path, 'CONFIG+=%s' % buildtype, '-r']
+        qmake_cmd = [self.qmake_path, '-r']
         if IS_WINDOWS:
             qmake_cmd += ['-spec', 'win32-g++']
         if self.cxxflags:
             qmake_cmd += ['QMAKE_CXXFLAGS="' + self.cxxflags + '"']
         print('running %s' % qmake_cmd)
         subprocess.check_call(qmake_cmd)
-        make_cmd = [self.make_path]
-        if IS_WINDOWS:
-            make_cmd += ['debug' if self.debug else 'release']
+        buildtype = 'debug' if self.debug else 'release'
+        make_cmd = [self.make_path, buildtype]
         print('running %s' % make_cmd)
         subprocess.check_call(make_cmd, shell=True)
 
