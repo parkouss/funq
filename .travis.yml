@@ -7,6 +7,9 @@ notifications:
     on_success: change
     on_failure: change
 
+services:
+  - xvfb
+
 env:
   global:
     - FUNQ_CXXFLAGS="-Wall -Wextra -Werror"  # make CI fail on warnings
@@ -81,7 +84,6 @@ matrix:
       python: 3.4
       env: QT_SELECT=5.7.1 PYTHON=python
 
-
     # Linux Qt5.8 Python2.7
     - os: linux
       dist: trusty
@@ -102,6 +104,34 @@ matrix:
       language: python
       python: 2.7
       env: QT_SELECT=5.10.1 PYTHON=python
+
+    # Linux Qt5.11.3 Python2.7
+    - os: linux
+      dist: xenial
+      language: python
+      python: 2.7
+      env: QT_SELECT=5.11.3 PYTHON=python
+
+    # Linux Qt5.12.8 Python3.5
+    - os: linux
+      dist: xenial
+      language: python
+      python: 3.5
+      env: QT_SELECT=5.12.8 PYTHON=python
+
+    # Linux Qt5.13.2 Python2.7
+    - os: linux
+      dist: bionic
+      language: python
+      python: 2.7
+      env: QT_SELECT=5.13.2 PYTHON=python
+
+    # Linux Qt5.14.2 Python3.8
+    - os: linux
+      dist: bionic
+      language: python
+      python: 3.8
+      env: QT_SELECT=5.14.2 PYTHON=python
 
 install:
   - source ./ci/install_dependencies.sh # source required because of exports

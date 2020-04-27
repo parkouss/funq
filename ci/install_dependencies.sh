@@ -22,18 +22,23 @@ then
     PATCH=`echo "$QT_SELECT" | cut -d'.' -f 3`
     PREFIX="" && [[ "$MINOR" -ge 10 ]] && PREFIX="-"
     SEPARATOR="" && [[ "$MINOR" -ge 10 ]] && SEPARATOR="."
-    sudo add-apt-repository "ppa:beineri/opt-qt${PREFIX}${MAJOR}${SEPARATOR}${MINOR}${SEPARATOR}${PATCH}-trusty" -y
+    CODENAME=`lsb_release -sc`
+    sudo add-apt-repository "ppa:beineri/opt-qt${PREFIX}${MAJOR}${SEPARATOR}${MINOR}${SEPARATOR}${PATCH}-$CODENAME" -y
     sudo apt-get update -q
-    sudo apt-get install -q "qt${MAJOR}${MINOR}base" "qt${MAJOR}${MINOR}tools" "qt${MAJOR}${MINOR}declarative"
+    sudo apt-get install -q "qt${MAJOR}${MINOR}base" "qt${MAJOR}${MINOR}tools" "qt${MAJOR}${MINOR}declarative" libglu1-mesa-dev
     source "/opt/qt${MAJOR}${MINOR}/bin/qt${MAJOR}${MINOR}-env.sh"
   fi
 
   # python packages
   pip install flake8
 
-  # xvfb
-  export DISPLAY=:99.0
-  sh -e /etc/init.d/xvfb start
+  # xvfb is only needed on Trusty, see deteils here:
+  # https://docs.travis-ci.com/user/gui-and-headless-browsers/#using-xvfb-to-run-tests-that-require-a-gui
+  if [[ "`lsb_release -sc`" == "trusty" ]]
+  then
+    export DISPLAY=:99.0
+    sh -e /etc/init.d/xvfb start
+  fi
 
 
 # Install dependencies on OS X
