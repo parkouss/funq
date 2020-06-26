@@ -36,6 +36,8 @@
 Defines error classes used in funq.
 """
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 
 class FunqError(Exception):
 
@@ -49,7 +51,7 @@ class FunqError(Exception):
     def __init__(self, classname, desc):
         self.classname = classname
         self.desc = desc
-        Exception.__init__(self, u"{classname}: {desc}".format(
+        Exception.__init__(self, "{classname}: {desc}".format(
             classname=classname,
             desc=desc))
 

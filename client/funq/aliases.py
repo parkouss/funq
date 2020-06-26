@@ -37,8 +37,10 @@ This module defines aliases implementation to give names instead of
 complete widget's paths.
 """
 
-from ConfigParser import ConfigParser
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 import collections
+from six.moves.configparser import ConfigParser
 from funq.errors import HooqAliasesInvalidLineError, HooqAliasesKeyError
 
 

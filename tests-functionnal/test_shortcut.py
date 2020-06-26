@@ -47,7 +47,7 @@ class TestShortcut(AppTestCase):
         dlg = self.funq.active_widget('modal')
         dlg.shortcut(sequence)
 
-        self.assertEquals(self.get_status_text(), "Shortcut: " + sequence)
+        self.assertEqual(self.get_status_text(), "Shortcut: " + sequence)
 
     @parameterized("CTRL+C,F2", ["CTRL+C", "F2"])
     @parameterized("CTRL+C,F2,ENTER", ["CTRL+C", "F2", "ENTER"])
@@ -58,10 +58,10 @@ class TestShortcut(AppTestCase):
         for sequence in sequences:
             dlg.shortcut(sequence)
 
-            self.assertEquals(self.get_status_text(), "Shortcut: " + sequence)
+            self.assertEqual(self.get_status_text(), "Shortcut: " + sequence)
 
     def test_on_push_button(self):
         self.start_dialog('click')
         btn = self.funq.widget(path='mainWindow::ClickDialog::QPushButton')
         btn.shortcut("ENTER")
-        self.assertEquals(self.get_status_text(), 'clicked !')
+        self.assertEqual(self.get_status_text(), 'clicked !')

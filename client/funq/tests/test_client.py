@@ -32,12 +32,13 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 from nose.tools import assert_equals, raises
+from six.moves.configparser import ConfigParser, NoOptionError
 from funq import client
 import os
 import subprocess
-
-from ConfigParser import ConfigParser, NoOptionError
 
 
 class ApplicationConfig(client.ApplicationConfig):
@@ -47,7 +48,7 @@ class ApplicationConfig(client.ApplicationConfig):
 class GlobalOptions(object):
 
     def __init__(self, **kwds):
-        for k, v in kwds.iteritems():
+        for k, v in kwds.items():
             setattr(self, k, v)
 
 

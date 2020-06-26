@@ -60,4 +60,4 @@ class TestInjection(AppTestCase):
         btn.click()
         # now the main window should be visible
         window = self.funq.widget(path='mainWindow::QWidget')
-        self.assertEquals(window.properties()['visible'], True)
+        self.assertEqual(window.properties()['visible'], True)

@@ -36,6 +36,8 @@
 funq integration in TestCase subclasses.
 """
 
+from __future__ import print_function, division, absolute_import, unicode_literals
+
 import unittest
 import weakref
 from functools import wraps
@@ -43,14 +45,7 @@ from funq.client import ApplicationContext
 import os
 import re
 import inspect
-
-
-# python 3 compatibility
-# https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
-try:
-    unicode
-except NameError:
-    unicode = str
+import six
 
 
 class AssertionSuccessError(AssertionError):
@@ -67,7 +62,7 @@ class AssertionSuccessError(AssertionError):
         self.name = name
 
     def __str__(self):
-        return u"Test %s passed but it is decorated as TODO" % self.name
+        return "Test %s passed but it is decorated as TODO" % self.name
 
     def __rep__(self):
         return self.__str__()
@@ -100,8 +95,8 @@ def todo(skip_message, exception_cls=AssertionError):
             try:
                 func(*args, **kwargs)
             except exception_cls as err:
-                err = u"%s" % err
-                if isinstance(err, unicode):
+                err = "%s" % err
+                if isinstance(err, six.text_type):
                     err = err.encode(
                         'utf-8', errors='ignore')  # pylint: disable=E1103
                 skip_msg = skip_message.encode('utf-8', errors='ignore')
@@ -188,7 +183,7 @@ def wraps_parameterized(func, func_suffix, args, kwargs):
 
     def wrapper(self):
         return func(self, *args, **kwargs)
-    wrapper.__name__ = func.__name__ + '_' + func_suffix
+    wrapper.__name__ = ('%s_%s' % (func.__name__.decode('ascii'), func_suffix)).encode('ascii')
     wrapper.__doc__ = '[%s] %s' % (func_suffix, func.__doc__)
     return wrapper
 
@@ -202,7 +197,7 @@ class MetaParameterized(type):
     RE_ESCAPE_BAD_CHARS = re.compile(r'[\.\(\) -/]')
 
     def __new__(cls, name, bases, attrs):
-        for k, v in attrs.items():
+        for k, v in list(attrs.items()):
             if callable(v) and hasattr(v, 'parameters'):
                 for func_suffix, args, kwargs in v.parameters:
                     func_suffix = cls.RE_ESCAPE_BAD_CHARS.sub('_', func_suffix)
@@ -246,6 +241,7 @@ def register_funq_app_registry(registry):
     BaseTestCase.__app_registry__ = registry
 
 
+@six.add_metaclass(MetaParameterized)
 class BaseTestCase(unittest.TestCase):
 
     """
@@ -255,9 +251,8 @@ class BaseTestCase(unittest.TestCase):
     :class:`MetaParameterized` that allows to generate methods from data.
 
     It inherits from :class:`unittest.TestCase`, thus allowing to use very
-    useful methods like assertEquals, assertFalse, etc.
+    useful methods like assertEqual, assertFalse, etc.
     """
-    __metaclass__ = MetaParameterized
     __app_registry__ = None
 
     longMessage = True
@@ -279,7 +274,7 @@ class BaseTestCase(unittest.TestCase):
     def id(self):
         cls = self.__class__
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
-        return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
+        return "%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
 
 
 class FunqTestCase(BaseTestCase):
