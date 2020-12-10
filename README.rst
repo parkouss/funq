@@ -67,7 +67,7 @@ qmake.
 To specify the path to qmake, you can define the **FUNQ_QMAKE_PATH**
 environment variable: ::
 
-  FUNQ_QMAKE_PATH=/usr/bin/qmake-qt5 pip install funq-server
+  FUNQ_QMAKE_PATH=/usr/bin/qmake-qt5
 
 Also, if you're not using virtualenv you may have to take root
 privileges to install **funq**.
