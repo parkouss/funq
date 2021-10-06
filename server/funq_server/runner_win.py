@@ -33,44 +33,130 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 from funq_server.runner import RunnerInjector
-import winappdbg
+from ctypes import windll, wintypes, byref
 import time
+
+# Useful resources regarding DLL injection:
+#
+# - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices
+# - https://blog.nettitude.com/uk/dll-injection-part-two
+# - https://stackoverflow.com/questions/27332509/createremotethread-on-loadlibrary-and-get-the-hmodule-back
+# - https://github.com/numaru/injector
+
+# Constants from Windows API documentation.
+PROCESS_CREATE_THREAD = 0x0002
+PROCESS_VM_OPERATION = 0x0008
+PROCESS_VM_WRITE = 0x0020
+MEM_COMMIT = 0x00001000
+MEM_RESERVE = 0x00002000
+PAGE_READWRITE = 0x04
 
 
 class WindowsRunnerInjector(RunnerInjector):
-    max_wait = 20  # 20 seconds to let the process starts well
-
     def start_subprocess(self):
+        # Start the process.
         RunnerInjector.start_subprocess(self)
-        # wait for the process to be be running...
-        proc = winappdbg.Process(self._proc.pid)
-        start = time.time()
-        while True:
-            # wait for QT to be loaded
-            if self._proc.poll() is not None:
-                raise RuntimeError("The process has finished with an error"
-                                   " code of %d before we could hook it with"
-                                   " funq." % self._proc.returncode)
 
-            if start + self.max_wait < time.time():
-                self._proc.terminate()
-                raise RuntimeError("Error while waiting for subprocess to be"
-                                   " launched. Is the executable linked to"
-                                   " qt4 ?")
+        # Unfortunately we do not know when the process startup is really
+        # complete and Qt libraries are loaded. When starting the injection
+        # too early, it does not work 100% reliable (in rare cases, the
+        # process freezes or crashes). When slightly delaying the injection,
+        # it seems to work more reliable. One seconds seems to be a safe
+        # choice to also make it reliable if the system is very busy.        #
+        # Hopefully someone finds a better way some day (without delay)...
+        time.sleep(1.0)
+
+        # Check if the process is still running.
+        if self._proc.poll() is not None:
+            raise RuntimeError("The process has finished with an error"
+                               " code of %d before we could hook it with"
+                               " funq." % self._proc.returncode)
+
+        # Inject the DLL now.
+        try:
+            self._inject_dll(self._proc.pid, self.library_path)
+        except Exception:
             try:
-                proc.scan_modules()
-            except WindowsError:
-                # Following exception occurs sometimes, but it still works fine
-                # so let's ignore it: WindowsError: [Error 299] Only part of a
-                # ReadProcessMemory or WriteProcessMemory request was completed
-                pass
-            lib_names = [lib.get_name() for lib in proc.iter_modules()]
-            qt_lib_names = ['qtguid4', 'qtgui4', 'qt5guid', 'qt5gui']
-            if len(set(qt_lib_names).intersection(set(lib_names))) > 0:
-                break
-            time.sleep(0.01)
+                # Injection failed, try to terminate the process.
+                self._proc.terminate()
+            except Exception as e:
+                print("Failed to terminate process: {}".format(e))
+            raise
 
-        # wait a bit, and hope that QT is now really initialized !
-        time.sleep(1)
-        # we can inject the dll
-        proc.inject_dll(self.library_path)
+    def _inject_dll(self, pid, dll_path):
+        # Get handle to kernel32.dll.
+        kernel32_handle = windll.kernel32.GetModuleHandleA(b"kernel32.dll")
+        if not kernel32_handle:
+            self._raise_windows_error("GetModuleHandleA()", kernel32_handle)
+
+        # Get handle to LoadLibraryA().
+        loadlibrary_address = windll.kernel32.GetProcAddress(
+            kernel32_handle, b"LoadLibraryA")
+        if not loadlibrary_address:
+            self._raise_windows_error("GetProcAddress()", loadlibrary_address)
+
+        # Get handle to the running process.
+        process_handle = windll.kernel32.OpenProcess(
+            PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_WRITE,
+            0, pid)
+        if not process_handle:
+            self._raise_windows_error("OpenProcess()", process_handle)
+
+        # Allocate memory for the DLL path.
+        dll_path = dll_path.encode("ascii")
+        path_address = windll.kernel32.VirtualAllocEx(
+            process_handle, 0, len(dll_path), MEM_COMMIT | MEM_RESERVE,
+            PAGE_READWRITE)
+        if not path_address:
+            self._raise_windows_error("VirtualAllocEx()", path_address)
+
+        # Write DLL path into the allocated memory region.
+        success = windll.kernel32.WriteProcessMemory(
+            process_handle, path_address, dll_path, len(dll_path), None)
+        if not success:
+            self._raise_windows_error("WriteProcessMemory()", success)
+
+        # Create and start new thread in the process. The entry point of the
+        # new thread is LoadLibraryA() with our DLL path as argument.
+        thread_handle = windll.kernel32.CreateRemoteThread(
+            process_handle, 0, 0, loadlibrary_address, path_address, 0, None)
+        if not thread_handle:
+            self._raise_windows_error("CreateRemoteThread()", thread_handle)
+
+        # Release process handle since we no longer need it.
+        success = windll.kernel32.CloseHandle(process_handle)
+        if not success:
+            self._raise_windows_error("CloseHandle()", success)
+
+        # Wait (with 10s timeout) until the thread exited, i.e. our DLL
+        # injection either succeeded or failed.
+        error = windll.kernel32.WaitForSingleObject(thread_handle, 10000)
+        if error:
+            self._raise_windows_error("WaitForSingleObject()", error)
+
+        # Get the exit code of our thread, which corresponds to the return
+        # value of LoadLibraryA() so we can check if the DLL was loaded
+        # successfully or not.
+        libfunq_handle = wintypes.DWORD(0)
+        success = windll.kernel32.GetExitCodeThread(
+            thread_handle, byref(libfunq_handle))
+        if not success:
+            self._raise_windows_error("GetExitCodeThread()", success)
+        if not libfunq_handle:
+            self._raise_windows_error("LoadLibraryA()", libfunq_handle)
+
+        # Release thread handle since we no longer need it.
+        success = windll.kernel32.CloseHandle(thread_handle)
+        if not success:
+            self._raise_windows_error("CloseHandle()", success)
+
+    def _raise_windows_error(self, function_name, return_value):
+        """
+        Helper function to raise an error returned by a WIN32 API function.
+        """
+        last_error = windll.kernel32.GetLastError()
+        message = "Failed to inject DLL! "
+        message += "{} returned 0x{:X}. ".format(function_name, return_value)
+        message += "The last error is 0x{:X}. ".format(last_error)
+        message += "Maybe x86/x64 mismatch between python.exe and Qt DLLs?"
+        raise RuntimeError(message)

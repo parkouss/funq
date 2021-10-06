@@ -15,13 +15,6 @@ IS_MAC = platform.system() == 'Darwin'
 
 if sys.version_info < (2, 7):
     sys.exit("Python version must be > 2.7")
-elif sys.version_info > (3,) and IS_WINDOWS:
-    sys.exit('funq server under windows require winappdbg'
-             ' which is not available under python 3 currenly.')
-
-install_requires = []
-if IS_WINDOWS:
-    install_requires.append('winappdbg')
 
 
 def read(*paths):
@@ -145,6 +138,6 @@ setup(
         'install': install,
         'develop': develop,
     },
-    install_requires=install_requires,
+    install_requires=[],
     license='CeCILL v1.2',
 )
