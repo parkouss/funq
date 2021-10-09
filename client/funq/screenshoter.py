@@ -67,7 +67,7 @@ class ScreenShoter(object):  # pylint: disable=R0903
         if not os.path.isdir(self.working_folder):
             os.makedirs(self.working_folder)
 
-        bname = '{0}.png'.format(self.counter.next())
+        bname = '{0}.png'.format(next(self.counter))
         fname = os.path.join(self.working_folder, bname)
 
         try:
@@ -75,9 +75,9 @@ class ScreenShoter(object):  # pylint: disable=R0903
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception:
-            LOG.exception(u"impossible de prendre un screenshot pour"
-                          u" %s", longname)
+            LOG.exception("impossible de prendre un screenshot pour"
+                          " %s", longname)
             return
 
         with codecs.open(self.txt_file_path, "a", "utf-8") as f:
-            f.write(u"{0}: {1}\n".format(bname, longname))
+            f.write("{0}: {1}\n".format(bname, longname))

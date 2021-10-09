@@ -41,7 +41,7 @@ class TestTableView(AppTestCase):
         self.start_dialog('table')
         table = self.funq.widget(path='mainWindow::TableDialog::QTableWidget')
         items = table.model().items()
-        self.assertEquals(len(items.items), 6)
+        self.assertEqual(len(items.items), 6)
 
     def test_model_items_value(self):
         self.start_dialog('table')
@@ -49,21 +49,21 @@ class TestTableView(AppTestCase):
         items = table.model().items()
         for item in items.iter():
             text = str(item.column) + '.' + str(item.row)
-            self.assertEquals(item.value, text)
+            self.assertEqual(item.value, text)
 
     def test_model_items_checkable(self):
         self.start_dialog('table')
         table = self.funq.widget(path='mainWindow::TableDialog::QTableWidget')
         items = table.model().items()
         for item in items.iter():
-            self.assertEquals(item.is_checkable(), False)
+            self.assertEqual(item.is_checkable(), False)
 
     def test_model_items_checked(self):
         self.start_dialog('table')
         table = self.funq.widget(path='mainWindow::TableDialog::QTableWidget')
         items = table.model().items()
         for item in items.iter():
-            self.assertEquals(item.is_checked(), False)
+            self.assertEqual(item.is_checked(), False)
 
     def test_model_item_select(self):
         self.start_dialog('table')

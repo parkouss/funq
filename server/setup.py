@@ -13,15 +13,13 @@ import platform
 IS_WINDOWS = platform.system() == 'Windows'
 IS_MAC = platform.system() == 'Darwin'
 
-if sys.version_info < (2, 7):
-    sys.exit("Python version must be > 2.7")
+if sys.version_info < (3, 5):
+    sys.exit("Python version must be >= 3.5")
 
 
 def read(*paths):
     this_dir = os.path.dirname(os.path.realpath(__file__))
     content = open(os.path.join(this_dir, *paths), "rb").read()
-    if sys.version_info < (3, 0):
-        return content  # Do not decode file, since bytes==str in Python 2.x
     return content.decode("utf-8")
 
 
