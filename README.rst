@@ -100,23 +100,16 @@ How does *funq* works
   executable called **funq** and a dynamic library **libFunq**. The
   **funq** executable allows to inject some code in a Qt application
   to start a TCP server that will allow to interact with the application.
-  This is currently not working with Python 3 on Windows, but you can still
-  build you application with libFunq as a workaround.
 
 - **funq** is a python package that offers an API to interact with a
   **libFunq** TCP server. It is the client side of the project, and uses
   nosetests to launch FUNctional Qt tests.
 
-Known restrictions
-==================
+Compatibility
+=============
 
-Funq currently works with python >= 2.7 (it is fully compatible with python 3),
-Qt4 and Qt5 on GNU/Linux and macOS.
-
-It also works on Windows, but only with Python 2.7 out of the box. With
-Python 3, the tested application has to be compiled with libFunq because the
-package *winappdbg* (needed for the DLL injection) is not available for Python 3
-(any help welcome!).
+Funq currently works with Python >= 2.7 (it is fully compatible with Python 3),
+Qt4 and Qt5 on GNU/Linux, macOS and Windows.
 
 Documentation
 =============
