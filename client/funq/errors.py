@@ -49,7 +49,7 @@ class FunqError(Exception):
     def __init__(self, classname, desc):
         self.classname = classname
         self.desc = desc
-        Exception.__init__(self, u"{classname}: {desc}".format(
+        Exception.__init__(self, "{classname}: {desc}".format(
             classname=classname,
             desc=desc))
 
