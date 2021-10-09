@@ -10,7 +10,10 @@ if sys.version_info < (2, 7):
 
 def read(*paths):
     this_dir = os.path.dirname(os.path.realpath(__file__))
-    return open(os.path.join(this_dir, *paths)).read()
+    content = open(os.path.join(this_dir, *paths), "rb").read()
+    if sys.version_info < (3, 0):
+        return content  # Do not decode file, since bytes==str in Python 2.x
+    return content.decode("utf-8")
 
 
 version = re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
