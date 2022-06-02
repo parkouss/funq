@@ -26,6 +26,9 @@ init:
   - set PATH=%PY_DIR%;%PY_DIR%\Scripts;PATH=%QT_DIR%/bin;%MINGW_DIR%/bin;%PATH%
 
 install:
+  - echo "----- SETUP -----"
+  - python --version
+  - echo "-----------------"
   - cd client && python setup.py develop && cd ..
   - cd server && python setup.py develop && cd ..
   - cd server/tests && qmake QMAKE_CXXFLAGS="%FUNQ_CXXFLAGS%" && mingw32-make -j4 && cd ../../
