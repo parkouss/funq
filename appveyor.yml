@@ -10,14 +10,20 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       QT_DIR: C:/Qt/5.3/mingw482_32
       MINGW_DIR: C:/Qt/Tools/mingw482_32
+      PYTHON: "C:\\Python310"
+      PYTHON_ARCH: "32"
     # Test with latest Qt LTS version
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
       QT_DIR: C:/Qt/5.12/mingw73_32
       MINGW_DIR: C:/Qt/Tools/mingw730_32
+      PYTHON: "C:\\Python310"
+      PYTHON_ARCH: "32"
     # Test with latest Qt version available on AppVeyor
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       QT_DIR: C:/Qt/5.14/mingw73_32
       MINGW_DIR: C:/Qt/Tools/mingw730_32
+      PYTHON: "C:\\Python310"
+      PYTHON_ARCH: "32"
 
 init:
   - set PATH=%QT_DIR%/bin;%MINGW_DIR%/bin;%PATH%
