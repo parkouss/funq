@@ -17,6 +17,10 @@ env:
 matrix:
   fast_finish: true
   include:
+    # MacOS Qt4 Python2
+    - os: osx
+      language: cpp
+      env: QT_SELECT=4 PYTHON=python2
 
     # MacOS Qt5 Python2
     - os: osx
@@ -35,103 +39,26 @@ matrix:
       python: 2.7
       env: QT_SELECT=4 PYTHON=python
 
-    # Linux Qt4 Python3.4
+    # Linux Qt4 Python3.10
     - os: linux
       dist: trusty
       language: python
-      python: 3.4
+      python: 3.10
       env: QT_SELECT=4 PYTHON=python
 
-    # Linux Qt5.2.1 Python2.7
+    # Linux Qt5.15.2 Python2.7
     - os: linux
       dist: trusty
-      language: python
+      language: bionic
       python: 2.7
-      env: QT_SELECT=5.2.1 PYTHON=python
+      env: QT_SELECT=5.15.2 PYTHON=python
 
-    # Linux Qt5.3.2 Python3.4
-    - os: linux
-      dist: trusty
-      language: python
-      python: 3.4
-      env: QT_SELECT=5.3.2 PYTHON=python
-
-    # Linux Qt5.4.2 Python2.7
-    - os: linux
-      dist: trusty
-      language: python
-      python: 2.7
-      env: QT_SELECT=5.4.2 PYTHON=python
-
-    # Linux Qt5.5.1 Python3.4
-    - os: linux
-      dist: trusty
-      language: python
-      python: 3.4
-      env: QT_SELECT=5.5.1 PYTHON=python
-
-    # Linux Qt5.6.3 Python2.7
-    - os: linux
-      dist: trusty
-      language: python
-      python: 2.7
-      env: QT_SELECT=5.6.3 PYTHON=python
-
-    # Linux Qt5.7.1 Python3.4
-    - os: linux
-      dist: trusty
-      language: python
-      python: 3.4
-      env: QT_SELECT=5.7.1 PYTHON=python
-
-    # Linux Qt5.8 Python2.7
-    - os: linux
-      dist: trusty
-      language: python
-      python: 2.7
-      env: QT_SELECT=5.8 PYTHON=python
-
-    # Linux Qt5.9.6 Python3.4
-    - os: linux
-      dist: trusty
-      language: python
-      python: 3.4
-      env: QT_SELECT=5.9.6 PYTHON=python
-
-    # Linux Qt5.10.1 Python2.7
-    - os: linux
-      dist: trusty
-      language: python
-      python: 2.7
-      env: QT_SELECT=5.10.1 PYTHON=python
-
-    # Linux Qt5.11.3 Python2.7
-    - os: linux
-      dist: xenial
-      language: python
-      python: 2.7
-      env: QT_SELECT=5.11.3 PYTHON=python
-
-    # Linux Qt5.12.8 Python3.5
-    - os: linux
-      dist: xenial
-      language: python
-      python: 3.5
-      env: QT_SELECT=5.12.8 PYTHON=python
-
-    # Linux Qt5.13.2 Python2.7
+    # Linux Qt5.15.2 Python3.10
     - os: linux
       dist: bionic
       language: python
-      python: 2.7
-      env: QT_SELECT=5.13.2 PYTHON=python
-
-    # Linux Qt5.14.2 Python3.8
-    - os: linux
-      dist: bionic
-      language: python
-      python: 3.8
-      env: QT_SELECT=5.14.2 PYTHON=python
+      python: 3.10
+      env: QT_SELECT=5.15.2 PYTHON=python
 
 install:
   - source ./ci/install_dependencies.sh # source required because of exports
