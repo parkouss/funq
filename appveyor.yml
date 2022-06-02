@@ -10,19 +10,20 @@ environment:
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2013
       QT_DIR: C:/Qt/5.3/mingw482_32
       MINGW_DIR: C:/Qt/Tools/mingw482_32
+      PY_DIR: "C:\\Python27"
     # Test with latest Qt 5 LTS version
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
       QT_DIR: C:/Qt/5.15/mingw81_32
       MINGW_DIR: C:/Qt/Tools/mingw810_32
-      PYTHON: "C:\\Python310"
+      PY_DIR: "C:\\Python310"
     # Test with latest Qt 5 version available on AppVeyor
     - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
       QT_DIR: C:/Qt/5.15/mingw81_32
       MINGW_DIR: C:/Qt/Tools/mingw810_32
-      PYTHON: "C:\\Python310"
+      PY_DIR: "C:\\Python310"
 
 init:
-  - set PATH=%QT_DIR%/bin;%MINGW_DIR%/bin;%PATH%
+  - set PATH=%PY_DIR%;%PY_DIR%\Scripts;PATH=%QT_DIR%/bin;%MINGW_DIR%/bin;%PATH%
 
 install:
   - cd client && python setup.py develop && cd ..
