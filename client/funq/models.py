@@ -899,11 +899,7 @@ class ComboBox(Widget):
                             ' - got %s' % type(text))
         column = self.properties()['modelColumn']
         index = -1
-        # WORKAROUND: Call items() via function pointer to prevent py2to3 from
-        # performing an illegal conversion which doesn't work on Python 3. This
-        # should be removed once we have "real" Python 3 compatibility.
-        items_func = AbstractItemModel.items
-        for item in items_func(self.model()).iter():
+        for item in AbstractItemModel.items():
             if column == int(item.column) and item.value == text:
                 index = int(item.row)
                 break
