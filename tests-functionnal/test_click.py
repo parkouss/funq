@@ -42,25 +42,25 @@ class TestClick(AppTestCase):
         self.start_dialog('click')
         btn = self.funq.widget(path='mainWindow::ClickDialog::QPushButton')
         btn.click()
-        self.assertEquals(self.get_status_text(), 'clicked !')
+        self.assertEqual(self.get_status_text(), 'clicked !')
 
     def test_right_click(self):
         self.start_dialog('widgetclick')
         btn = self.funq.widget(path='mainWindow::WidgetClickDialog')
         btn.click(btn='right')
-        self.assertEquals(self.get_status_text(), 'right clicked !')
+        self.assertEqual(self.get_status_text(), 'right clicked !')
 
     def test_middle_click(self):
         self.start_dialog('widgetclick')
         btn = self.funq.widget(path='mainWindow::WidgetClickDialog')
         btn.click(btn='middle')
-        self.assertEquals(self.get_status_text(), 'middle clicked !')
+        self.assertEqual(self.get_status_text(), 'middle clicked !')
 
     def test_double_click(self):
         self.start_dialog('doubleclick')
         btn = self.funq.widget(path='mainWindow::DoubleClickDialog')
         btn.dclick()
-        self.assertEquals(self.get_status_text(), 'double clicked !')
+        self.assertEqual(self.get_status_text(), 'double clicked !')
 
     @parameterized('sometext', 'Hello this is me !')
     @parameterized('someothertext', 'AAAA BBBBBBBBBBBBBBBBBB CCCCCCCCCCCCCCCCCCCC')
@@ -68,7 +68,7 @@ class TestClick(AppTestCase):
         self.start_dialog('keyclick')
         line = self.funq.widget(path='mainWindow::KeyClickDialog::QLineEdit')
         line.keyclick(text)
-        self.assertEquals(self.get_status_text(), text)
+        self.assertEqual(self.get_status_text(), text)
 
     @parameterized('R1', 'H', 0, 0)
     @parameterized('R1_by_name', 'H', 'C1', 0)
@@ -77,7 +77,7 @@ class TestClick(AppTestCase):
         self.start_dialog('table')
         header = self.funq.widget(path='mainWindow::TableDialog::QTableWidget::' + orientation)
         header.header_click(index_or_name)
-        self.assertEquals(
+        self.assertEqual(
             self.get_status_text(),
             orientation + " Header clicked: " + str(result_index)
         )

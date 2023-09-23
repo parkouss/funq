@@ -37,7 +37,7 @@ from funq import client
 import os
 import subprocess
 
-from ConfigParser import ConfigParser, NoOptionError
+from configparser import ConfigParser, NoOptionError
 
 
 class ApplicationConfig(client.ApplicationConfig):
@@ -47,7 +47,7 @@ class ApplicationConfig(client.ApplicationConfig):
 class GlobalOptions(object):
 
     def __init__(self, **kwds):
-        for k, v in kwds.iteritems():
+        for k, v in list(kwds.items()):
             setattr(self, k, v)
 
 
