@@ -68,7 +68,7 @@ def test_wait_for_some_time():
 
 
 def test_which():
-    assert_equals(sys.executable, tools.which(sys.executable))
+    assert sys.executable, tools.which(sys.executable))
 
 
 def test_which_with_pass():
@@ -77,14 +77,14 @@ def test_which_with_pass():
     env = dict(PATH=path)
     os.environ = env
     try:
-        assert_equals(sys.executable, tools.which(fname))
+        assert sys.executable, tools.which(fname))
     finally:
         os.environ = old_env
 
 
 def test_apply_snooze_factor():
     tools.SNOOZE_FACTOR = 3.2
-    assert_equals(6.4, tools.apply_snooze_factor(2))
+    assert 6.4, tools.apply_snooze_factor(2))
     tools.SNOOZE_FACTOR = 1.0
 
 
