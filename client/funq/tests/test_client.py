@@ -32,7 +32,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, raises
+import pytest
 from funq import client
 import os
 import subprocess
@@ -66,7 +66,7 @@ class TestApplicationConfigFromConf:
             GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf'))
         )
 
-    @raises(NoOptionError)
+    @pytest.raises(NoOptionError)
     def test_require_executable(self):
         self.createApplicationConfig()
 

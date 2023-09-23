@@ -32,7 +32,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, assert_true, raises
+import pytest
 from funq import tools
 import time
 import sys
@@ -45,14 +45,14 @@ def test_wait_for():
     assert_true(tools.wait_for(func, 0.0))
 
 
-@raises(tools.TimeOutError)
+@pytest.raises(tools.TimeOutError)
 def test_wait_for_timeout():
     def func():
         return False
     tools.wait_for(func, 0.0)
 
 
-@raises(Exception)
+@pytest.raises(Exception)
 def test_wait_for_custom_exc():
     def func():
         return Exception()

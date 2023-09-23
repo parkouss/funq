@@ -32,7 +32,6 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_is_instance, assert_equals
 from funq import models
 
 
@@ -43,7 +42,7 @@ class TestWidgetInheritance:
             CPP_CLASS = 'TOTO'
 
         instance = models.Widget.create(None, {'classes': ['TOTO']})
-        assert_is_instance(instance, MyWidget)
+        assert isinstance(instance, MyWidget)
 
     def test_multi_inheritance_priority(self):
         class MyWidget(models.Widget):
@@ -53,7 +52,7 @@ class TestWidgetInheritance:
             CPP_CLASS = 'TITI'
 
         instance = models.Widget.create(None, {'classes': ['TITI', 'TOTO']})
-        assert_is_instance(instance, SomethingFirst)
+        assert isinstance(instance, SomethingFirst)
 
     def test_multi_inheritance(self):
         class MyWidget(models.Widget):
@@ -61,7 +60,7 @@ class TestWidgetInheritance:
 
         instance = models.Widget.create(
             None, {'classes': ['NotDefined', 'TOTO']})
-        assert_is_instance(instance, MyWidget)
+        assert isinstance(instance, MyWidget)
 
 
 class TestModelItems:
