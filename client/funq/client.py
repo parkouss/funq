@@ -450,16 +450,16 @@ class ApplicationContext(object):  # pylint: disable=R0903
             if funq_port:
                 env['FUNQ_PORT'] = str(funq_port)
 
-        else:
-            # inject libFunq with funq executable
-            if not appconfig.global_options.funq_attach_exe:
-                raise RuntimeError("To use funq, you have to specify the"
-                                   " nose option --funq-attach-exe"
-                                   " or put the funq executable in PATH")
-            cmd = [appconfig.global_options.funq_attach_exe]
-            if funq_port:
-                cmd.append('--port')
-                cmd.append(str(funq_port))
+        # else:
+        #     # inject libFunq with funq executable
+        #     if not appconfig.global_options.funq_attach_exe:
+        #         raise RuntimeError("To use funq, you have to specify the"
+        #                            " nose option --funq-attach-exe"
+        #                            " or put the funq executable in PATH")
+        #     cmd = [appconfig.global_options.funq_attach_exe]
+        #     if funq_port:
+        #         cmd.append('--port')
+        #         cmd.append(str(funq_port))
 
         if appconfig.with_valgrind:
             cmd.append('valgrind')
