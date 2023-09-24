@@ -63,9 +63,9 @@ def test_simple_configure():
     funqconf = tempfile.NamedTemporaryFile()
     plugin = configured_plugin(["--funq-conf", funqconf.name])
 
-    assert 1.0, tools.SNOOZE_FACTOR)
-    assert_true(plugin.screenshoter is not None)
-    assert plugin.trace_tests, None)
+    assert 1.0, tools.SNOOZE_FACTOR
+    assert plugin.screenshoter is not None
+    assert plugin.trace_tests, None
 
 
 def test_snooze_factor_configure():
@@ -76,7 +76,7 @@ def test_snooze_factor_configure():
         ["--funq-conf", funqconf.name, '--funq-snooze-factor', '3.2']
     )
 
-    assert 3.2, tools.SNOOZE_FACTOR)
+    assert 3.2 == tools.SNOOZE_FACTOR
 
 
 def test_before_after():

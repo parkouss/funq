@@ -63,9 +63,8 @@ def test_take_one_screenshot():
     funq = FakeFunqClient()
     with ScreenShoterCtx() as ctx:
         ctx.take_screenshot(funq, "hello")
-        assert list(map(os.path.basename, funq.screens)), ["0.png"])
-        assert_true("0.png: hello" in open(
-            os.path.join(ctx.working_folder, 'images.txt')).read())
+        assert list(map(os.path.basename, funq.screens)) == ["0.png"]
+        assert "0.png: hello" in open(os.path.join(ctx.working_folder, 'images.txt')).read()
 
 
 def test_take_screenshots():
@@ -77,5 +76,5 @@ def test_take_screenshots():
 
         assert list(map(os.path.basename, funq.screens)), ["0.png", "1.png"])
         content = open(os.path.join(ctx.working_folder, 'images.txt')).read()
-        assert_true("0.png: hello" in content)
-        assert_true("1.png: thisisit" in content)
+        assert "0.png: hello" in content
+        assert "1.png: thisisit" in content
