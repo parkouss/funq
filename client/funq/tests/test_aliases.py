@@ -48,25 +48,26 @@ class TestAliases:
         self.aliases['1'] = '2'
         assert self.aliases['1'] == '2'
 
-    @pytest.raises(HooqAliasesKeyError)
     def test_no_duplicates(self):
         self.aliases['1'] = '2'
-        self.aliases['1'] = '2'
+
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['1'] = '2'
 
     def test_substitution(self):
         self.aliases['a'] = '1'
         self.aliases['b'] = '{a}2'
         assert self.aliases['b'] == '12'
 
-    @pytest.raises(HooqAliasesKeyError)
     def test_bad_substitution(self):
-        self.aliases['b'] = '{a}2'
-        self.aliases['a'] = '1'
-        assert self.aliases['b'] == '12'
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b'] = '{a}2'
+            self.aliases['a'] = '1'
+            assert self.aliases['b'] == '12'
 
-    @pytest.raises(HooqAliasesKeyError)
     def test_alias_inexistant(self):
-        self.aliases['b']
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b']
 
 
 class TestAliasesFromFile:
@@ -115,9 +116,9 @@ b = 2
 """)
         assert aliases == {'a': '1', 'b': '2'}
 
-    @pytest.raises(HooqAliasesInvalidLineError)
     def test_parse_with_syntax_error(self):
-        self._parse("""
+        with pytest.raises(HooqAliasesInvalidLineError):
+            self._parse("""
 a  1
 """)
 

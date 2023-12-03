@@ -45,18 +45,18 @@ def test_wait_for():
     assert tools.wait_for(func, 0.0)
 
 
-@pytest.raises(tools.TimeOutError)
 def test_wait_for_timeout():
     def func():
         return False
-    tools.wait_for(func, 0.0)
+    with pytest.raises(tools.TimeOutError):
+        tools.wait_for(func, 0.0)
 
 
-@pytest.raises(Exception)
 def test_wait_for_custom_exc():
     def func():
         return Exception()
-    tools.wait_for(func, 0.0)
+    with pytest.raises(Exception):
+        tools.wait_for(func, 0.0)
 
 
 def test_wait_for_some_time():

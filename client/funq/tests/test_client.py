@@ -66,9 +66,9 @@ class TestApplicationConfigFromConf:
             GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf'))
         )
 
-    @pytest.raises(NoOptionError)
     def test_require_executable(self):
-        self.createApplicationConfig()
+        with pytest.raises(NoOptionError):
+            self.createApplicationConfig()
 
     def test_abs_executable(self):
         self.set_opt('executable', os.getcwd())
@@ -90,13 +90,13 @@ class TestApplicationConfigFromConf:
         self.set_opt('executable', 'toto')
         self.set_opt('funq_port', '12000')
         appconf = self.createApplicationConfig()
-        assert appconf.funq_port, 12000)
+        assert appconf.funq_port == 12000
 
     def test_timeout_connection(self):
         self.set_opt('executable', 'toto')
         self.set_opt('timeout_connection', '5')
         appconf = self.createApplicationConfig()
-        assert appconf.timeout_connection, 5)
+        assert appconf.timeout_connection == 5
 
     def test_abs_aliases(self):
         self.set_opt('executable', 'toto')
@@ -130,9 +130,9 @@ class TestApplicationRegistry:
 
         self.reg.register_from_conf(conf, GlobalOptions(funq_conf='.'))
 
-        assert len(self.reg.confs), 1)
+        assert len(self.reg.confs) == 1
 
-        assert self.reg.config('example').executable, exe)
+        assert self.reg.config('example').executable == exe
 
 
 class FakePopen(object):
