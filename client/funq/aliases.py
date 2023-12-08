@@ -37,7 +37,7 @@ This module defines aliases implementation to give names instead of
 complete widget's paths.
 """
 
-from ConfigParser import ConfigParser
+from configparser import ConfigParser
 import collections
 from funq.errors import HooqAliasesInvalidLineError, HooqAliasesKeyError
 

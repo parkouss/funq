@@ -65,7 +65,7 @@ class Runner(object):
         self.system = platform.system()
 
     def _parse_args(self, argv=None):
-        desc = u"""Start a QT application with a libFunq server injected."""
+        desc = """Start a QT application with a libFunq server injected."""
         parser = argparse.ArgumentParser(description=desc)
         parser.add_argument('-v', '--version', action='version',
                             version=funq_server.__version__)

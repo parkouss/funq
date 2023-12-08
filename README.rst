@@ -80,7 +80,7 @@ You can instead get the sources and install it::
 
 For contributors, you may want to use **pip install -e** instead of
 **pip install** commands. Note that **virtualenv** is highly recommended,
-so you can easily manage multiple python2/python3/Qt4/Qt5 environments.
+so you can easily manage multiple python3/Qt4/Qt5 environments.
 
 When installing funq-server from sources, you can create a server/setup.cfg
 file to specify the qmake path::

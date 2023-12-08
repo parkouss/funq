@@ -13,11 +13,8 @@ import platform
 IS_WINDOWS = platform.system() == 'Windows'
 IS_MAC = platform.system() == 'Darwin'
 
-if sys.version_info < (2, 7):
-    sys.exit("Python version must be > 2.7")
-elif sys.version_info > (3,) and IS_WINDOWS:
-    sys.exit('funq server under windows require winappdbg'
-             ' which is not available under python 3 currenly.')
+if sys.version_info < (3,):
+    sys.exit("Must be python3 version")
 
 install_requires = []
 if IS_WINDOWS:

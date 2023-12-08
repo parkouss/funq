@@ -32,7 +32,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, raises
+import pytest
 from funq.aliases import HooqAliases, HooqAliasesInvalidLineError,\
     HooqAliasesKeyError
 from tempfile import NamedTemporaryFile
@@ -46,27 +46,28 @@ class TestAliases:
 
     def test_add_one(self):
         self.aliases['1'] = '2'
-        assert_equals(self.aliases['1'], '2')
+        assert self.aliases['1'] == '2'
 
-    @raises(HooqAliasesKeyError)
-    def test_no_doublons(self):
+    def test_no_duplicates(self):
         self.aliases['1'] = '2'
-        self.aliases['1'] = '2'
+
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['1'] = '2'
 
     def test_substitution(self):
         self.aliases['a'] = '1'
         self.aliases['b'] = '{a}2'
-        assert_equals(self.aliases['b'], '12')
+        assert self.aliases['b'] == '12'
 
-    @raises(HooqAliasesKeyError)
     def test_bad_substitution(self):
-        self.aliases['b'] = '{a}2'
-        self.aliases['a'] = '1'
-        assert_equals(self.aliases['b'], '12')
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b'] = '{a}2'
+            self.aliases['a'] = '1'
+            assert self.aliases['b'] == '12'
 
-    @raises(HooqAliasesKeyError)
     def test_alias_inexistant(self):
-        self.aliases['b']
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b']
 
 
 class TestAliasesFromFile:
@@ -97,7 +98,7 @@ class TestAliasesFromFile:
 a = 1
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
     def test_parse_with_comment(self):
         aliases = self._parse("""
@@ -105,7 +106,7 @@ a = 1
 # toto = 1
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
     def test_parse_with_empty_line(self):
         aliases = self._parse("""
@@ -113,11 +114,11 @@ a = 1
 
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
-    @raises(HooqAliasesInvalidLineError)
     def test_parse_with_syntax_error(self):
-        self._parse("""
+        with pytest.raises(HooqAliasesInvalidLineError):
+            self._parse("""
 a  1
 """)
 
@@ -130,7 +131,7 @@ MY_DEFINE = 33
 a = {MY_DEFINE}::1
 b = 2
 """, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'}
 
     def test_with_gkit_interpolation(self):
         gkit_data = """
@@ -142,8 +143,8 @@ OTHER_DEFINE = {MY_DEFINE}::66
 a = {MY_DEFINE}::1
 b = {OTHER_DEFINE}
 """, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1',
-                                'OTHER_DEFINE': '33::66', 'b': '33::66'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1',
+                            'OTHER_DEFINE': '33::66', 'b': '33::66'}
 
     def test_with_gkit_custom(self):
         gkit_data = """
@@ -157,7 +158,7 @@ a = {MY_DEFINE}::1
 b = 2
 """
         aliases = self._parse(aliases_data, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'}
 
         aliases = self._parse(aliases_data, gkit_data, 'kde')
-        assert_equals(aliases, {'MY_DEFINE': '66', 'a': '66::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '66', 'a': '66::1', 'b': '2'}

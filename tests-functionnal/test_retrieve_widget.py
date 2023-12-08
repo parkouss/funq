@@ -50,8 +50,8 @@ class TestRetrieve(AppTestCase):
 
         self.assertIsInstance(lbl, Widget)
         self.assertIsInstance(lbl.client, FunqClient)
-        self.assertEquals(lbl.path, 'mainWindow::RetrieveWidget::QLabel')
-        self.assertEquals(lbl.classes, [u'QLabel', u'QFrame', u'QWidget', u'QObject'])
+        self.assertEqual(lbl.path, 'mainWindow::RetrieveWidget::QLabel')
+        self.assertEqual(lbl.classes, ['QLabel', 'QFrame', 'QWidget', 'QObject'])
         self.assertTrue(lbl.oid)
 
     def test_widget_alias_unknow(self):
@@ -59,7 +59,7 @@ class TestRetrieve(AppTestCase):
             lbl = self.funq.widget('toto')
 
     def test_widget_path_unavailable(self):
-        with self.assertRaisesRegexp(FunqError, "InvalidWidgetPath"):
+        with self.assertRaisesRegex(FunqError, "InvalidWidgetPath"):
             lbl = self.funq.widget(path='toto', timeout=0.1)
 
     def test_widget_subclass(self):
@@ -71,33 +71,33 @@ class TestRetrieve(AppTestCase):
         self.start_dialog('retrieve')
         lbl = self.funq.widget('lbl_retrieve')
 
-        self.assertEquals(lbl.properties()['text'], 'hello')
+        self.assertEqual(lbl.properties()['text'], 'hello')
 
     def test_widget_set_property(self):
         self.start_dialog('retrieve')
         lbl = self.funq.widget('lbl_retrieve')
         lbl.set_property('text', 'hello2')
-        self.assertEquals(lbl.properties()['text'], 'hello2')
+        self.assertEqual(lbl.properties()['text'], 'hello2')
 
     def test_widget_set_properties(self):
         self.start_dialog('retrieve')
         lbl = self.funq.widget('lbl_retrieve')
         lbl.set_properties(text='hello2', wordWrap=True)
-        self.assertEquals(lbl.properties()['text'], 'hello2')
-        self.assertEquals(lbl.properties()['wordWrap'], True)
+        self.assertEqual(lbl.properties()['text'], 'hello2')
+        self.assertEqual(lbl.properties()['wordWrap'], True)
 
     def test_widget_active(self):
         self.start_dialog('retrieve')
         self.funq.widget(path='mainWindow::RetrieveWidget')  # wait for the dialog to be shown
         active = self.funq.active_widget('modal')
-        self.assertEquals(active.path, 'mainWindow::RetrieveWidget')
+        self.assertEqual(active.path, 'mainWindow::RetrieveWidget')
 
     @parameterized('V', 'V', ['R1', 'R2'])
     @parameterized('H', 'H', ['C1', 'C2', 'C3'])
     def test_headertexts(self, orientation, texts):
         self.start_dialog('table')
         header = self.funq.widget(path='mainWindow::TableDialog::QTableWidget::' + orientation)
-        self.assertEquals(header.header_texts(), texts)
+        self.assertEqual(header.header_texts(), texts)
 
     def test_header_from_table(self):
         self.start_dialog('table')

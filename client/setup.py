@@ -4,8 +4,8 @@ import os
 import re
 import sys
 
-if sys.version_info < (2, 7):
-    sys.exit("Python version must be > 2.7")
+if sys.version_info < (3,):
+    sys.exit("Must be python3 version")
 
 
 def read(*paths):
@@ -29,7 +29,6 @@ setup(
     version=version,
     packages=find_packages(),
     zip_safe=False,
-    use_2to3=True,
     test_suite='funq.tests.create_test_suite',
     install_requires=install_requires,
     package_data={'funq': ['aliases-gkits.conf']},

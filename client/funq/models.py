@@ -44,9 +44,9 @@ import base64
 # python 3 compatibility
 # https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
 try:
-    basestring
+    str
 except NameError:
-    basestring = str
+    str = str
 
 
 class TreeItem(object):  # pylint: disable=R0903
@@ -64,7 +64,7 @@ class TreeItem(object):  # pylint: disable=R0903
         """
         self = cls()
         self.client = client
-        for k, v in data.iteritems():
+        for k, v in list(data.items()):
             if k != 'items':
                 setattr(self, k, v)
         self.items = [cls.create(client, d) for d in data.get('items', [])]
@@ -128,7 +128,7 @@ class WidgetMetaClass(type):
         return cls
 
 
-class Object(object):
+class Object(object, metaclass=WidgetMetaClass):
 
     """
     Allow to manipulate a QObject or derived.
@@ -141,7 +141,6 @@ class Object(object):
                   in inheritance order (ie 'QObject' is last)
                   [type : list(str)]
     """
-    __metaclass__ = WidgetMetaClass
 
     oid = None
     client = None
@@ -161,7 +160,7 @@ class Object(object):
                 break
 
         self = cls()
-        for k, v in data.iteritems():
+        for k, v in list(data.items()):
             setattr(self, k, v)
         setattr(self, 'client', client)
         return self
@@ -209,7 +208,7 @@ class Object(object):
         """
         def check_props():
             properties = self.properties()
-            for k, v in props.iteritems():
+            for k, v in list(props.items()):
                 if properties.get(k) != v:
                     return False
             return True
@@ -852,7 +851,7 @@ class GraphicsView(Widget):
         Write in a file the list of graphics items.
         """
         data = self.client.send_command('graphicsitems', oid=self.oid)
-        if isinstance(stream, basestring):
+        if isinstance(stream, str):
             stream = open(stream, 'w')
         json.dump(data,
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
@@ -867,7 +866,7 @@ class GraphicsView(Widget):
         data = self.client.send_command('grab_graphics_view', format=format_,
                                         oid=self.oid)
         has_to_be_closed = False
-        if isinstance(stream, basestring):
+        if isinstance(stream, str):
             stream = open(stream, 'wb')
             has_to_be_closed = True
         raw = base64.standard_b64decode(data['data'])
@@ -895,16 +894,12 @@ class ComboBox(Widget):
         """
         Define the text of the combobox, ensuring that it is a possible value.
         """
-        if not isinstance(text, basestring):
+        if not isinstance(text, str):
             raise TypeError('the text parameter must be a string'
                             ' - got %s' % type(text))
         column = self.properties()['modelColumn']
         index = -1
-        # WORKAROUND: Call items() via function pointer to prevent py2to3 from
-        # performing an illegal conversion which doesn't work on Python 3. This
-        # should be removed once we have "real" Python 3 compatibility.
-        items_func = AbstractItemModel.items
-        for item in items_func(self.model()).iter():
+        for item in AbstractItemModel.items():
             if column == int(item.column) and item.value == text:
                 index = int(item.row)
                 break
