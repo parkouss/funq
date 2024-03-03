@@ -65,7 +65,7 @@ class WindowsRunnerInjector(RunnerInjector):
                 # ReadProcessMemory or WriteProcessMemory request was completed
                 pass
             lib_names = [lib.get_name() for lib in proc.iter_modules()]
-            qt_lib_names = ['qtguid4', 'qtgui4', 'qt5guid', 'qt5gui']
+            qt_lib_names = ['qt5guid', 'qt5gui']
             if len(set(qt_lib_names).intersection(set(lib_names))) > 0:
                 break
             time.sleep(0.01)
