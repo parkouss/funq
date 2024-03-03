@@ -33,11 +33,10 @@ class build_libfunq(Command):
     user_options = [
         ('build-lib=', 'd', "directory to \"build\" (copy) to"),
         ('force', 'f', "forcibly build everything (ignore file timestamps)"),
-        ('qmake-path=', None, "path to the qmake executable"),
+        ('cmake-path=', None, "path to the cmake executable"),
         ('make-path=', None, "path to the make executable"),
         ('debug', 'g',
          "compile/link with debugging information"),
-        ('cxxflags=', None, "custom QMAKE_CXXFLAGS passed to qmake"),
         ('inplace', 'i',
          "ignore build-lib and put compiled extensions into the source " +
          "directory alongside your pure Python modules"),
@@ -50,12 +49,11 @@ class build_libfunq(Command):
         self.force = None
         self.inplace = None
         self.debug = None
-        self.cxxflags = None
-        self.qmake_path = None
+        self.cmake_path = None
         self.make_path = None
 
         if IS_WINDOWS:
-            self.funqlib_name = 'Funq.dll'
+            self.funqlib_name = 'libFunq.dll'
         elif IS_MAC:
             self.funqlib_name = 'libFunq.dylib'
         else:
@@ -66,12 +64,10 @@ class build_libfunq(Command):
                                    ('force', 'force'),
                                    ('debug', 'debug'),
                                    ('build_lib', 'build_lib'))
-        if self.qmake_path is None:
-            self.qmake_path = os.environ.get('FUNQ_QMAKE_PATH') or 'qmake'
+        if self.cmake_path is None:
+            self.cmake_path = os.environ.get('FUNQ_CMAKE_PATH') or 'cmake'
         if self.make_path is None:
             self.make_path = os.environ.get('FUNQ_MAKE_PATH') or 'make'
-        if self.cxxflags is None:
-            self.cxxflags = os.environ.get('FUNQ_CXXFLAGS')
 
     def funqlib_out_path(self):
         funqlib_base_dir = '.' if self.inplace else self.build_lib
@@ -80,15 +76,15 @@ class build_libfunq(Command):
     def run(self):
         if self.force:
             subprocess.call([self.make_path, 'clean'], shell=True)
-        qmake_cmd = [self.qmake_path, '-r']
-        if IS_WINDOWS:
-            qmake_cmd += ['-spec', 'win32-g++']
-        if self.cxxflags:
-            qmake_cmd += ['QMAKE_CXXFLAGS="' + self.cxxflags + '"']
-        print('running %s' % qmake_cmd)
-        subprocess.check_call(qmake_cmd)
-        buildtype = 'debug' if self.debug else 'release'
-        make_cmd = [self.make_path, buildtype]
+        buildtype = 'Debug' if self.debug else 'Release'
+        cmake_cmd = [
+            self.cmake_path, '.',
+            '-DCMAKE_BUILD_TYPE={}'.format(buildtype),
+        ]
+        print('running %s' % cmake_cmd)
+        subprocess.check_call(cmake_cmd)
+
+        make_cmd = [self.make_path]
         print('running %s' % make_cmd)
         subprocess.check_call(make_cmd, shell=True)
 
@@ -96,7 +92,7 @@ class build_libfunq(Command):
         lib_dir = os.path.dirname(lib_path)
         if not os.path.isdir(lib_dir):
             os.makedirs(lib_dir)
-        shutil.copy2(os.path.join('bin', self.funqlib_name), lib_path)
+        shutil.copy2(os.path.join('libFunq', self.funqlib_name), lib_path)
 
     def get_outputs(self):
         return [self.funqlib_out_path()]

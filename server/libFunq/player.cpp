@@ -56,11 +56,11 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTimer>
 #include <QTreeView>
 #include <QWidget>
+#include <QWindow>
 
 #ifdef QT_QUICK_LIB
 #include <QQuickItem>
 #include <QQuickWindow>
-#include <QWindow>
 #endif
 
 using namespace ObjectPath;
