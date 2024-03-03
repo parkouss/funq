@@ -38,9 +38,9 @@ import time
 
 # Useful resources regarding DLL injection:
 #
-# - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices
+# - https://docs.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-best-practices  # noqa: E501
 # - https://blog.nettitude.com/uk/dll-injection-part-two
-# - https://stackoverflow.com/questions/27332509/createremotethread-on-loadlibrary-and-get-the-hmodule-back
+# - https://stackoverflow.com/questions/27332509/createremotethread-on-loadlibrary-and-get-the-hmodule-back  # noqa: E501
 # - https://github.com/numaru/injector
 
 # Constants from Windows API documentation.
