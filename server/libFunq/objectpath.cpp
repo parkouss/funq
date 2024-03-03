@@ -37,12 +37,15 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QApplication>
 #include <QGraphicsItem>
 #include <QGraphicsView>
+#include <QWidget>
+#include <QWindow>
+
+#ifdef QT_QUICK_LIB
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
-#include <QWidget>
-#include <QWindow>
+#endif
 
 /**
  * Returns the object name (not unique given its siblings)
