@@ -28,20 +28,6 @@ matrix:
       language: cpp
       env: QT_SELECT=5 PYTHON=python3
 
-    # Linux Qt4 Python2.7
-    - os: linux
-      dist: trusty
-      language: python
-      python: 2.7
-      env: QT_SELECT=4 PYTHON=python
-
-    # Linux Qt4 Python3.4
-    - os: linux
-      dist: trusty
-      language: python
-      python: 3.4
-      env: QT_SELECT=4 PYTHON=python
-
     # Linux Qt5.2.1 Python2.7
     - os: linux
       dist: trusty

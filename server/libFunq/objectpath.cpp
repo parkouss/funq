@@ -37,15 +37,12 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QApplication>
 #include <QGraphicsItem>
 #include <QGraphicsView>
-#include <QWidget>
-
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QQmlContext>
 #include <QQmlEngine>
 #include <QQuickItem>
 #include <QQuickWindow>
+#include <QWidget>
 #include <QWindow>
-#endif
 
 /**
  * Returns the object name (not unique given its siblings)
@@ -119,13 +116,11 @@ QObject * ObjectPath::findObject(const QString & path) {
             }
         }
         // did not find any ? - let's try on windows (qtquick)
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         Q_FOREACH (QWindow * window, QApplication::topLevelWindows()) {
             if (objectName(window) == name) {
                 return window;
             }
         }
-#endif
         return 0;
     } else {
         parent = findObject(parts.join(separator));

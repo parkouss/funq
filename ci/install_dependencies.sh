@@ -12,22 +12,17 @@ then
   sudo apt-get install -q build-essential xvfb
 
   # qt
-  if [[ "$QT_SELECT" == "4" ]]
-  then
-    sudo apt-get install -q libqt4-dev qt4-dev-tools
-  else
-    # Add corresponding PPA from https://launchpad.net/~beineri
-    MAJOR=`echo "$QT_SELECT" | cut -d'.' -f 1`
-    MINOR=`echo "$QT_SELECT" | cut -d'.' -f 2`
-    PATCH=`echo "$QT_SELECT" | cut -d'.' -f 3`
-    PREFIX="" && [[ "$MINOR" -ge 10 ]] && PREFIX="-"
-    SEPARATOR="" && [[ "$MINOR" -ge 10 ]] && SEPARATOR="."
-    CODENAME=`lsb_release -sc`
-    sudo add-apt-repository "ppa:beineri/opt-qt${PREFIX}${MAJOR}${SEPARATOR}${MINOR}${SEPARATOR}${PATCH}-$CODENAME" -y
-    sudo apt-get update -q
-    sudo apt-get install -q "qt${MAJOR}${MINOR}base" "qt${MAJOR}${MINOR}tools" "qt${MAJOR}${MINOR}declarative" libglu1-mesa-dev
-    source "/opt/qt${MAJOR}${MINOR}/bin/qt${MAJOR}${MINOR}-env.sh"
-  fi
+  # Add corresponding PPA from https://launchpad.net/~beineri
+  MAJOR=`echo "$QT_SELECT" | cut -d'.' -f 1`
+  MINOR=`echo "$QT_SELECT" | cut -d'.' -f 2`
+  PATCH=`echo "$QT_SELECT" | cut -d'.' -f 3`
+  PREFIX="" && [[ "$MINOR" -ge 10 ]] && PREFIX="-"
+  SEPARATOR="" && [[ "$MINOR" -ge 10 ]] && SEPARATOR="."
+  CODENAME=`lsb_release -sc`
+  sudo add-apt-repository "ppa:beineri/opt-qt${PREFIX}${MAJOR}${SEPARATOR}${MINOR}${SEPARATOR}${PATCH}-$CODENAME" -y
+  sudo apt-get update -q
+  sudo apt-get install -q "qt${MAJOR}${MINOR}base" "qt${MAJOR}${MINOR}tools" "qt${MAJOR}${MINOR}declarative" libglu1-mesa-dev
+  source "/opt/qt${MAJOR}${MINOR}/bin/qt${MAJOR}${MINOR}-env.sh"
 
   # python packages
   pip install flake8

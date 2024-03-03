@@ -225,11 +225,7 @@ void dump_graphics_items(const QList<QGraphicsItem *> & items,
             outitem["classes"] = classes;
             outitem["objectname"] = itemObject->objectName();
         }
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         dump_graphics_items(item->childItems(), viewid, outitem);
-#else
-        dump_graphics_items(item->children(), viewid, outitem);
-#endif
         outitems << outitem;
     }
     out["items"] = outitems;
@@ -268,12 +264,8 @@ QtJson::JsonObject Player::list_actions(const QtJson::JsonObject &) {
          ++i) {
         QMetaMethod method = metaObject->method(i);
         if (method.methodType() == QMetaMethod::Slot) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             methods << QString::fromLatin1(
                 metaObject->method(i).methodSignature());
-#else
-            methods << QString::fromLatin1(metaObject->method(i).signature());
-#endif
         }
     }
     QtJson::JsonObject result;
@@ -339,30 +331,24 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
     QString type = command["type"].toString();
     if (type == "modal") {
         active = QApplication::activeModalWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             active = QApplication::modalWindow();
         }
-#endif
     } else if (type == "popup") {
         active = QApplication::activePopupWidget();
     } else if (type == "focus") {
         active = QApplication::focusWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             active = QApplication::focusWindow();
         }
-#endif
     } else {
         active = QApplication::activeWindow();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             QWindowList lst = QGuiApplication::topLevelWindows();
             if (!lst.isEmpty()) {
                 active = lst.first();
             }
         }
-#endif
     }
     if (!active) {
         return createError(
@@ -481,13 +467,11 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
         } else {
             // no qwidgets, this is probably a qtquick app - anyway, check for
             // windows
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             foreach (QWindow * window, QApplication::topLevelWindows()) {
                 QtJson::JsonObject resultWindow;
                 dump_object(window, resultWindow, with_properties);
                 result[resultWindow["path"].toString()] = resultWindow;
             }
-#endif
         }
     }
     return result;
