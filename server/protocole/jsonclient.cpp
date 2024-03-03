@@ -76,11 +76,7 @@ void JsonClient::onMessageReceived() {
     for (int i = metaObject()->methodOffset(); i < metaObject()->methodCount();
          ++i) {
         method = metaObject()->method(i);
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         QString signature = method.methodSignature();
-#else
-        QString signature = method.signature();
-#endif
         if (signature.startsWith(action) &&
             signature.at(action.length()) == '(') {
             success = true;
