@@ -34,7 +34,6 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 #include <QtCore>
 #include <QtWidgets>
-#endif
 
 class SimpleDialog : public QDialog {
     Q_OBJECT
