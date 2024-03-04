@@ -11,5 +11,7 @@ add_executable(
 )
 target_link_libraries(
   player_tester PUBLIC
-  Qt5::Core Qt5::Gui Qt5::Widgets
+  ${QT}::Core
+  ${QT}::Gui
+  ${QT}::Widgets
 )

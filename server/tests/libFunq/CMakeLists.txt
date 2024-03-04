@@ -16,8 +16,9 @@ target_compile_options(
 )
 target_link_libraries(
   testLibFunq PUBLIC
-  Funq Qt5::Core Qt5::Gui Qt5::Widgets
+  Funq
+  ${QT}::Core
+  ${QT}::Gui
+  ${QT}::Widgets
+  $<$<BOOL:${WITH_QTQUICK}>:${QT}::Quick>
 )
-if(Qt5Quick_FOUND)
-  target_link_libraries(testLibFunq PUBLIC Qt5::Quick)
-endif()

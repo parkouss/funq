@@ -44,7 +44,6 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QApplication>
 #include <QBuffer>
 #include <QComboBox>
-#include <QDesktopWidget>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QHeaderView>
@@ -57,6 +56,12 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTreeView>
 #include <QWidget>
 #include <QWindow>
+
+#if QT_VERSION_MAJOR >= 6
+#include <QScreen>
+#else
+#include <QDesktopWidget>
+#endif
 
 #ifdef QT_QUICK_LIB
 #include <QQuickItem>
@@ -133,8 +138,13 @@ QString item_model_path(QAbstractItemModel * model, const QModelIndex & item) {
         parent = model->parent(parent);
     }
     // reverse list
-    for (int k = 0, s = path.size(), max = (s / 2); k < max; k++)
+    for (int k = 0, s = path.size(), max = (s / 2); k < max; k++) {
+#if QT_VERSION_MAJOR >= 6
+        path.swapItemsAt(k, s - (1 + k));
+#else
         path.swap(k, s - (1 + k));
+#endif
+    }
     return path.join("/");
 }
 
@@ -525,6 +535,10 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::quick_item_click(
     const QtJson::JsonObject & command) {
 #ifdef QT_QUICK_LIB
+#if QT_VERSION_MAJOR >= 6
+    return createError(
+        "Qt5Only", "This method is currently not supported with Qt6.");
+#endif
     QuickItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) {
         return ctx.lastError;
@@ -831,10 +845,20 @@ QtJson::JsonObject Player::grab(const QtJson::JsonObject & command) {
         if (ctx.hasError()) {
             return ctx.lastError;
         }
+#if QT_VERSION_MAJOR >= 6
+        pixmap = ctx.widget->grab();
+#else
         pixmap = QPixmap::grabWidget(ctx.widget);
+#endif
     } else {
         // grab the whole screen
+#if QT_VERSION_MAJOR >= 6
+        if (QScreen* screen = QGuiApplication::primaryScreen()) {
+            pixmap = screen->grabWindow();
+        }
+#else
         pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+#endif
     }
     QString format = command["format"].toString();
     if (format.isEmpty()) {

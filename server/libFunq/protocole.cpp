@@ -92,7 +92,7 @@ bool Protocole::sendMessage(const QByteArray & ba) {
         return false;
     }
     QByteArray messageToSend;
-    messageToSend.append(QString::number(ba.size()));
+    messageToSend.append(QString::number(ba.size()).toUtf8());
     messageToSend.append('\n');
     messageToSend.append(ba);
     m_device->write(messageToSend);

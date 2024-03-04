@@ -75,7 +75,7 @@ void print_object_props(QObject * object, QTextStream & stream) {
         QMetaProperty property = object->metaObject()->property(i);
         QString strValue = property.read(object).toString();
         if (!strValue.isEmpty()) {
-            stream << "\t" << property.name() << ": " << strValue << endl;
+            stream << "\t" << property.name() << ": " << strValue << '\n';
         }
     }
 }
@@ -85,7 +85,7 @@ void PickFormatter::handle(QObject * object, const QPoint & pos) {
                        .arg(ObjectPath::objectPath(object))
                        .arg(pos.x())
                        .arg(pos.y());
-    m_stream << path << endl;
+    m_stream << path << '\n';
     if (m_showProperties) {
         print_object_props(object, m_stream);
     }
@@ -96,10 +96,12 @@ void PickFormatter::handle(QObject * object, const QPoint & pos) {
         QObject * qitem = dynamic_cast<QObject *>(item);
         if (item) {
             m_stream << "GITEM: `" << ObjectPath::graphicsItemId(item)
-                     << "` (QObject: " << (qitem != 0) << ")" << endl;
+                     << "` (QObject: " << (qitem != 0) << ")" << '\n';
             if (qitem) {
                 print_object_props(qitem, m_stream);
             }
         }
     }
+
+    m_stream.flush();
 }

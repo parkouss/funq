@@ -13,23 +13,29 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt: "5.9"
+          - qt: 5  # 5.9
             py: "3.6"
             container: "ubuntu:18.04"
             packages: "qt5-default qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
             nosetests: 1
-          - qt: "5.12"
+          - qt: 5  # 5.12
             py: "3.8"
             container: "ubuntu:20.04"
             packages: "qt5-default qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
             nosetests: 1
-          - qt: "5.15"
+          - qt: 5  # 5.15
             py: "3.10"
             container: "ubuntu:22.04"
             packages: "qtbase5-dev qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
             nosetests: 0  # Nosetest not working anymore
+          - qt: 6  # 6.2
+            py: "3.10"
+            container: "ubuntu:22.04"
+            packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
+            nosetests: 0  # Nosetest not working anymore
     env:
       DEBIAN_FRONTEND: noninteractive
+      FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
     steps:
       - uses: actions/checkout@v2
       - name: Install requirements
@@ -49,7 +55,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../server -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
+          cmake ../server -DQT_MAJOR_VERSION=${{ matrix.qt }} -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
           make
       - name: Run libFunq tests
         run: xvfb-run -a build/tests/libFunq/testLibFunq
@@ -82,7 +88,9 @@ jobs:
         include:
           # Note: Nosetest doesn't work anymore with recent Python versions!
           - {qt: "5", runner: "macos-12", nosetests: 0}
-          - {qt: "5", runner: "macos-14", nosetests: 0}
+          - {qt: "6", runner: "macos-14", nosetests: 0}
+    env:
+      FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
     steps:
       - uses: actions/checkout@v2
       - name: Install requirements
@@ -101,7 +109,7 @@ jobs:
         run: |
           mkdir build
           cd build
-          cmake ../server -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
+          cmake ../server -DQT_MAJOR_VERSION=${{ matrix.qt }} -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
           make
       - name: Run libFunq tests
         run: build/tests/libFunq/testLibFunq
@@ -132,11 +140,22 @@ jobs:
     strategy:
       matrix:
         include:
-          - {qt: "5.15", nosetests: 0}
+          - qt: 5
+            qt_full: "5.15.2"
+            arch: "win32_mingw81"
+            tools: "tools_mingw,qt.tools.win32_mingw810"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw810_32/bin"
+            nosetests: 0  # Nosetest not working anymore
+          - qt: 6
+            qt_full: "6.7.0"
+            arch: "win64_mingw"
+            tools: "tools_mingw1310"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
+            nosetests: 0  # Nosetest not working anymore
     env:
       CMAKE_GENERATOR: "MinGW Makefiles"
-      CC: "D:/a/funq/Qt/Tools/mingw810_32/bin/gcc.exe"
-      CXX: "D:/a/funq/Qt/Tools/mingw810_32/bin/g++.exe"
+      CC: "${{ matrix.compiler_path }}/gcc.exe"
+      CXX: "${{ matrix.compiler_path }}/g++.exe"
     defaults:
       run:
         shell: cmd
@@ -145,9 +164,9 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
-          version: "${{ matrix.qt }}.*"
-          tools: "tools_mingw,qt.tools.win32_mingw810"
-          arch: win32_mingw81
+          version: "${{ matrix.qt_full }}"
+          tools: "${{ matrix.tools }}"
+          arch: "${{ matrix.arch }}"
           cache: true
 
       # Build & test C++ modules
@@ -179,5 +198,5 @@ jobs:
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
       - name: Test functional
-        run: cd tests-functionnal && xvfb-run -a nosetests
+        run: cd tests-functionnal && nosetests
         if: ${{ matrix.nosetests != 0}}

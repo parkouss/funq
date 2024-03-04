@@ -30,9 +30,11 @@ else()
   target_sources(Funq PRIVATE ldPreloadInjector.cpp)
 endif()
 target_link_libraries(
-    Funq PUBLIC
-    Qt5::Core Qt5::Gui Qt5::Network Qt5::Widgets Qt5::Test
+  Funq PUBLIC
+  ${QT}::Core
+  ${QT}::Gui
+  ${QT}::Network
+  ${QT}::Widgets
+  ${QT}::Test
+  $<$<BOOL:${WITH_QTQUICK}>:${QT}::Quick>
 )
-if(Qt5Quick_FOUND)
-  target_link_libraries(Funq PUBLIC Qt5::Quick)
-endif()
