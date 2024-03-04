@@ -33,7 +33,7 @@
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
 from nose.tools import assert_equals, raises
-from funq.aliases import HooqAliases, HooqAliasesInvalidLineError,\
+from funq.aliases import HooqAliases, HooqAliasesInvalidLineError, \
     HooqAliasesKeyError
 from tempfile import NamedTemporaryFile
 import os
