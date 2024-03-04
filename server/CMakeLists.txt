@@ -37,8 +37,19 @@ endif()
 # Auto-include current directory
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Use C++11
-set(CMAKE_CXX_STANDARD 11)
+# If Qt version is not explicitly specified, automatically determine it
+if(NOT QT_MAJOR_VERSION)
+  find_package(Qt NAMES Qt5 Qt6 REQUIRED COMPONENTS Core)
+  set(QT_MAJOR_VERSION ${Qt_VERSION_MAJOR})
+endif()
+set(QT "Qt${QT_MAJOR_VERSION}")
+
+# Use C++11 (Qt5) or C++17 (Qt6)
+if(QT_MAJOR_VERSION EQUAL 6)
+  set(CMAKE_CXX_STANDARD 17)
+else()
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -64,12 +75,14 @@ add_definitions(-DQT_NO_DEPRECATED_WARNINGS)
 
 # Find Qt
 find_package(
-  Qt5
+  ${QT}
   REQUIRED COMPONENTS Core Gui Network Widgets Test
   OPTIONAL_COMPONENTS Quick
 )
-message(STATUS "Building with Qt ${Qt5_VERSION}")
-message(STATUS "QtQuick found: ${Qt5Quick_FOUND}")
+set(QT_VERSION "${${QT}_VERSION}")
+set(WITH_QTQUICK "${${QT}Quick_FOUND}")
+message(STATUS "Building with Qt ${QT_VERSION}")
+message(STATUS "QtQuick found: ${WITH_QTQUICK}")
 
 # Add subprojects
 add_subdirectory(libFunq)

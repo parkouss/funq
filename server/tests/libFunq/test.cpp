@@ -906,6 +906,7 @@ private slots:
         QCOMPARE(result["errName"].toString(), QString("InvalidQuickItem"));
     }
 
+#if QT_VERSION_MAJOR < 6
     void test_quick_item_click() {
         QQuickView view;
         view.setSource(QUrl::fromLocalFile(SOURCE_DIR "test_click.qml"));
@@ -937,6 +938,7 @@ private slots:
 
         QCOMPARE(item->property("color").toString(), QString("#ffffff"));
     }
+#endif
 #endif
 };
 

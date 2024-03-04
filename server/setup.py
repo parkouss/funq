@@ -51,6 +51,7 @@ class build_libfunq(Command):
         self.debug = None
         self.cmake_path = None
         self.make_path = None
+        self.qt_version = None
 
         if IS_WINDOWS:
             self.funqlib_name = 'libFunq.dll'
@@ -68,6 +69,8 @@ class build_libfunq(Command):
             self.cmake_path = os.environ.get('FUNQ_CMAKE_PATH') or 'cmake'
         if self.make_path is None:
             self.make_path = os.environ.get('FUNQ_MAKE_PATH') or 'make'
+        if self.qt_version is None:
+            self.qt_version = os.environ.get('FUNQ_QT_MAJOR_VERSION')
 
     def funqlib_out_path(self):
         funqlib_base_dir = '.' if self.inplace else self.build_lib
@@ -81,6 +84,8 @@ class build_libfunq(Command):
             self.cmake_path, '.',
             '-DCMAKE_BUILD_TYPE={}'.format(buildtype),
         ]
+        if self.qt_version is not None:
+            cmake_cmd += ['-DQT_MAJOR_VERSION={}'.format(self.qt_version)]
         print('running %s' % cmake_cmd)
         subprocess.check_call(cmake_cmd)
 

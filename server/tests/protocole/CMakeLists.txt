@@ -12,5 +12,6 @@ target_include_directories(
 )
 target_link_libraries(
   testProtocole PUBLIC
-  Funq Qt5::Core
+  Funq
+  ${QT}::Core
 )

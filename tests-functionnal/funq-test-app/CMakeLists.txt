@@ -36,8 +36,19 @@ endif()
 # Auto-include current directory
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-# Use C++11
-set(CMAKE_CXX_STANDARD 11)
+# If Qt version is not explicitly specified, automatically determine it
+if(NOT QT_MAJOR_VERSION)
+  find_package(Qt NAMES Qt5 Qt6 REQUIRED COMPONENTS Core)
+  set(QT_MAJOR_VERSION ${Qt_VERSION_MAJOR})
+endif()
+set(QT "Qt${QT_MAJOR_VERSION}")
+
+# Use C++11 (Qt5) or C++17 (Qt6)
+if(QT_MAJOR_VERSION EQUAL 6)
+  set(CMAKE_CXX_STANDARD 17)
+else()
+  set(CMAKE_CXX_STANDARD 11)
+endif()
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -62,8 +73,8 @@ add_definitions(-DQT_DISABLE_DEPRECATED_BEFORE=0x050000)
 add_definitions(-DQT_NO_DEPRECATED_WARNINGS)
 
 # Find Qt
-find_package(Qt5 REQUIRED COMPONENTS Core Gui Network Quick Widgets Test)
-message(STATUS "Building with Qt ${Qt5_VERSION}")
+find_package(${QT} REQUIRED COMPONENTS Core Gui Network Quick Widgets Test)
+message(STATUS "Building with Qt ${${QT}_VERSION}")
 
 # Build application
 set(CMAKE_AUTOMOC ON)
@@ -76,5 +87,7 @@ add_executable(
 )
 target_link_libraries(
   funq-test-app PUBLIC
-  Qt5::Core Qt5::Gui Qt5::Widgets
+  ${QT}::Core
+  ${QT}::Gui
+  ${QT}::Widgets
 )
