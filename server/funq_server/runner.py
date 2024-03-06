@@ -81,7 +81,7 @@ class Runner(object):
     def _find_library(self):
         this_dir = os.path.dirname(os.path.realpath(__file__))
         if self.system == 'Windows':
-            library_name = 'Funq.dll'
+            library_name = 'libFunq.dll'
         elif self.system == 'Darwin':
             library_name = 'libFunq.dylib'
         else:
