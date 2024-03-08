@@ -158,7 +158,7 @@ class FunqClient(object):
 
     def quit(self):
         """
-        Ask the tested application to quit by calling qApp->quit().
+        Ask the tested application to quit by calling qApp->exit().
         """
         self._raw_send('quit', {})
 
@@ -508,7 +508,7 @@ class ApplicationContext(object):  # pylint: disable=R0903
                     self._process = None
                 else:
                     # try to exit nicely the tested application process
-                    # with a call to qApp->quit().
+                    # with a call to qApp->exit().
                     LOG.info("Closing tested application [%s].",
                              self._process.pid)
                     try:
