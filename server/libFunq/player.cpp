@@ -489,7 +489,7 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
     if (qApp) {
-        qApp->quit();
+        qApp->exit();
     }
     QtJson::JsonObject result;
     return result;
