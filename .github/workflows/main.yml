@@ -76,6 +76,8 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: xvfb-run -a funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && xvfb-run -a nosetests
         if: ${{ matrix.nosetests != 0}}
@@ -130,6 +132,8 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && xvfb-run -a nosetests
         if: ${{ matrix.nosetests != 0}}
@@ -195,6 +199,8 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app.exe --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && nosetests
         if: ${{ matrix.nosetests != 0}}
