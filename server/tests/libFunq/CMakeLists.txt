@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC OFF)
 
 add_executable(
   testLibFunq
+  WIN32
   test.cpp
 )
 target_include_directories(
@@ -16,7 +17,7 @@ target_compile_options(
 )
 target_link_libraries(
   testLibFunq PUBLIC
-  Funq
+  FunqStatic
   ${QT}::Core
   ${QT}::Gui
   ${QT}::Widgets

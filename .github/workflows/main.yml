@@ -176,12 +176,10 @@ jobs:
           cd build
           cmake ../server -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
           make
-
-      # Note: The executables don't run yet, don't know why :-/
-      # - name: Run libFunq tests
-      #   run: build/tests/libFunq/testLibFunq.exe
-      # - name: Run protocole tests
-      #   run: build/tests/protocole/testProtocole.exe
+      - name: Run libFunq tests
+        run: build\tests\libFunq\testLibFunq.exe
+      - name: Run protocole tests
+        run: build\tests\protocole\testProtocole.exe
 
       # Server
       - name: Install server

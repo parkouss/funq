@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC OFF)
 
 add_executable(
   testProtocole
+  WIN32
   test.cpp
 )
 target_include_directories(
@@ -12,6 +13,6 @@ target_include_directories(
 )
 target_link_libraries(
   testProtocole PUBLIC
-  Funq
+  FunqStatic
   ${QT}::Core
 )

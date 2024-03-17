@@ -4,6 +4,7 @@ set(CMAKE_AUTORCC OFF)
 
 add_executable(
   player_tester
+  WIN32
   fenPrincipale.cpp
   fenPrincipale.h
   fenPrincipale.ui
