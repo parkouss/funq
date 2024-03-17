@@ -228,13 +228,13 @@ public:
         for (int i = 0; i < 10; ++i) {
             combobox->addItem(QString("Item %1").arg(i));
         }
-        connect(combobox, SIGNAL(currentIndexChanged(QString)), this,
-                SLOT(currentIndexChanged(QString)));
+        connect(combobox, SIGNAL(currentTextChanged(QString)), this,
+                SLOT(currentTextChanged(QString)));
         layout()->addWidget(combobox);
     }
 
 private slots:
-    void currentIndexChanged(const QString & text) {
+    void currentTextChanged(const QString & text) {
         showResult("Text: " + text);
     }
 };

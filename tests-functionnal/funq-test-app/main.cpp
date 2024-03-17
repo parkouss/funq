@@ -35,6 +35,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include "widgets.h"
 
 #include <QApplication>
+#include <QThread>
 
 template <typename T>
 inline void execDialog(QLabel * statusLabel, QWidget * parent) {
@@ -44,6 +45,13 @@ inline void execDialog(QLabel * statusLabel, QWidget * parent) {
 
 int main(int argc, char * argv[]) {
     QApplication app(argc, argv);
+
+    if (app.arguments().contains("--exit-after-startup")) {
+        // Used to test injection without user interaction.
+        qDebug() << "Application started with '--exit-after-startup'.";
+        QThread::msleep(5000);
+        return 0;
+    }
 
     if (app.arguments().contains("--show-message-box-at-startup")) {
         // This is needed to test if the injection of libFunq also works if Qt's

@@ -2,8 +2,8 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC OFF)
 set(CMAKE_AUTORCC OFF)
 
-add_library(
-  Funq SHARED
+set(
+  FUNQ_SOURCES
   delayedresponse.cpp
   delayedresponse.h
   dragndropresponse.cpp
@@ -25,12 +25,13 @@ add_library(
   shortcutresponse.h
 )
 if(WIN32)
-  target_sources(Funq PRIVATE WindowsInjector.cpp WindowsInjector.h)
+  list(APPEND FUNQ_SOURCES WindowsInjector.cpp WindowsInjector.h)
 else()
-  target_sources(Funq PRIVATE ldPreloadInjector.cpp)
+  list(APPEND FUNQ_SOURCES ldPreloadInjector.cpp)
 endif()
-target_link_libraries(
-  Funq PUBLIC
+
+set(
+  FUNQ_DEPENDENCIES
   ${QT}::Core
   ${QT}::Gui
   ${QT}::Network
@@ -38,3 +39,9 @@ target_link_libraries(
   ${QT}::Test
   $<$<BOOL:${WITH_QTQUICK}>:${QT}::Quick>
 )
+
+add_library(FunqStatic STATIC ${FUNQ_SOURCES})
+target_link_libraries(FunqStatic PUBLIC ${FUNQ_DEPENDENCIES})
+
+add_library(Funq SHARED ${FUNQ_SOURCES})
+target_link_libraries(Funq PUBLIC ${FUNQ_DEPENDENCIES})

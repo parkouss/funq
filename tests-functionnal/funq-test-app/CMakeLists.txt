@@ -82,6 +82,7 @@ set(CMAKE_AUTOUIC OFF)
 set(CMAKE_AUTORCC OFF)
 add_executable(
   funq-test-app
+  WIN32
   main.cpp
   widgets.h
 )

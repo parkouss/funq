@@ -76,6 +76,8 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: xvfb-run -a funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && xvfb-run -a nosetests
         if: ${{ matrix.nosetests != 0}}
@@ -130,26 +132,40 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && xvfb-run -a nosetests
         if: ${{ matrix.nosetests != 0}}
 
   windows:
-    name: "qt:${{ matrix.qt }} on windows"
+    name: "qt:${{ matrix.qt }} py:${{ matrix.py }} ${{ matrix.arch }} on windows"
     runs-on: windows-2022
     strategy:
       matrix:
         include:
-          - qt: 5
+          - py: "3.8"
+            arch: "x86"
+            qt: 5
             qt_full: "5.15.2"
-            arch: "win32_mingw81"
-            tools: "tools_mingw,qt.tools.win32_mingw810"
+            qt_arch: "win32_mingw81"
+            qt_tools: "tools_mingw,qt.tools.win32_mingw810"
             compiler_path: "D:/a/funq/Qt/Tools/mingw810_32/bin"
-            nosetests: 0  # Nosetest not working anymore
-          - qt: 6
+            nosetests: 1
+          - py: "3.8"
+            arch: "x64"
+            qt: 6
             qt_full: "6.7.0"
-            arch: "win64_mingw"
-            tools: "tools_mingw1310"
+            qt_arch: "win64_mingw"
+            qt_tools: "tools_mingw1310"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
+            nosetests: 1
+          - py: "3.11"
+            arch: "x64"
+            qt: 6
+            qt_full: "6.7.0"
+            qt_arch: "win64_mingw"
+            qt_tools: "tools_mingw1310"
             compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
             nosetests: 0  # Nosetest not working anymore
     env:
@@ -161,12 +177,18 @@ jobs:
         shell: cmd
     steps:
       - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.py }}"
+          architecture: "${{ matrix.arch }}"
       - name: Install Qt
         uses: jurplel/install-qt-action@v3
         with:
           version: "${{ matrix.qt_full }}"
-          tools: "${{ matrix.tools }}"
-          arch: "${{ matrix.arch }}"
+          tools: "${{ matrix.qt_tools }}"
+          arch: "${{ matrix.qt_arch }}"
+          setup-python: false
           cache: true
 
       # Build & test C++ modules
@@ -176,12 +198,10 @@ jobs:
           cd build
           cmake ../server -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
           make
-
-      # Note: The executables don't run yet, don't know why :-/
-      # - name: Run libFunq tests
-      #   run: build/tests/libFunq/testLibFunq.exe
-      # - name: Run protocole tests
-      #   run: build/tests/protocole/testProtocole.exe
+      - name: Run libFunq tests
+        run: build\tests\libFunq\testLibFunq.exe
+      - name: Run protocole tests
+        run: build\tests\protocole\testProtocole.exe
 
       # Server
       - name: Install server
@@ -197,6 +217,8 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app.exe --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && nosetests
         if: ${{ matrix.nosetests != 0}}
