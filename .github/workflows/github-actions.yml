@@ -1,5 +1,5 @@
-name: GitHub Actions Demo
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
+name: Funq CI
+run-name: ${{ github.actor }} is testing out Funq
 on: [push]
 jobs:
   build:
@@ -16,6 +16,10 @@ jobs:
 
       - name: Install Qt
         uses: jurplel/install-qt-action@v4
+        with:
+          host: linux
+          install-deps: true
+          setup-python: false
 
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
