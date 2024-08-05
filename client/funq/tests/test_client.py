@@ -32,12 +32,12 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, raises
+import pytest
 from funq import client
 import os
 import subprocess
 
-from ConfigParser import ConfigParser, NoOptionError
+from configparser import ConfigParser, NoOptionError
 
 
 class ApplicationConfig(client.ApplicationConfig):
@@ -47,7 +47,7 @@ class ApplicationConfig(client.ApplicationConfig):
 class GlobalOptions(object):
 
     def __init__(self, **kwds):
-        for k, v in kwds.iteritems():
+        for k, v in list(kwds.items()):
             setattr(self, k, v)
 
 
@@ -66,55 +66,55 @@ class TestApplicationConfigFromConf:
             GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf'))
         )
 
-    @raises(NoOptionError)
     def test_require_executable(self):
-        self.createApplicationConfig()
+        with pytest.raises(NoOptionError):
+            self.createApplicationConfig()
 
     def test_abs_executable(self):
         self.set_opt('executable', os.getcwd())
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.executable, os.getcwd())
+        assert appconf.executable == os.getcwd()
 
     def test_nonabs_executable(self):
         self.set_opt('executable', 'toto')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.executable, os.path.join(os.getcwd(), 'toto'))
+        assert appconf.executable == os.path.join(os.getcwd(), 'toto')
 
     def test_args(self):
         self.set_opt('executable', 'toto')
         self.set_opt('args', 'toto "titi 1" 2')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.args, ['toto', 'titi 1', '2'])
+        assert appconf.args == ['toto', 'titi 1', '2']
 
     def test_port(self):
         self.set_opt('executable', 'toto')
         self.set_opt('funq_port', '12000')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.funq_port, 12000)
+        assert appconf.funq_port == 12000
 
     def test_timeout_connection(self):
         self.set_opt('executable', 'toto')
         self.set_opt('timeout_connection', '5')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.timeout_connection, 5)
+        assert appconf.timeout_connection == 5
 
     def test_abs_aliases(self):
         self.set_opt('executable', 'toto')
         self.set_opt('aliases', os.getcwd())
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.aliases, os.getcwd())
+        assert appconf.aliases == os.getcwd()
 
     def test_nonabs_aliases(self):
         self.set_opt('executable', 'toto')
         self.set_opt('aliases', 'titi')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.aliases, os.path.join(os.getcwd(), 'titi'))
+        assert appconf.aliases == os.path.join(os.getcwd(), 'titi')
 
     def test_stdout_null(self):
         self.set_opt('executable', 'toto')
         self.set_opt('executable_stdout', 'NULL')
         appconf = self.createApplicationConfig()
-        assert_equals(appconf.executable_stdout, os.devnull)
+        assert appconf.executable_stdout == os.devnull
 
 
 class TestApplicationRegistry:
@@ -130,9 +130,9 @@ class TestApplicationRegistry:
 
         self.reg.register_from_conf(conf, GlobalOptions(funq_conf='.'))
 
-        assert_equals(len(self.reg.confs), 1)
+        assert len(self.reg.confs) == 1
 
-        assert_equals(self.reg.config('example').executable, exe)
+        assert self.reg.config('example').executable == exe
 
 
 class FakePopen(object):
@@ -174,7 +174,7 @@ class TestApplicationContext:
 
         ctx = client.ApplicationContext(
             appconf, client_class=lambda *a, **kwa: None)
-        assert_equals(ctx._process.command, ['funq', 'command'])
+        assert ctx._process.command == ['funq', 'command']
 
     @FakePopen.patch_subprocess_popen
     def test_start_with_valgrind(self):
@@ -189,4 +189,4 @@ class TestApplicationContext:
 
         ctx = client.ApplicationContext(
             appconf, client_class=lambda *a, **kwa: None)
-        assert_equals(ctx._process.command, ['funq', 'valgrind', 'command'])
+        assert ctx._process.command == ['funq', 'valgrind', 'command']

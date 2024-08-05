@@ -40,8 +40,8 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = u'Documentation de développement sur le framework Funq (test_ihm_qt)'
-copyright = u'2014, Julien Pagès'
+project = 'Documentation de développement sur le framework Funq (test_ihm_qt)'
+copyright = '2014, Julien Pagès'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -183,8 +183,8 @@ latex_elements = {
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt.tex', u'Documentation de développement sur le framework Funq (test\\_ihm\\_qt) Documentation',
-   u'Julien Pagès', 'manual'),
+  ('index', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt.tex', 'Documentation de développement sur le framework Funq (test\\_ihm\\_qt) Documentation',
+   'Julien Pagès', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
@@ -213,8 +213,8 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'documentationdedveloppementsurleframeworkfunqtest_ihm_qt', u'Documentation de développement sur le framework Funq (test_ihm_qt) Documentation',
-     [u'Julien Pagès'], 1)
+    ('index', 'documentationdedveloppementsurleframeworkfunqtest_ihm_qt', 'Documentation de développement sur le framework Funq (test_ihm_qt) Documentation',
+     ['Julien Pagès'], 1)
 ]
 
 # If true, show URL addresses after external links.
@@ -227,8 +227,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt', u'Documentation de développement sur le framework Funq (test_ihm_qt) Documentation',
-   u'Julien Pagès', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt', 'One line description of project.',
+  ('index', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt', 'Documentation de développement sur le framework Funq (test_ihm_qt) Documentation',
+   'Julien Pagès', 'DocumentationdedveloppementsurleframeworkFunqtest_ihm_qt', 'One line description of project.',
    'Miscellaneous'),
 ]
 
