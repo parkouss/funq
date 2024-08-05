@@ -25,6 +25,9 @@ jobs:
           install-deps: true
           setup-python: true
 
+      - name: Install qmake 
+        run: apt-get install qt5-qmake
+
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
 
