@@ -19,8 +19,7 @@ jobs:
         with:
           host: linux
           install-deps: true
-          setup-python: false
-          tools: 'qmake'
+          setup-python: true
 
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
