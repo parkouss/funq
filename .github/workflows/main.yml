@@ -13,11 +13,6 @@ jobs:
     strategy:
       matrix:
         include:
-          - qt: 5  # 5.9
-            py: "3.6"
-            container: "ubuntu:18.04"
-            packages: "qt5-default qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
-            nosetests: 1
           - qt: 5  # 5.12
             py: "3.8"
             container: "ubuntu:20.04"
@@ -31,6 +26,11 @@ jobs:
           - qt: 6  # 6.2
             py: "3.10"
             container: "ubuntu:22.04"
+            packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
+            nosetests: 0  # Nosetest not working anymore
+          - qt: 6  # 6.4
+            py: "3.12"
+            container: "ubuntu:24.04"
             packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
             nosetests: 0  # Nosetest not working anymore
     env:
