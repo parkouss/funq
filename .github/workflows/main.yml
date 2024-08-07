@@ -97,10 +97,11 @@ jobs:
       - uses: actions/checkout@v2
       - name: Install requirements
         run: |
-          brew install cmake qt@${{ matrix.qt }}
+          brew install cmake qt@${{ matrix.qt }} pipx
           brew link --force qt@${{ matrix.qt }}
           echo "$(brew --prefix qt${{ matrix.qt }})/bin" >> $GITHUB_PATH
-          pip3 install setuptools flake8
+          pipx ensurepath
+          pipx install setuptools flake8
 
       # Stylecheck
       - name: Flake8
