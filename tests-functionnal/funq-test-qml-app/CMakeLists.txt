@@ -34,7 +34,7 @@ if (QT_VERSION_MAJOR EQUAL 5)
 elseif (QT_VERSION_MAJOR EQUAL 6)
     qt_add_resources(QT_RESOURCES resources.qrc)
     target_link_libraries(${PROJECT_NAME} Qt6::Widgets Qt6::Quick Qt6::Qml)
-endif
+endif()
 
 # Include the generated resource files in the target
 target_sources(${PROJECT_NAME} PRIVATE ${QT_RESOURCES})
@@ -55,7 +55,7 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
     # Linux-specific settings
     set(CMAKE_INSTALL_RPATH "$ORIGIN")
-endif
+endif()
 
 # Installation rules (optional, for installation packaging)
 install(TARGETS ${PROJECT_NAME}
