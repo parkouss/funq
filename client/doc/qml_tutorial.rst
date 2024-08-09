@@ -21,7 +21,7 @@ to the README.rst file about it.
 Create the test folder
 ----------------------
 
-.. code-block::
+.. code-block:: none
 
   mkdir qmltest
   cd qmltest
