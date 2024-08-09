@@ -1,9 +1,7 @@
 *.pyc
 *.egg-info
-_build
 build
 dist
-
 
 Makefile
 moc_*.*
@@ -18,14 +16,17 @@ ui_*.h
 *.pro.user
 *.Debug
 *.Release
-.qmake.stash
+cmake_install.cmake
+CMakeLists.txt.user
+CMakeCache.txt
 
+*_autogen/
+CMakeFiles/
 server/bin
-server/player_tester/Makefile
 server/player_tester/player_tester
 server/player_tester/tutorial
-server/tests/libFunq
-server/tests/protocole
+server/tests/libFunq/testLibFunq
+server/tests/protocole/testProtocole
 tests-functionnal/funq-test-app/funq-test-app
 tests-functionnal/screenshot-errors/
 tests-functionnal/screenshots/

@@ -41,31 +41,31 @@ class TestComboBox(AppTestCase):
         self.start_dialog('combobox')
         cbx = self.funq.widget(path='mainWindow::ComboBoxDialog::QComboBox')
         cbx.set_current_text('Item 5')
-        self.assertEquals(self.get_status_text(), 'Text: Item 5')
+        self.assertEqual(self.get_status_text(), 'Text: Item 5')
 
     def test_model_items_count(self):
         self.start_dialog('combobox')
         cbx = self.funq.widget(path='mainWindow::ComboBoxDialog::QComboBox')
         items = cbx.model().items()
-        self.assertEquals(len(items.items), 10)
+        self.assertEqual(len(items.items), 10)
 
     def test_model_items_value(self):
         self.start_dialog('combobox')
         cbx = self.funq.widget(path='mainWindow::ComboBoxDialog::QComboBox')
         items = cbx.model().items()
         for i in range(10):
-            self.assertEquals(items.items[i].value, 'Item ' + str(i))
+            self.assertEqual(items.items[i].value, 'Item ' + str(i))
 
     def test_model_items_checkable(self):
         self.start_dialog('combobox')
         cbx = self.funq.widget(path='mainWindow::ComboBoxDialog::QComboBox')
         items = cbx.model().items()
         for i in range(10):
-            self.assertEquals(items.items[i].is_checkable(), False)
+            self.assertEqual(items.items[i].is_checkable(), False)
 
     def test_model_items_checked(self):
         self.start_dialog('combobox')
         cbx = self.funq.widget(path='mainWindow::ComboBoxDialog::QComboBox')
         items = cbx.model().items()
         for i in range(10):
-            self.assertEquals(items.items[i].is_checked(), False)
+            self.assertEqual(items.items[i].is_checked(), False)

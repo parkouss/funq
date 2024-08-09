@@ -45,14 +45,6 @@ import re
 import inspect
 
 
-# python 3 compatibility
-# https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
-try:
-    unicode
-except NameError:
-    unicode = str
-
-
 class AssertionSuccessError(AssertionError):
 
     """
@@ -67,7 +59,7 @@ class AssertionSuccessError(AssertionError):
         self.name = name
 
     def __str__(self):
-        return u"Test %s passed but it is decorated as TODO" % self.name
+        return "Test %s passed but it is decorated as TODO" % self.name
 
     def __rep__(self):
         return self.__str__()
@@ -100,8 +92,8 @@ def todo(skip_message, exception_cls=AssertionError):
             try:
                 func(*args, **kwargs)
             except exception_cls as err:
-                err = u"%s" % err
-                if isinstance(err, unicode):
+                err = "%s" % err
+                if isinstance(err, str):
                     err = err.encode(
                         'utf-8', errors='ignore')  # pylint: disable=E1103
                 skip_msg = skip_message.encode('utf-8', errors='ignore')
@@ -202,7 +194,8 @@ class MetaParameterized(type):
     RE_ESCAPE_BAD_CHARS = re.compile(r'[\.\(\) -/]')
 
     def __new__(cls, name, bases, attrs):
-        for k, v in attrs.items():
+        for k in list(attrs.keys()):
+            v = attrs[k]
             if callable(v) and hasattr(v, 'parameters'):
                 for func_suffix, args, kwargs in v.parameters:
                     func_suffix = cls.RE_ESCAPE_BAD_CHARS.sub('_', func_suffix)
@@ -246,7 +239,7 @@ def register_funq_app_registry(registry):
     BaseTestCase.__app_registry__ = registry
 
 
-class BaseTestCase(unittest.TestCase):
+class BaseTestCase(unittest.TestCase, metaclass=MetaParameterized):
 
     """
     Abstract class of a testcase for Funq.
@@ -255,9 +248,8 @@ class BaseTestCase(unittest.TestCase):
     :class:`MetaParameterized` that allows to generate methods from data.
 
     It inherits from :class:`unittest.TestCase`, thus allowing to use very
-    useful methods like assertEquals, assertFalse, etc.
+    useful methods like assertEqual, assertFalse, etc.
     """
-    __metaclass__ = MetaParameterized
     __app_registry__ = None
 
     longMessage = True
@@ -279,7 +271,7 @@ class BaseTestCase(unittest.TestCase):
     def id(self):
         cls = self.__class__
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
-        return u"%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
+        return "%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
 
 
 class FunqTestCase(BaseTestCase):
@@ -336,7 +328,7 @@ class MultiFunqTestCase(BaseTestCase):
     def _create_funq_ctx(self):
         ctx = {}
         self.funq = {}
-        for k, v in self.__app_config__.iteritems():
+        for k, v in self.__app_config__.items():
             ctx[k] = ApplicationContext(v)
             self.funq[k] = weakref.proxy(ctx[k].funq)
         return ctx

@@ -1,0 +1,225 @@
+name: CI
+on: [push, pull_request]
+
+env:
+  MAKEFLAGS: "-j8"
+
+jobs:
+
+  linux:
+    name: "qt:${{ matrix.qt }} py:${{ matrix.py }} on ${{ matrix.container }}"
+    runs-on: ubuntu-22.04
+    container: "${{ matrix.container }}"
+    strategy:
+      matrix:
+        include:
+          - qt: 5  # 5.12
+            py: "3.8"
+            container: "ubuntu:20.04"
+            packages: "qt5-default qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
+            nosetests: 1
+          - qt: 5  # 5.15
+            py: "3.10"
+            container: "ubuntu:22.04"
+            packages: "qtbase5-dev qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
+            nosetests: 0  # Nosetest not working anymore
+          - qt: 6  # 6.2
+            py: "3.10"
+            container: "ubuntu:22.04"
+            packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
+            nosetests: 0  # Nosetest not working anymore
+          - qt: 6  # 6.4
+            py: "3.12"
+            container: "ubuntu:24.04"
+            packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
+            nosetests: 0  # Nosetest not working anymore
+    env:
+      DEBIAN_FRONTEND: noninteractive
+      FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install requirements
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends \
+            build-essential cmake xvfb libglu1-mesa-dev \
+            python3 python3-pip python3-flake8 \
+            ${{ matrix.packages }}
+
+      # Stylecheck
+      - name: Flake8
+        run: python3 -m flake8 client/funq server/funq_server
+
+      # Build & test C++ modules
+      - name: Build libFunq
+        run: |
+          mkdir build
+          cd build
+          cmake ../server -DQT_MAJOR_VERSION=${{ matrix.qt }} -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
+          make
+      - name: Run libFunq tests
+        run: xvfb-run -a build/tests/libFunq/testLibFunq
+      - name: Run protocole tests
+        run: xvfb-run -a build/tests/protocole/testProtocole
+
+      # Server
+      - name: Install server
+        run: cd server && python3 setup.py develop
+
+      # Client
+      - name: Install client
+        run: cd client && python3 setup.py develop
+      - name: Test client
+        run: cd client && python3 setup.py test
+        if: ${{ matrix.nosetests != 0 }}
+
+      # Functional tests
+      - name: Build test app
+        run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: xvfb-run -a funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
+      - name: Test functional
+        run: cd tests-functionnal && xvfb-run -a nosetests
+        if: ${{ matrix.nosetests != 0}}
+
+  macos:
+    name: "qt:${{ matrix.qt }} on ${{ matrix.runner }}"
+    runs-on: "${{ matrix.runner }}"
+    strategy:
+      matrix:
+        include:
+          # Note: Nosetest doesn't work anymore with recent Python versions!
+          - {qt: "5", runner: "macos-12", nosetests: 0}
+          - {qt: "6", runner: "macos-14", nosetests: 0}
+    env:
+      FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
+      PIP_BREAK_SYSTEM_PACKAGES: 1
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install requirements
+        run: |
+          brew install cmake qt@${{ matrix.qt }}
+          brew link --force qt@${{ matrix.qt }}
+          echo "$(brew --prefix qt${{ matrix.qt }})/bin" >> $GITHUB_PATH
+          pip3 install setuptools flake8
+
+      # Stylecheck
+      - name: Flake8
+        run: python3 -m flake8 client/funq server/funq_server
+
+      # Build & test C++ modules
+      - name: Build libFunq
+        run: |
+          mkdir build
+          cd build
+          cmake ../server -DQT_MAJOR_VERSION=${{ matrix.qt }} -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
+          make
+      - name: Run libFunq tests
+        run: build/tests/libFunq/testLibFunq
+      - name: Run protocole tests
+        run: build/tests/protocole/testProtocole
+
+      # Server
+      - name: Install server
+        run: cd server && python3 setup.py develop
+
+      # Client
+      - name: Install client
+        run: cd client && python3 setup.py develop
+      - name: Test client
+        run: cd client && python3 setup.py test
+        if: ${{ matrix.nosetests != 0 }}
+
+      # Functional tests
+      - name: Build test app
+        run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
+      - name: Test functional
+        run: cd tests-functionnal && xvfb-run -a nosetests
+        if: ${{ matrix.nosetests != 0}}
+
+  windows:
+    name: "qt:${{ matrix.qt }} py:${{ matrix.py }} ${{ matrix.arch }} on windows"
+    runs-on: windows-2022
+    strategy:
+      matrix:
+        include:
+          - py: "3.8"
+            arch: "x86"
+            qt: 5
+            qt_full: "5.15.2"
+            qt_arch: "win32_mingw81"
+            qt_tools: "tools_mingw,qt.tools.win32_mingw810"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw810_32/bin"
+            nosetests: 1
+          - py: "3.8"
+            arch: "x64"
+            qt: 6
+            qt_full: "6.7.0"
+            qt_arch: "win64_mingw"
+            qt_tools: "tools_mingw1310"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
+            nosetests: 1
+          - py: "3.11"
+            arch: "x64"
+            qt: 6
+            qt_full: "6.7.0"
+            qt_arch: "win64_mingw"
+            qt_tools: "tools_mingw1310"
+            compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
+            nosetests: 0  # Nosetest not working anymore
+    env:
+      CMAKE_GENERATOR: "MinGW Makefiles"
+      CC: "${{ matrix.compiler_path }}/gcc.exe"
+      CXX: "${{ matrix.compiler_path }}/g++.exe"
+    defaults:
+      run:
+        shell: cmd
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "${{ matrix.py }}"
+          architecture: "${{ matrix.arch }}"
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v3
+        with:
+          version: "${{ matrix.qt_full }}"
+          tools: "${{ matrix.qt_tools }}"
+          arch: "${{ matrix.qt_arch }}"
+          setup-python: false
+          cache: true
+
+      # Build & test C++ modules
+      - name: Build libFunq
+        run: |
+          mkdir build
+          cd build
+          cmake ../server -DBUILD_TESTS=1 -DBUILD_DISALLOW_WARNINGS=1
+          make
+      - name: Run libFunq tests
+        run: build\tests\libFunq\testLibFunq.exe
+      - name: Run protocole tests
+        run: build\tests\protocole\testProtocole.exe
+
+      # Server
+      - name: Install server
+        run: cd server && python3 setup.py develop
+
+      # Client
+      - name: Install client
+        run: cd client && python3 setup.py develop
+      - name: Test client
+        run: cd client && python3 setup.py test
+        if: ${{ matrix.nosetests != 0 }}
+
+      # Functional tests
+      - name: Build test app
+        run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Test injection
+        run: funq tests-functionnal/funq-test-app/funq-test-app.exe --exit-after-startup
+      - name: Test functional
+        run: cd tests-functionnal && nosetests
+        if: ${{ matrix.nosetests != 0}}

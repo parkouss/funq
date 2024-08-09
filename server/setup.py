@@ -13,20 +13,14 @@ import platform
 IS_WINDOWS = platform.system() == 'Windows'
 IS_MAC = platform.system() == 'Darwin'
 
-if sys.version_info < (2, 7):
-    sys.exit("Python version must be > 2.7")
-elif sys.version_info > (3,) and IS_WINDOWS:
-    sys.exit('funq server under windows require winappdbg'
-             ' which is not available under python 3 currenly.')
-
-install_requires = []
-if IS_WINDOWS:
-    install_requires.append('winappdbg')
+if sys.version_info < (3, 5):
+    sys.exit("Python version must be >= 3.5")
 
 
 def read(*paths):
     this_dir = os.path.dirname(os.path.realpath(__file__))
-    return open(os.path.join(this_dir, *paths)).read()
+    content = open(os.path.join(this_dir, *paths), "rb").read()
+    return content.decode("utf-8")
 
 
 version = re.search("__version__ = '(.+)'", read('funq_server/__init__.py')).group(1)
@@ -39,11 +33,10 @@ class build_libfunq(Command):
     user_options = [
         ('build-lib=', 'd', "directory to \"build\" (copy) to"),
         ('force', 'f', "forcibly build everything (ignore file timestamps)"),
-        ('qmake-path=', None, "path to the qmake executable"),
+        ('cmake-path=', None, "path to the cmake executable"),
         ('make-path=', None, "path to the make executable"),
         ('debug', 'g',
          "compile/link with debugging information"),
-        ('cxxflags=', None, "custom QMAKE_CXXFLAGS passed to qmake"),
         ('inplace', 'i',
          "ignore build-lib and put compiled extensions into the source " +
          "directory alongside your pure Python modules"),
@@ -56,12 +49,12 @@ class build_libfunq(Command):
         self.force = None
         self.inplace = None
         self.debug = None
-        self.cxxflags = None
-        self.qmake_path = None
+        self.cmake_path = None
         self.make_path = None
+        self.qt_version = None
 
         if IS_WINDOWS:
-            self.funqlib_name = 'Funq.dll'
+            self.funqlib_name = 'libFunq.dll'
         elif IS_MAC:
             self.funqlib_name = 'libFunq.dylib'
         else:
@@ -72,12 +65,12 @@ class build_libfunq(Command):
                                    ('force', 'force'),
                                    ('debug', 'debug'),
                                    ('build_lib', 'build_lib'))
-        if self.qmake_path is None:
-            self.qmake_path = os.environ.get('FUNQ_QMAKE_PATH') or 'qmake'
+        if self.cmake_path is None:
+            self.cmake_path = os.environ.get('FUNQ_CMAKE_PATH') or 'cmake'
         if self.make_path is None:
             self.make_path = os.environ.get('FUNQ_MAKE_PATH') or 'make'
-        if self.cxxflags is None:
-            self.cxxflags = os.environ.get('FUNQ_CXXFLAGS')
+        if self.qt_version is None:
+            self.qt_version = os.environ.get('FUNQ_QT_MAJOR_VERSION')
 
     def funqlib_out_path(self):
         funqlib_base_dir = '.' if self.inplace else self.build_lib
@@ -86,15 +79,17 @@ class build_libfunq(Command):
     def run(self):
         if self.force:
             subprocess.call([self.make_path, 'clean'], shell=True)
-        qmake_cmd = [self.qmake_path, '-r']
-        if IS_WINDOWS:
-            qmake_cmd += ['-spec', 'win32-g++']
-        if self.cxxflags:
-            qmake_cmd += ['QMAKE_CXXFLAGS="' + self.cxxflags + '"']
-        print('running %s' % qmake_cmd)
-        subprocess.check_call(qmake_cmd)
-        buildtype = 'debug' if self.debug else 'release'
-        make_cmd = [self.make_path, buildtype]
+        buildtype = 'Debug' if self.debug else 'Release'
+        cmake_cmd = [
+            self.cmake_path, '.',
+            '-DCMAKE_BUILD_TYPE={}'.format(buildtype),
+        ]
+        if self.qt_version is not None:
+            cmake_cmd += ['-DQT_MAJOR_VERSION={}'.format(self.qt_version)]
+        print('running %s' % cmake_cmd)
+        subprocess.check_call(cmake_cmd)
+
+        make_cmd = [self.make_path]
         print('running %s' % make_cmd)
         subprocess.check_call(make_cmd, shell=True)
 
@@ -102,7 +97,7 @@ class build_libfunq(Command):
         lib_dir = os.path.dirname(lib_path)
         if not os.path.isdir(lib_dir):
             os.makedirs(lib_dir)
-        shutil.copy2(os.path.join('bin', self.funqlib_name), lib_path)
+        shutil.copy2(os.path.join('libFunq', self.funqlib_name), lib_path)
 
     def get_outputs(self):
         return [self.funqlib_out_path()]
@@ -145,6 +140,6 @@ setup(
         'install': install,
         'develop': develop,
     },
-    install_requires=install_requires,
+    install_requires=[],
     license='CeCILL v1.2',
 )

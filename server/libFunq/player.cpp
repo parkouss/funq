@@ -44,7 +44,6 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QApplication>
 #include <QBuffer>
 #include <QComboBox>
-#include <QDesktopWidget>
 #include <QGraphicsItem>
 #include <QGraphicsView>
 #include <QHeaderView>
@@ -56,11 +55,17 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 #include <QTimer>
 #include <QTreeView>
 #include <QWidget>
+#include <QWindow>
+
+#if QT_VERSION_MAJOR >= 6
+#include <QScreen>
+#else
+#include <QDesktopWidget>
+#endif
 
 #ifdef QT_QUICK_LIB
 #include <QQuickItem>
 #include <QQuickWindow>
-#include <QWindow>
 #endif
 
 using namespace ObjectPath;
@@ -133,8 +138,13 @@ QString item_model_path(QAbstractItemModel * model, const QModelIndex & item) {
         parent = model->parent(parent);
     }
     // reverse list
-    for (int k = 0, s = path.size(), max = (s / 2); k < max; k++)
+    for (int k = 0, s = path.size(), max = (s / 2); k < max; k++) {
+#if QT_VERSION_MAJOR >= 6
+        path.swapItemsAt(k, s - (1 + k));
+#else
         path.swap(k, s - (1 + k));
+#endif
+    }
     return path.join("/");
 }
 
@@ -225,11 +235,7 @@ void dump_graphics_items(const QList<QGraphicsItem *> & items,
             outitem["classes"] = classes;
             outitem["objectname"] = itemObject->objectName();
         }
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         dump_graphics_items(item->childItems(), viewid, outitem);
-#else
-        dump_graphics_items(item->children(), viewid, outitem);
-#endif
         outitems << outitem;
     }
     out["items"] = outitems;
@@ -268,12 +274,8 @@ QtJson::JsonObject Player::list_actions(const QtJson::JsonObject &) {
          ++i) {
         QMetaMethod method = metaObject->method(i);
         if (method.methodType() == QMetaMethod::Slot) {
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             methods << QString::fromLatin1(
                 metaObject->method(i).methodSignature());
-#else
-            methods << QString::fromLatin1(metaObject->method(i).signature());
-#endif
         }
     }
     QtJson::JsonObject result;
@@ -339,30 +341,24 @@ QtJson::JsonObject Player::active_widget(const QtJson::JsonObject & command) {
     QString type = command["type"].toString();
     if (type == "modal") {
         active = QApplication::activeModalWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             active = QApplication::modalWindow();
         }
-#endif
     } else if (type == "popup") {
         active = QApplication::activePopupWidget();
     } else if (type == "focus") {
         active = QApplication::focusWidget();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             active = QApplication::focusWindow();
         }
-#endif
     } else {
         active = QApplication::activeWindow();
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
         if (!active) {
             QWindowList lst = QGuiApplication::topLevelWindows();
             if (!lst.isEmpty()) {
                 active = lst.first();
             }
         }
-#endif
     }
     if (!active) {
         return createError(
@@ -481,13 +477,11 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
         } else {
             // no qwidgets, this is probably a qtquick app - anyway, check for
             // windows
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
             foreach (QWindow * window, QApplication::topLevelWindows()) {
                 QtJson::JsonObject resultWindow;
                 dump_object(window, resultWindow, with_properties);
                 result[resultWindow["path"].toString()] = resultWindow;
             }
-#endif
         }
     }
     return result;
@@ -495,7 +489,7 @@ QtJson::JsonObject Player::widgets_list(const QtJson::JsonObject & command) {
 
 QtJson::JsonObject Player::quit(const QtJson::JsonObject &) {
     if (qApp) {
-        qApp->quit();
+        qApp->exit();
     }
     QtJson::JsonObject result;
     return result;
@@ -541,6 +535,10 @@ QtJson::JsonObject Player::widget_click(const QtJson::JsonObject & command) {
 QtJson::JsonObject Player::quick_item_click(
     const QtJson::JsonObject & command) {
 #ifdef QT_QUICK_LIB
+#if QT_VERSION_MAJOR >= 6
+    return createError(
+        "Qt5Only", "This method is currently not supported with Qt6.");
+#endif
     QuickItemLocatorContext ctx(this, command, "oid");
     if (ctx.hasError()) {
         return ctx.lastError;
@@ -847,10 +845,20 @@ QtJson::JsonObject Player::grab(const QtJson::JsonObject & command) {
         if (ctx.hasError()) {
             return ctx.lastError;
         }
+#if QT_VERSION_MAJOR >= 6
+        pixmap = ctx.widget->grab();
+#else
         pixmap = QPixmap::grabWidget(ctx.widget);
+#endif
     } else {
         // grab the whole screen
+#if QT_VERSION_MAJOR >= 6
+        if (QScreen* screen = QGuiApplication::primaryScreen()) {
+            pixmap = screen->grabWindow();
+        }
+#else
         pixmap = QPixmap::grabWindow(QApplication::desktop()->winId());
+#endif
     }
     QString format = command["format"].toString();
     if (format.isEmpty()) {

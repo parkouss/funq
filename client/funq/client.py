@@ -55,14 +55,6 @@ from funq.errors import FunqError, TimeOutError
 LOG = logging.getLogger('funq.client')
 
 
-# python 3 compatibility
-# https://stackoverflow.com/questions/11301138/how-to-check-if-variable-is-string-with-python-2-and-3-compatibility)
-try:
-    basestring
-except NameError:
-    basestring = str
-
-
 class FunqClient(object):
 
     """
@@ -82,7 +74,7 @@ class FunqClient(object):
 
         if aliases is None:
             aliases = HooqAliases()
-        elif isinstance(aliases, basestring):
+        elif isinstance(aliases, str):
             aliases = HooqAliases.from_file(aliases)
         elif not isinstance(aliases, HooqAliases):
             raise TypeError("aliases must be None or str or an"
@@ -156,8 +148,8 @@ class FunqClient(object):
         header = f.readline()
         if not header:
             raise FunqError("NoResponseFromApplication",
-                            u"Pas de réponse de l'application testée -"
-                            u" probablement un crash.")
+                            "Pas de réponse de l'application testée -"
+                            " probablement un crash.")
         to_read = int(header)
         response = json.loads(f.read(to_read).decode('utf-8'))
         if response.get('success') is False:
@@ -166,7 +158,7 @@ class FunqClient(object):
 
     def quit(self):
         """
-        Ask the tested application to quit by calling qApp->quit().
+        Ask the tested application to quit by calling qApp->exit().
         """
         self._raw_send('quit', {})
 
@@ -323,7 +315,7 @@ class FunqClient(object):
         """
         Write in a file the result of :meth:`widgets_list`.
         """
-        if isinstance(stream, basestring):
+        if isinstance(stream, str):
             stream = open(stream, 'w')
         json.dump(self.widgets_list(with_properties=with_properties),
                   stream, sort_keys=True, indent=4, separators=(',', ': '))
@@ -333,7 +325,7 @@ class FunqClient(object):
         Take a screenshot of the active desktop.
         """
         data = self.send_command('grab', format=format_)
-        if isinstance(stream, basestring):
+        if isinstance(stream, str):
             stream = open(stream, 'wb')
         raw = base64.standard_b64decode(data['data'])
         stream.write(raw)  # pylint: disable=E1103
@@ -516,7 +508,7 @@ class ApplicationContext(object):  # pylint: disable=R0903
                     self._process = None
                 else:
                     # try to exit nicely the tested application process
-                    # with a call to qApp->quit().
+                    # with a call to qApp->exit().
                     LOG.info("Closing tested application [%s].",
                              self._process.pid)
                     try:

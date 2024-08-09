@@ -33,11 +33,7 @@ knowledge of the CeCILL v2.1 license and that you accept its terms.
 */
 
 #include <QtCore>
-#if (QT_VERSION >= QT_VERSION_CHECK(5, 0, 0))
 #include <QtWidgets>
-#else
-#include <QtGui>
-#endif
 
 class SimpleDialog : public QDialog {
     Q_OBJECT
@@ -232,13 +228,13 @@ public:
         for (int i = 0; i < 10; ++i) {
             combobox->addItem(QString("Item %1").arg(i));
         }
-        connect(combobox, SIGNAL(currentIndexChanged(QString)), this,
-                SLOT(currentIndexChanged(QString)));
+        connect(combobox, SIGNAL(currentTextChanged(QString)), this,
+                SLOT(currentTextChanged(QString)));
         layout()->addWidget(combobox);
     }
 
 private slots:
-    void currentIndexChanged(const QString & text) {
+    void currentTextChanged(const QString & text) {
         showResult("Text: " + text);
     }
 };

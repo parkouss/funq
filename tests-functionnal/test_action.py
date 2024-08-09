@@ -41,7 +41,7 @@ class TestAction(AppTestCase):
         self.start_dialog('action')
         action = self.funq.action(path='mainWindow::ActionDialog::nonblockingAction')
         action.trigger(blocking=True)
-        self.assertEquals(self.get_status_text(), 'nonblocking triggered !')
+        self.assertEqual(self.get_status_text(), 'nonblocking triggered !')
 
     def test_nonblocking_trigger_to_blocking_action(self):
         self.start_dialog('action')
@@ -51,4 +51,4 @@ class TestAction(AppTestCase):
         btn = self.funq.widget(path='QMessageBox::qt_msgbox_buttonbox::QPushButton')
         btn.click()
         # now the status text must be updated
-        self.assertEquals(self.get_status_text(), 'blocking triggered !')
+        self.assertEqual(self.get_status_text(), 'blocking triggered !')
