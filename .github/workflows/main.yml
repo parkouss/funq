@@ -76,8 +76,12 @@ jobs:
       # Functional tests
       - name: Build test app
         run: cd tests-functionnal/funq-test-app && cmake . && make
+      - name: Build test qml app
+        run: cd tests-functionnal/funq-test-qml-app && cmake . && make
       - name: Test injection
         run: xvfb-run -a funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
+      - name: Test injection qml
+        run: xvfb-run -a funq tests-functionnal/funq-test-qml-app/funq-test-qml-app --exit-after-startup
       - name: Test functional
         run: cd tests-functionnal && xvfb-run -a nosetests
         if: ${{ matrix.nosetests != 0}}
