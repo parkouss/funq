@@ -46,7 +46,7 @@ class TestAliases:
 
     def test_add_one(self):
         self.aliases['1'] = '2'
-        assert_equals(self.aliases['1'], '2')
+        assert self.aliases['1'] == '2'
 
     @raises(HooqAliasesKeyError)
     def test_no_doublons(self):
@@ -56,13 +56,13 @@ class TestAliases:
     def test_substitution(self):
         self.aliases['a'] = '1'
         self.aliases['b'] = '{a}2'
-        assert_equals(self.aliases['b'], '12')
+        assert self.aliases['b'] == '12'
 
     @raises(HooqAliasesKeyError)
     def test_bad_substitution(self):
         self.aliases['b'] = '{a}2'
         self.aliases['a'] = '1'
-        assert_equals(self.aliases['b'], '12')
+        assert self.aliases['b'] == '12'
 
     @raises(HooqAliasesKeyError)
     def test_alias_inexistant(self):
@@ -97,7 +97,7 @@ class TestAliasesFromFile:
 a = 1
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
     def test_parse_with_comment(self):
         aliases = self._parse("""
@@ -105,7 +105,7 @@ a = 1
 # toto = 1
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
     def test_parse_with_empty_line(self):
         aliases = self._parse("""
@@ -113,7 +113,7 @@ a = 1
 
 b = 2
 """)
-        assert_equals(aliases, {'a': '1', 'b': '2'})
+        assert aliases == {'a': '1', 'b': '2'}
 
     @raises(HooqAliasesInvalidLineError)
     def test_parse_with_syntax_error(self):
@@ -130,7 +130,7 @@ MY_DEFINE = 33
 a = {MY_DEFINE}::1
 b = 2
 """, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'}
 
     def test_with_gkit_interpolation(self):
         gkit_data = """
@@ -142,8 +142,8 @@ OTHER_DEFINE = {MY_DEFINE}::66
 a = {MY_DEFINE}::1
 b = {OTHER_DEFINE}
 """, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1',
-                                'OTHER_DEFINE': '33::66', 'b': '33::66'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1',
+                                'OTHER_DEFINE': '33::66', 'b': '33::66'}
 
     def test_with_gkit_custom(self):
         gkit_data = """
@@ -157,7 +157,7 @@ a = {MY_DEFINE}::1
 b = 2
 """
         aliases = self._parse(aliases_data, gkit_data)
-        assert_equals(aliases, {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '33', 'a': '33::1', 'b': '2'}
 
         aliases = self._parse(aliases_data, gkit_data, 'kde')
-        assert_equals(aliases, {'MY_DEFINE': '66', 'a': '66::1', 'b': '2'})
+        assert aliases == {'MY_DEFINE': '66', 'a': '66::1', 'b': '2'}
