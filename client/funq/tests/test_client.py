@@ -32,7 +32,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, raises
+import pytest
 from funq import client
 import os
 import subprocess
@@ -53,6 +53,7 @@ class GlobalOptions(object):
 
 class TestApplicationConfigFromConf:
 
+    @pytest.fixture
     def setup(self):
         self.conf = ConfigParser()
         self.conf.add_section('my')
@@ -66,50 +67,59 @@ class TestApplicationConfigFromConf:
             GlobalOptions(funq_conf=os.path.join(os.getcwd(), 'my.conf'))
         )
 
-    @raises(NoOptionError)
+    @pytest.mark.usefixtures('setup')
     def test_require_executable(self):
-        self.createApplicationConfig()
+        with pytest.raises(NoOptionError):
+            self.createApplicationConfig()
 
+    @pytest.mark.usefixtures('setup')
     def test_abs_executable(self):
         self.set_opt('executable', os.getcwd())
         appconf = self.createApplicationConfig()
         assert appconf.executable == os.getcwd()
 
+    @pytest.mark.usefixtures('setup')
     def test_nonabs_executable(self):
         self.set_opt('executable', 'toto')
         appconf = self.createApplicationConfig()
         assert appconf.executable == os.path.join(os.getcwd(), 'toto')
 
+    @pytest.mark.usefixtures('setup')
     def test_args(self):
         self.set_opt('executable', 'toto')
         self.set_opt('args', 'toto "titi 1" 2')
         appconf = self.createApplicationConfig()
         assert appconf.args == ['toto', 'titi 1', '2']
 
+    @pytest.mark.usefixtures('setup')
     def test_port(self):
         self.set_opt('executable', 'toto')
         self.set_opt('funq_port', '12000')
         appconf = self.createApplicationConfig()
         assert appconf.funq_port == 12000
 
+    @pytest.mark.usefixtures('setup')
     def test_timeout_connection(self):
         self.set_opt('executable', 'toto')
         self.set_opt('timeout_connection', '5')
         appconf = self.createApplicationConfig()
         assert appconf.timeout_connection == 5
 
+    @pytest.mark.usefixtures('setup')
     def test_abs_aliases(self):
         self.set_opt('executable', 'toto')
         self.set_opt('aliases', os.getcwd())
         appconf = self.createApplicationConfig()
         assert appconf.aliases == os.getcwd()
 
+    @pytest.mark.usefixtures('setup')
     def test_nonabs_aliases(self):
         self.set_opt('executable', 'toto')
         self.set_opt('aliases', 'titi')
         appconf = self.createApplicationConfig()
         assert appconf.aliases == os.path.join(os.getcwd(), 'titi')
 
+    @pytest.mark.usefixtures('setup')
     def test_stdout_null(self):
         self.set_opt('executable', 'toto')
         self.set_opt('executable_stdout', 'NULL')
@@ -119,9 +129,11 @@ class TestApplicationConfigFromConf:
 
 class TestApplicationRegistry:
 
+    @pytest.fixture
     def setup(self):
         self.reg = client.ApplicationRegistry()
 
+    @pytest.mark.usefixtures('setup')
     def test_register_from_conf(self):
         conf = ConfigParser()
         conf.add_section('example')

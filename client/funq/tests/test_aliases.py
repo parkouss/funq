@@ -32,7 +32,7 @@
 # The fact that you are presently reading this means that you have had
 # knowledge of the CeCILL v2.1 license and that you accept its terms.
 
-from nose.tools import assert_equals, raises
+import pytest
 from funq.aliases import HooqAliases, HooqAliasesInvalidLineError, \
     HooqAliasesKeyError
 from tempfile import NamedTemporaryFile
@@ -41,32 +41,38 @@ import os
 
 class TestAliases:
 
+    @pytest.fixture
     def setup(self):
         self.aliases = HooqAliases()
 
+    @pytest.mark.usefixtures('setup')
     def test_add_one(self):
         self.aliases['1'] = '2'
         assert self.aliases['1'] == '2'
 
-    @raises(HooqAliasesKeyError)
+    @pytest.mark.usefixtures('setup')
     def test_no_doublons(self):
         self.aliases['1'] = '2'
-        self.aliases['1'] = '2'
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['1'] = '2'
 
+    @pytest.mark.usefixtures('setup')
     def test_substitution(self):
         self.aliases['a'] = '1'
         self.aliases['b'] = '{a}2'
         assert self.aliases['b'] == '12'
 
-    @raises(HooqAliasesKeyError)
+    @pytest.mark.usefixtures('setup')
     def test_bad_substitution(self):
-        self.aliases['b'] = '{a}2'
-        self.aliases['a'] = '1'
-        assert self.aliases['b'] == '12'
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b'] = '{a}2'
+            self.aliases['a'] = '1'
+            assert self.aliases['b'] == '12'
 
-    @raises(HooqAliasesKeyError)
+    @pytest.mark.usefixtures('setup')
     def test_alias_inexistant(self):
-        self.aliases['b']
+        with pytest.raises(HooqAliasesKeyError):
+            self.aliases['b']
 
 
 class TestAliasesFromFile:
@@ -115,9 +121,9 @@ b = 2
 """)
         assert aliases == {'a': '1', 'b': '2'}
 
-    @raises(HooqAliasesInvalidLineError)
     def test_parse_with_syntax_error(self):
-        self._parse("""
+        with pytest.raises(HooqAliasesInvalidLineError):
+            self._parse("""
 a  1
 """)
 
