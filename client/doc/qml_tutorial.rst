@@ -104,7 +104,7 @@ Run the test
 
 Just run::
 
-  nosetests --with-funq
+  pytest --with-funq
 
 In the `qmltest` folder and watch it pass.
 

@@ -23,8 +23,8 @@ You can use these aliases in the aliases file in a standard way (between {}).
   manager is used - **default** is always used.
 
   To use another graphical kit, you have to specify it with the *funq-gkit*
-  nose option. Example:
+  pytest option. Example:
 
   .. code-block:: bash
 
-    nosetests --with-funq --funq-gkit kde
+    pytest --with-funq --funq-gkit kde

@@ -103,12 +103,12 @@ How does *funq* works
 
 - **funq** is a python package that offers an API to interact with a
   **libFunq** TCP server. It is the client side of the project, and uses
-  nosetests to launch FUNctional Qt tests.
+  pytest to launch FUNctional Qt tests.
 
 Compatibility
 =============
 
-Funq currently works with Python >= 3.5, Qt4 and Qt5 on GNU/Linux, macOS and
+Funq currently works with Python >= 3.5, Qt5 and Qt6 on GNU/Linux, macOS and
 Windows.
 
 Documentation
@@ -124,5 +124,7 @@ functional tests with **funq**.
 
 Thanks also to Jean-Luc Rouzoul, Dominique Constant and Mickaël Guérin for
 having supported this project.
+
+Thanks to all the contributors for their patches, bug reports, and feedback.
 
 Without them, **funq** would never have become a free software !
