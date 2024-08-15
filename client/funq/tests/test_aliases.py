@@ -149,7 +149,7 @@ a = {MY_DEFINE}::1
 b = {OTHER_DEFINE}
 """, gkit_data)
         assert aliases == {'MY_DEFINE': '33', 'a': '33::1',
-                                'OTHER_DEFINE': '33::66', 'b': '33::66'}
+                           'OTHER_DEFINE': '33::66', 'b': '33::66'}
 
     def test_with_gkit_custom(self):
         gkit_data = """

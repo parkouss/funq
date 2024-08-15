@@ -75,8 +75,7 @@ def test_take_screenshots():
 
         ctx.take_screenshot(funq, "thisisit")
 
-        assert (list(map(os.path.basename, funq.screens)) ==
-                      ["0.png", "1.png"])
+        assert list(map(os.path.basename, funq.screens)) == ["0.png", "1.png"]
         content = open(os.path.join(ctx.working_folder, 'images.txt')).read()
         assert "0.png: hello" in content
         assert "1.png: thisisit" in content

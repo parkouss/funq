@@ -116,7 +116,7 @@ class TestModelItems:
 
     def test_row_by_named_path_missing(self):
         items = self.model_items.row_by_named_path('blah/bluh')
-        assert items == None
+        assert items is None
 
     def test_item_by_named_path(self):
         item = self.model_items.item_by_named_path(['0-0', '0-0'])
@@ -128,4 +128,4 @@ class TestModelItems:
 
     def test_item_by_named_path_missing(self):
         item = self.model_items.item_by_named_path('blah/bluh')
-        assert item == None
+        assert item is None
