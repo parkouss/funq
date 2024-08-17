@@ -26,7 +26,7 @@ setup(
     version=version,
     packages=find_packages(),
     zip_safe=False,
-    test_suite="funq/tests",
+    test_suite="tests",
     tests_require=["pytest"],
     setup_requires=["pytest-runner"],
 )
