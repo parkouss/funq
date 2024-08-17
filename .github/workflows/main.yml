@@ -98,7 +98,8 @@ jobs:
           brew install cmake qt@${{ matrix.qt }}
           brew link --force qt@${{ matrix.qt }}
           echo "$(brew --prefix qt${{ matrix.qt }})/bin" >> $GITHUB_PATH
-          pip3 install setuptools flake8
+          pip3 install setuptools flake8 wheel pytest pytest-runner
+
 
       # Stylecheck
       - name: Flake8
@@ -201,6 +202,8 @@ jobs:
         run: cd server && python3 setup.py develop
 
       # Client
+      - name: Install test requirements
+        run: pip install wheel pytest pytest-runner
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
