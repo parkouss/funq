@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Python requirements
         run: |
-          pip install pytest
+          pip install wheel pytest pytest-runner
 
       # Stylecheck
       - name: Flake8
@@ -70,7 +70,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && pytest -v
+        run: cd client && python3 setup.py test -v
 
       # Functional tests
       - name: Build test app
@@ -124,7 +124,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && pytest -v
+        run: cd client && python3 setup.py test -v
 
       # Functional tests
       - name: Build test app
@@ -132,7 +132,7 @@ jobs:
       - name: Test injection
         run: funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
-        run: cd tests-functionnal && xvfb-run -a pytest
+        run: cd tests-functionnal && xvfb-run -a pytest -v
 
   windows:
     name: "qt:${{ matrix.qt }} py:${{ matrix.py }} ${{ matrix.arch }} on windows"
@@ -204,7 +204,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && pytest -v
+        run: cd client && python3 setup.py test -v
 
       # Functional tests
       - name: Build test app
@@ -212,4 +212,4 @@ jobs:
       - name: Test injection
         run: funq tests-functionnal/funq-test-app/funq-test-app.exe --exit-after-startup
       - name: Test functional
-        run: cd tests-functionnal && pytest
+        run: cd tests-functionnal && pytest -v

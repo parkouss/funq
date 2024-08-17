@@ -26,4 +26,11 @@ setup(
     version=version,
     packages=find_packages(),
     zip_safe=False,
+        setup_requires=[
+        "pytest-runner",
+    ],
+    tests_require=[
+        "pytest",
+    ],
+    test_suite="tests",
 )
