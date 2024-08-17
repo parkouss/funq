@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Python requirements
         run: |
-          pip install pytest wheel
+          pip install pytest
 
       # Stylecheck
       - name: Flake8
@@ -70,7 +70,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && python3 setup.py test -v
+        run: cd client && pytest -v
 
       # Functional tests
       - name: Build test app
@@ -124,7 +124,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && python3 setup.py test -v
+        run: cd client && pytest -v
 
       # Functional tests
       - name: Build test app
@@ -204,7 +204,7 @@ jobs:
       - name: Install client
         run: cd client && python3 setup.py develop
       - name: Test client
-        run: cd client && python3 setup.py test -v
+        run: cd client && pytest -v
 
       # Functional tests
       - name: Build test app
