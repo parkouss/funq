@@ -44,7 +44,7 @@ jobs:
 
       - name: Install Python requirements
         run: |
-          pip install pytest 
+          pip install pytest wheel
 
       # Stylecheck
       - name: Flake8
