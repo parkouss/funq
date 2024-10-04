@@ -14,7 +14,9 @@ def read(*paths):
     return content.decode("utf-8")
 
 
-version = re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
+
+def get_version():
+    return re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
 
 setup(
     name="funq",
@@ -23,14 +25,7 @@ setup(
     url="https://github.com/parkouss/funq",
     description="write FUNctional tests for Qt applications (client)",
     long_description=read("README"),
-    version=version,
+    version=get_version(),
     packages=find_packages(),
-    zip_safe=False,
-        setup_requires=[
-        "pytest-runner",
-    ],
-    tests_require=[
-        "pytest",
-    ],
     test_suite="tests",
 )
