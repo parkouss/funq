@@ -32,7 +32,7 @@ And that funq is installed with:
 
 .. code-block:: bash
 
-  nosetests -h | grep 'with-funq'
+  pytest -h | grep 'with-funq'
 
 .. important::
 
@@ -90,7 +90,7 @@ Well done ! Let's run this first test. Type the following command:
 
 .. code-block:: bash
 
-  nosetests --with-funq
+  pytest --with-funq
 
 One window must appear, and close after a few seconds. The output on the
 terminal must look like this::
@@ -103,13 +103,13 @@ terminal must look like this::
 
 .. note::
 
-  The option ``--with-funq`` given to nosetests allow to use the funq plugin
+  The option ``--with-funq`` given to pytest allow to use the funq plugin
   that will read the configuration file and execute your tests.
 
 .. note::
 
-  **nosetests** has multiples options to allow for example the generation
-  of an xml file to format tests result. See **nosetests -h**.
+  **pytest** has multiples options to allow for example the generation
+  of an xml file to format tests result. See **pytest -h**.
 
 And voilà! You have written and launched your first funq test. Now let's
 go a bit further by adding two tests and use an aliases file.
@@ -159,7 +159,7 @@ Now you can start tests again:
 
 .. code-block:: bash
 
-  nosetests --with-funq
+  pytest --with-funq
 
 .. note::
 
@@ -170,7 +170,7 @@ Now you can start tests again:
 
   .. code-block:: bash
 
-    nosetests --with-funq test_widgets.py
+    pytest --with-funq test_widgets.py
 
 .. important::
 
@@ -178,7 +178,7 @@ Now you can start tests again:
   that depends on others tests. In other words, the
   *order of test execution must not be important*. This allow to limit
   side effects and to find quickly why a test failed. This being said,
-  **nosetests** does not assure any order in test execution.
+  **pytest** does not assure any order in test execution.
 
 Going further
 -------------

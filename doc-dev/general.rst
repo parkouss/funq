@@ -47,7 +47,7 @@ Choix d'implémentation - partie client
 
 Le client est implémenté en Python - et c'est ainsi que les tests doivent être écrits.
 
-Pour lancer les tests, la librairie **nosetests** est utilisée - c'est une
+Pour lancer les tests, la librairie **pytest** est utilisée - c'est une
 dépendance du client.
 
 Tests unitaires
@@ -83,7 +83,7 @@ Pour la partie client:
 .. code-block:: bash
   
   cd client
-  nosetests
+  pytest
 
 .. note::
   
@@ -92,13 +92,11 @@ Pour la partie client:
   .. code-block:: bash
     
     cd client
-    nosetests --with-coverage --cover-package funq
+    pytest --with-coverage --cover-package funq
 
-La partie client requiert le framework Python **nose** [1] pour lancer les tests,
-et **coverage.py** [2] pour la couverture.
+La partie client requiert le framework Python **pytest** [1] pour lancer les tests.
 
-* [1] https://nose.readthedocs.org/en/latest/
-* [2] http://nedbatchelder.com/code/coverage/
+* [1] https://pytest.readthedocs.org/en/latest/
 
 Documentation
 -------------

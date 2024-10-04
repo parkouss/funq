@@ -17,22 +17,18 @@ jobs:
             py: "3.8"
             container: "ubuntu:20.04"
             packages: "qt5-default qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
-            nosetests: 1
           - qt: 5  # 5.15
             py: "3.10"
             container: "ubuntu:22.04"
             packages: "qtbase5-dev qttools5-dev-tools qtdeclarative5-dev qml-module-qtquick2"
-            nosetests: 0  # Nosetest not working anymore
           - qt: 6  # 6.2
             py: "3.10"
             container: "ubuntu:22.04"
             packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
-            nosetests: 0  # Nosetest not working anymore
           - qt: 6  # 6.4
             py: "3.12"
             container: "ubuntu:24.04"
             packages: "qt6-base-dev qt6-tools-dev qt6-tools-dev-tools qt6-declarative-dev libqt6opengl6-dev qml6-module-*"
-            nosetests: 0  # Nosetest not working anymore
     env:
       DEBIAN_FRONTEND: noninteractive
       FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
@@ -45,6 +41,10 @@ jobs:
             build-essential cmake xvfb libglu1-mesa-dev \
             python3 python3-pip python3-flake8 \
             ${{ matrix.packages }}
+
+      - name: Install Python requirements
+        run: |
+          pip install wheel pytest pytest-runner
 
       # Stylecheck
       - name: Flake8
@@ -64,14 +64,13 @@ jobs:
 
       # Server
       - name: Install server
-        run: cd server && python3 setup.py develop
+        run: cd server && python -m pip install --editable .
 
       # Client
       - name: Install client
-        run: cd client && python3 setup.py develop
+        run: cd client && python -m pip install --editable .
       - name: Test client
-        run: cd client && python3 setup.py test
-        if: ${{ matrix.nosetests != 0 }}
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
@@ -79,8 +78,7 @@ jobs:
       - name: Test injection
         run: xvfb-run -a funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
-        run: cd tests-functionnal && xvfb-run -a nosetests
-        if: ${{ matrix.nosetests != 0}}
+        run: cd tests-functionnal && xvfb-run -a pytest -v
 
   macos:
     name: "qt:${{ matrix.qt }} on ${{ matrix.runner }}"
@@ -88,9 +86,8 @@ jobs:
     strategy:
       matrix:
         include:
-          # Note: Nosetest doesn't work anymore with recent Python versions!
-          - {qt: "5", runner: "macos-12", nosetests: 0}
-          - {qt: "6", runner: "macos-14", nosetests: 0}
+          - {qt: "5", runner: "macos-12"}
+          - {qt: "6", runner: "macos-14"}
     env:
       FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
       PIP_BREAK_SYSTEM_PACKAGES: 1
@@ -101,7 +98,8 @@ jobs:
           brew install cmake qt@${{ matrix.qt }}
           brew link --force qt@${{ matrix.qt }}
           echo "$(brew --prefix qt${{ matrix.qt }})/bin" >> $GITHUB_PATH
-          pip3 install setuptools flake8
+          pip3 install setuptools flake8 wheel pytest pytest-runner
+
 
       # Stylecheck
       - name: Flake8
@@ -121,14 +119,13 @@ jobs:
 
       # Server
       - name: Install server
-        run: cd server && python3 setup.py develop
+        run: cd server && python -m pip install --editable .
 
       # Client
       - name: Install client
-        run: cd client && python3 setup.py develop
+        run: cd client && python -m pip install --editable .
       - name: Test client
-        run: cd client && python3 setup.py test
-        if: ${{ matrix.nosetests != 0 }}
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
@@ -136,8 +133,7 @@ jobs:
       - name: Test injection
         run: funq tests-functionnal/funq-test-app/funq-test-app --exit-after-startup
       - name: Test functional
-        run: cd tests-functionnal && xvfb-run -a nosetests
-        if: ${{ matrix.nosetests != 0}}
+        run: cd tests-functionnal && xvfb-run -a pytest -v
 
   windows:
     name: "qt:${{ matrix.qt }} py:${{ matrix.py }} ${{ matrix.arch }} on windows"
@@ -152,7 +148,6 @@ jobs:
             qt_arch: "win32_mingw81"
             qt_tools: "tools_mingw,qt.tools.win32_mingw810"
             compiler_path: "D:/a/funq/Qt/Tools/mingw810_32/bin"
-            nosetests: 1
           - py: "3.8"
             arch: "x64"
             qt: 6
@@ -160,7 +155,6 @@ jobs:
             qt_arch: "win64_mingw"
             qt_tools: "tools_mingw1310"
             compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
-            nosetests: 1
           - py: "3.11"
             arch: "x64"
             qt: 6
@@ -168,7 +162,6 @@ jobs:
             qt_arch: "win64_mingw"
             qt_tools: "tools_mingw1310"
             compiler_path: "D:/a/funq/Qt/Tools/mingw1310_64/bin"
-            nosetests: 0  # Nosetest not working anymore
     env:
       CMAKE_GENERATOR: "MinGW Makefiles"
       CC: "${{ matrix.compiler_path }}/gcc.exe"
@@ -206,14 +199,15 @@ jobs:
 
       # Server
       - name: Install server
-        run: cd server && python3 setup.py develop
+        run: cd server && python -m pip install --editable .
 
       # Client
+      - name: Install test requirements
+        run: pip install wheel pytest pytest-runner
       - name: Install client
-        run: cd client && python3 setup.py develop
+        run: cd client && python -m pip install --editable .
       - name: Test client
-        run: cd client && python3 setup.py test
-        if: ${{ matrix.nosetests != 0 }}
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
@@ -221,5 +215,4 @@ jobs:
       - name: Test injection
         run: funq tests-functionnal/funq-test-app/funq-test-app.exe --exit-after-startup
       - name: Test functional
-        run: cd tests-functionnal && nosetests
-        if: ${{ matrix.nosetests != 0}}
+        run: cd tests-functionnal && pytest -v

@@ -14,11 +14,9 @@ def read(*paths):
     return content.decode("utf-8")
 
 
-version = re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
 
-# nose n'est actuellement pas requis pour ce module
-# mais tres utile pour cadrer les tests.
-install_requires = ['nose']
+def get_version():
+    return re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
 
 setup(
     name="funq",
@@ -27,13 +25,7 @@ setup(
     url="https://github.com/parkouss/funq",
     description="write FUNctional tests for Qt applications (client)",
     long_description=read("README"),
-    version=version,
+    version=get_version(),
     packages=find_packages(),
-    zip_safe=False,
-    test_suite='funq.tests.create_test_suite',
-    install_requires=install_requires,
-    package_data={'funq': ['aliases-gkits.conf']},
-    entry_points={
-        'nose.plugins.0.10': ['funq = funq.noseplugin:FunqPlugin']
-    },
+    test_suite="tests",
 )

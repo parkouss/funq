@@ -23,7 +23,8 @@ def read(*paths):
     return content.decode("utf-8")
 
 
-version = re.search("__version__ = '(.+)'", read('funq_server/__init__.py')).group(1)
+def get_version():
+    return re.search("__version__ = '(.+)'", read('funq_server/__init__.py')).group(1)
 
 
 class build_libfunq(Command):
@@ -127,7 +128,7 @@ setup(
     url="https://github.com/parkouss/funq",
     description="write FUNctional tests for Qt applications (server)",
     long_description=read("README"),
-    version=version,
+    version=get_version(),
     packages=['funq_server'],
     entry_points={
         'console_scripts': [
