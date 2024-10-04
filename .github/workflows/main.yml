@@ -121,7 +121,7 @@ jobs:
 
       # Server
       - name: Install server
-        run: cd server && python -m pip install --editable /
+        run: cd server && python -m pip install --editable .
 
       # Client
       - name: Install client
