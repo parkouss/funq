@@ -70,9 +70,7 @@ jobs:
       - name: Install client
         run: cd client && python -m pip install --editable .
       - name: Test client
-        run: |
-          python -m pip install -r requirements-dev.txt
-          cd client && pytest -v tests/
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
@@ -127,9 +125,7 @@ jobs:
       - name: Install client
         run: cd client && python -m pip install --editable .
       - name: Test client
-        run: |
-          python -m pip install -r requirements-dev.txt
-          cd client && pytest -v tests/
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
@@ -211,9 +207,7 @@ jobs:
       - name: Install client
         run: cd client && python -m pip install --editable .
       - name: Test client
-        run: |
-          python -m pip install -r requirements-dev.txt
-          cd client && pytest -v tests/
+        run: cd client && pytest -v tests
 
       # Functional tests
       - name: Build test app
