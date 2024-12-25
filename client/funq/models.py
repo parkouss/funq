@@ -96,7 +96,7 @@ class TreeItems(object):
           for item in items.iter():
               print item
         """
-        items = self.items
+        items = self.items.copy()
         while items:
             item = items.pop(0)
             items = item.items + items
