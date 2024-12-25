@@ -94,8 +94,8 @@ class FunqPlugin(Plugin):
                           dest='funq_gkit_file',
                           default=env.get('NOSE_FUNQ_GKIT_FILE') or gkit_file,
                           help="Override the file that defines graphic"
-                               " toolkits. Default: `%s` [NOSE_FUNQ_GKIT_FILE]"
-                               % gkit_file)
+                               f" toolkits. Default: `{gkit_file}`"
+                               " [NOSE_FUNQ_GKIT_FILE]")
         parser.add_option('--funq-attach-exe',
                           dest='funq_attach_exe',
                           default=env.get('NOSE_FUNQ_ATTACH_EXE')
@@ -135,7 +135,7 @@ class FunqPlugin(Plugin):
         conf_file = options.funq_conf = os.path.realpath(options.funq_conf)
         if not os.path.isfile(conf_file):
             raise Exception(
-                "Missing configuration file of funq: `%s`" % conf_file)
+                f"Missing configuration file of funq: `{conf_file}`")
         conf = ConfigParser()
         conf.read([conf_file])
         self.app_registry = ApplicationRegistry()
@@ -149,7 +149,7 @@ class FunqPlugin(Plugin):
         FunqPlugin._instance = self
 
     def beforeTest(self, test):
-        message = "Starting test `%s`" % test.id()
+        message = f"Starting test `{test.id()}`"
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -160,7 +160,7 @@ class FunqPlugin(Plugin):
                 f.write('\n')
 
     def afterTest(self, test):
-        message = "Ending test `%s`" % test.id()
+        message = f"Ending test `{test.id()}`"
         lines = message_with_sep(message)
         for line in lines:
             LOG.info(line)
@@ -171,7 +171,7 @@ class FunqPlugin(Plugin):
                 f.write('\n')
 
     def describeTest(self, test):
-        return u'%s' % test.id()
+        return str(test.id())
 
     def take_screenshot(self, test):
         if isinstance(test, MultiFunqTestCase):
@@ -180,7 +180,7 @@ class FunqPlugin(Plugin):
                     if v.screenshot_on_error:
                         self.screenshoter.take_screenshot(
                             test.funq[k],
-                            '%s [%s]' % (test.id(), k)
+                            f'{test.id()} [{k}]'
                         )
         elif isinstance(test, FunqTestCase):
             if test.__app_config__:

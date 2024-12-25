@@ -461,13 +461,13 @@ class ApplicationContext(object):  # pylint: disable=R0903
         cmd.extend(appconfig.args)
 
         LOG.info("The tested application will be launched in the"
-                 " directory %r with the command %r", appconfig.cwd, cmd)
+                 f" directory {appconfig.cwd} with the command {cmd}")
         self._process = subprocess.Popen(cmd,
                                          cwd=appconfig.cwd,
                                          stdout=stdout,
                                          stderr=stderr,
                                          env=env)
-        LOG.info("Launching tested application [%s].", self._process.pid)
+        LOG.info(f"Launching tested application [{self._process.pid}].")
 
     def _kill_process(self):
         """
@@ -481,8 +481,8 @@ class ApplicationContext(object):  # pylint: disable=R0903
                 pass
             if self._process.returncode is None:
                 # application seems blocked ! try to terminate it ...
-                LOG.warn("The tested application [%s] can not be stopped"
-                         " nicely.", self._process.pid)
+                LOG.warn(f"The tested application [{self._process.pid}]"
+                         " can not be stopped nicely.")
                 self._process.terminate()
                 self._process.wait()
             self._process = None
@@ -502,15 +502,14 @@ class ApplicationContext(object):  # pylint: disable=R0903
                     pass
                 if self._process.returncode is not None:
                     # process terminated unexpectedly (-11: SegFault)
-                    LOG.critical("The tested application [%s] has terminated"
-                                 " unexpectedly (return code: %s)",
-                                 self._process.pid, self._process.returncode)
+                    LOG.critical(f"The tested application [{self._process.pid}]"
+                                 " has terminated unexpectedly"
+                                 f" (return code: {self._process.returncode})")
                     self._process = None
                 else:
                     # try to exit nicely the tested application process
                     # with a call to qApp->exit().
-                    LOG.info("Closing tested application [%s].",
-                             self._process.pid)
+                    LOG.info(f"Closing tested application [{self._process.pid}].")
                     try:
                         self.funq.quit()
                     except socket.error:

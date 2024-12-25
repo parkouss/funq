@@ -86,11 +86,11 @@ class build_libfunq(Command):
         ]
         if self.qt_version is not None:
             cmake_cmd += ['-DQT_MAJOR_VERSION={}'.format(self.qt_version)]
-        print('running %s' % cmake_cmd)
+        print(f'running {cmake_cmd}')
         subprocess.check_call(cmake_cmd)
 
         make_cmd = [self.make_path]
-        print('running %s' % make_cmd)
+        print(f'running {make_cmd}')
         subprocess.check_call(make_cmd, shell=True)
 
         lib_path = self.funqlib_out_path()

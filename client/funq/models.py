@@ -46,6 +46,7 @@ class TreeItem(object):  # pylint: disable=R0903
     """
     Defines an abstract item that contains subitems
     """
+
     client = None
     items = None
 
@@ -291,7 +292,7 @@ class Widget(Object):
         elif btn == 'middle':
             action = 'middleclick'
         else:
-            raise ValueError('Invalid mouse button: %s', btn)
+            raise ValueError(f'Invalid mouse button: {btn}')
         self.client.send_command('widget_click',
                                  oid=self.oid,
                                  mouseAction=action)
@@ -608,7 +609,7 @@ class AbstractItemView(Widget):
         elif btn == "middle":
             action = "middleclick"
         else:
-            raise ValueError("Invalid mouse button: %s", btn)
+            raise ValueError(f"Invalid mouse button: {btn}")
         self._item_action(
             item, action, origin=origin, offset_x=offset_x, offset_y=offset_y
         )
@@ -644,19 +645,18 @@ class AbstractItemView(Widget):
                                   type of editor will be tested (this may
                                   actually be very slow)
         """
-        qt_path = '::qt_scrollarea_viewport::%s'
+        qt_path = '::qt_scrollarea_viewport::'
         if editor_class_name:
             return self.client.widget(path=self.path
-                                      + qt_path % editor_class_name)
+                                      + qt_path + editor_class_name)
         for editor_class_name in self.editor_class_names:
             try:
                 return self.client.widget(path=self.path
-                                          + qt_path % editor_class_name)
+                                          + qt_path + editor_class_name)
             except FunqError:
                 pass
         raise FunqError("MissingEditor", 'Unable to find an editor.'
-                        ' Possible editors: %s'
-                        % repr(self.editor_class_names))
+                        f' Possible editors: {repr(self.editor_class_names)}')
 
 
 class TableView(AbstractItemView):
@@ -745,7 +745,7 @@ class TabBar(Widget):
         if isinstance(tab_index_or_name, int):
             index = tab_index_or_name
             if index < 0 or index >= len(tabnames):
-                raise ValueError("Invalid tab Index %d" % index)
+                raise ValueError(f"Invalid tab Index {index}")
         else:
             index = tabnames.index(tab_index_or_name)
         self.set_property('currentIndex', index)
@@ -801,7 +801,7 @@ class GItem(TreeItem):
         elif btn == "middle":
             action = "middleclick"
         else:
-            raise ValueError("Invalid mouse button: %s", btn)
+            raise ValueError(f"Invalid mouse button: {btn}")
         self._action(action)
 
     def dclick(self):
@@ -887,7 +887,7 @@ class ComboBox(Widget):
         """
         if not isinstance(text, str):
             raise TypeError('the text parameter must be a string'
-                            ' - got %s' % type(text))
+                            f' - got {type(text)}')
         column = self.properties()['modelColumn']
         index = -1
         # WORKAROUND: Call items() via function pointer to prevent py2to3 from
@@ -898,8 +898,7 @@ class ComboBox(Widget):
             if column == int(item.column) and item.value == text:
                 index = int(item.row)
                 break
-        assert index > -1, ("Le texte `%s` n'est pas dans la combobox `%s`"
-                            % (text, self.path))
+        assert index > -1, (f"The text `{text}` is not in the combobox `{self.path}`")
         self.set_property('currentIndex', index)
 
 
@@ -1014,8 +1013,7 @@ class QuickWindow(Widget):
         if alias and not id:
             path = self.client.aliases[alias]
             if not path.startswith(self.path):
-                raise TypeError("alias %r does not belong to this quick window"
-                                % path)
+                raise TypeError(f"alias {path} does not belong to this quick window")
             # remove the window path here, c++ code only requires the
             # object path from the root item.
             path = path[len(self.path)+2:]

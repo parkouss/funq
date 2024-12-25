@@ -110,7 +110,7 @@ class Runner(object):
 
         library_path = self._find_library()
         if not os.path.isfile(library_path):
-            raise RuntimeError("Unable to find funq library %r" % library_path)
+            raise RuntimeError(f"Unable to find funq library {library_path}")
 
         injector_class = self._create_injector_class()
         injector = injector_class(library_path, opts.command, env)

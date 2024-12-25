@@ -59,7 +59,7 @@ class AssertionSuccessError(AssertionError):
         self.name = name
 
     def __str__(self):
-        return "Test %s passed but it is decorated as TODO" % self.name
+        return f"Test {self.name} passed but it is decorated as TODO"
 
     def __rep__(self):
         return self.__str__()
@@ -92,12 +92,7 @@ def todo(skip_message, exception_cls=AssertionError):
             try:
                 func(*args, **kwargs)
             except exception_cls as err:
-                err = "%s" % err
-                if isinstance(err, str):
-                    err = err.encode(
-                        'utf-8', errors='ignore')  # pylint: disable=E1103
-                skip_msg = skip_message.encode('utf-8', errors='ignore')
-                raise unittest.SkipTest('\nError: %s\n%s' % (err, skip_msg))
+                raise unittest.SkipTest(f'\nError: {err}\n{skip_message}')
 
             raise AssertionSuccessError(func.__name__)
 
@@ -181,7 +176,7 @@ def wraps_parameterized(func, func_suffix, args, kwargs):
     def wrapper(self):
         return func(self, *args, **kwargs)
     wrapper.__name__ = func.__name__ + '_' + func_suffix
-    wrapper.__doc__ = '[%s] %s' % (func_suffix, func.__doc__)
+    wrapper.__doc__ = f'[{func_suffix}] {func.__doc__}'
     return wrapper
 
 
@@ -201,8 +196,8 @@ class MetaParameterized(type):
                     func_suffix = cls.RE_ESCAPE_BAD_CHARS.sub('_', func_suffix)
                     wrapper = wraps_parameterized(v, func_suffix, args, kwargs)
                     if wrapper.__name__ in attrs:
-                        raise KeyError("%s is already a defined method on %s" %
-                                       (wrapper.__name__, name))
+                        raise KeyError(f"{wrapper.__name__} is already a defined"
+                                       f" method on {name}")
                     attrs[wrapper.__name__] = wrapper
                 del attrs[k]
 
@@ -271,7 +266,7 @@ class BaseTestCase(unittest.TestCase, metaclass=MetaParameterized):
     def id(self):
         cls = self.__class__
         fname = inspect.getsourcefile(cls)[len(os.getcwd()) + 1:]
-        return "%s:%s.%s" % (fname, cls.__name__, self._testMethodName)
+        return f"{fname}:{cls.__name__}.{self._testMethodName}"
 
 
 class FunqTestCase(BaseTestCase):

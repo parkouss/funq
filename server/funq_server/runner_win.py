@@ -72,8 +72,8 @@ class WindowsRunnerInjector(RunnerInjector):
         # Check if the process is still running.
         if self._proc.poll() is not None:
             raise RuntimeError("The process has finished with an error"
-                               " code of %d before we could hook it with"
-                               " funq." % self._proc.returncode)
+                               f" code of {self._proc.returncode} before"
+                               " we could hook it with funq.")
 
         # Inject the DLL now.
         try:

@@ -75,8 +75,7 @@ class ScreenShoter(object):  # pylint: disable=R0903
         except (SystemExit, KeyboardInterrupt):
             raise
         except Exception:
-            LOG.exception("impossible de prendre un screenshot pour"
-                          " %s", longname)
+            LOG.exception(f"impossible to take a screenshot {longname}")
             return
 
         with codecs.open(self.txt_file_path, "a", "utf-8") as f:
