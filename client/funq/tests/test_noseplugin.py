@@ -49,7 +49,7 @@ def configured_plugin(argv=[], env={}):
     return plugin
 
 
-class FakeTest(object):
+class FakeTest():
 
     def __init__(self, test_id):
         self.test_id = test_id

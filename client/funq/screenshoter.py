@@ -45,7 +45,7 @@ import codecs
 LOG = logging.getLogger('funq.screenshoter')
 
 
-class ScreenShoter(object):  # pylint: disable=R0903
+class ScreenShoter():  # pylint: disable=R0903
 
     """
     Object that can take screenshots.

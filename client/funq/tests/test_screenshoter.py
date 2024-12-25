@@ -39,7 +39,7 @@ import shutil
 import os
 
 
-class FakeFunqClient(object):
+class FakeFunqClient():
 
     def __init__(self):
         self.screens = []

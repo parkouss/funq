@@ -40,7 +40,7 @@ import argparse
 import funq_server
 
 
-class RunnerInjector(object):
+class RunnerInjector():
 
     def __init__(self, library_path, args, env):
         self.library_path = library_path
@@ -59,7 +59,7 @@ class RunnerInjector(object):
         return self._proc.wait()
 
 
-class Runner(object):
+class Runner():
 
     def __init__(self):
         self.system = platform.system()

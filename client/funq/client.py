@@ -55,7 +55,7 @@ from funq.errors import FunqError, TimeOutError
 LOG = logging.getLogger('funq.client')
 
 
-class FunqClient(object):
+class FunqClient():
 
     """
     Allow to communicate with a libFunq server.
@@ -378,7 +378,7 @@ class FunqClient(object):
                           destpos=dest_pos)
 
 
-class ApplicationContext(object):  # pylint: disable=R0903
+class ApplicationContext():  # pylint: disable=R0903
 
     """
     This is the context of a tested application.
@@ -525,7 +525,7 @@ class ApplicationContext(object):  # pylint: disable=R0903
         self.terminate()
 
 
-class ApplicationConfig(object):  # pylint: disable=R0902
+class ApplicationConfig():  # pylint: disable=R0902
 
     """
     This object hold the configuration of the application to test, mostly
@@ -659,7 +659,7 @@ class ApplicationConfig(object):  # pylint: disable=R0902
         return cls(executable, **kwargs)
 
 
-class ApplicationRegistry(object):
+class ApplicationRegistry():
 
     """
     Handle multiple :class:`ApplicationConfig`. A global instance is

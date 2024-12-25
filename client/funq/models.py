@@ -41,7 +41,7 @@ import json
 import base64
 
 
-class TreeItem(object):  # pylint: disable=R0903
+class TreeItem():  # pylint: disable=R0903
 
     """
     Defines an abstract item that contains subitems
@@ -64,7 +64,7 @@ class TreeItem(object):  # pylint: disable=R0903
         return self
 
 
-class TreeItems(object):
+class TreeItems():
 
     """
     Abstract class to manipulate data that contains :class:`TreeItem`. Used
@@ -121,7 +121,7 @@ class WidgetMetaClass(type):
         return cls
 
 
-class Object(object, metaclass=WidgetMetaClass):
+class Object(metaclass=WidgetMetaClass):
 
     """
     Allow to manipulate a QObject or derived.

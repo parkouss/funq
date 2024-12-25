@@ -44,7 +44,7 @@ class ApplicationConfig(client.ApplicationConfig):
     pass
 
 
-class GlobalOptions(object):
+class GlobalOptions():
 
     def __init__(self, **kwds):
         for k, v in kwds.items():
@@ -135,7 +135,7 @@ class TestApplicationRegistry:
         assert_equals(self.reg.config('example').executable, exe)
 
 
-class FakePopen(object):
+class FakePopen():
 
     @classmethod
     def patch_subprocess_popen(cls, func):
