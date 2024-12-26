@@ -200,7 +200,7 @@ class FunqClient():
                 return err
         wait_for(get_action, timeout, timeout_interval)
 
-        action = Action.create(self, wdata[0])
+        action = Action(self, wdata[0])
         if wait_active:
             action.wait_for_properties({'enabled': True, 'visible': True})
         return action
@@ -243,7 +243,7 @@ class FunqClient():
                 return err
         wait_for(get_widget, timeout, timeout_interval)
 
-        widget = Widget.create(self, wdata[0])
+        widget = Widget(self, wdata[0])
         if wait_active:
             if 'QWindow' in wdata[0]['classes']:
                 # QWindow (Qt5) does not have the enabled property
@@ -293,7 +293,7 @@ class FunqClient():
                 return err
         wait_for(get_widget, timeout, timeout_interval)
 
-        widget = Widget.create(self, wdata[0])
+        widget = Widget(self, wdata[0])
         if wait_active:
             if 'QWindow' in wdata[0]['classes']:
                 # QWindow (Qt5) does not have the enabled property

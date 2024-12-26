@@ -47,46 +47,38 @@ class TreeItem():  # pylint: disable=R0903
     Defines an abstract item that contains subitems
     """
 
-    client = None
-    items = None
-
-    @classmethod
-    def create(cls, client, data):
+    def __init__(self, client, data):
         """
         Allow to create a TreeItem from a dico data decoded from json.
         """
-        self = cls()
         self.client = client
+
         for k, v in data.items():
-            if k != 'items':
-                setattr(self, k, v)
-        self.items = [cls.create(client, d) for d in data.get('items', [])]
-        return self
+            setattr(self, k, v)
+        self.items = [self.__class__(client, d) for d in getattr(self, 'items', [])]
 
 
-class TreeItems():
+class BaseItems():
+
+    def __init_subclass__(cls, /, item_class, **kwargs):
+        super().__init_subclass__(**kwargs)
+        cls._item_class = item_class
+
+
+class TreeItems(BaseItems, item_class=TreeItem):
 
     """
     Abstract class to manipulate data that contains :class:`TreeItem`. Used
     by modelitems and graphicsitems.
     """
 
-    client = None
-    items = None
-
-    ITEM_CLASS = TreeItem
-
-    @classmethod
-    def create(cls, client, data):
+    def __init__(self, client, data):
         """
         Allow to create an instance of the class given some data coming from
         decoded json.
         """
-        self = cls()
         self.client = client
-        self.items = [
-            cls.ITEM_CLASS.create(client, v1) for v1 in data['items']]
-        return self
+        self.items = [self._item_class(client, v) for v in data['items']]
 
     def iter(self):
         """
@@ -104,21 +96,26 @@ class TreeItems():
             yield item
 
 
-CPP_CLASSES = {}
-
-
 class WidgetMetaClass(type):
 
     """
     Saves a dict of accessible classes to handle inheritance of Widgets.
     """
-    def __new__(mcs, name, bases, attrs):
-        global CPP_CLASSES
-        cls = super(WidgetMetaClass, mcs).__new__(mcs, name, bases, attrs)
-        qt_name = getattr(cls, 'CPP_CLASS', None)
-        if qt_name:
-            CPP_CLASSES[qt_name] = cls
+    _cpp_classes = {}
+
+    def __new__(mcs, name, bases, attrs, /, cpp_class=None):
+        cls = super().__new__(mcs, name, bases, attrs)
+        if cpp_class:
+            mcs._cpp_classes[cpp_class] = cls
         return cls
+
+    def __call__(cls, client, data):
+        for cppcls in data.get('classes', []):
+            if cppcls in cls._cpp_classes:
+                if cls is cls._cpp_classes[cppcls]:  # prevent infinite recursion
+                    break
+                return cls._cpp_classes[cppcls](client, data)
+        return super().__call__(client, data)
 
 
 class Object(metaclass=WidgetMetaClass):
@@ -134,28 +131,19 @@ class Object(metaclass=WidgetMetaClass):
                   in inheritance order (ie 'QObject' is last)
                   [type : list(str)]
     """
+
     oid = None
     client = None
     path = None
 
-    @classmethod
-    def create(cls, client, data):
+    def __init__(self, client, data):
         """
         Allow to create an Object or a subclass given data coming from
         decoded json.
         """
-        # recherche la classe appropriee
-        global CPP_CLASSES
-        for cppcls in data['classes']:
-            if cppcls in CPP_CLASSES:
-                cls = CPP_CLASSES[cppcls]
-                break
-
-        self = cls()
         for k, v in data.items():
             setattr(self, k, v)
-        setattr(self, 'client', client)
-        return self
+        self.client = client
 
     def properties(self):
         """
@@ -188,7 +176,7 @@ class Object(metaclass=WidgetMetaClass):
 
           object.set_property('text', "My beautiful text")
         """
-        self.set_properties(**{name: value})  # pylint:disable=W0142
+        self.set_properties(**{name: value})
 
     def wait_for_properties(self, props, timeout=10.0, timeout_interval=0.1):
         """
@@ -262,7 +250,7 @@ class AbstractItemModel(Object):
         model.
         """
         data = self.client.send_command('model_items', oid=self.oid)
-        return ModelItems.create(self.client, data)
+        return ModelItems(self.client, data)
 
 
 class Widget(Object):
@@ -466,15 +454,13 @@ class ModelItem(TreeItem):
         return self.check_state == 'checked'
 
 
-class ModelItems(TreeItems):
+class ModelItems(TreeItems, item_class=ModelItem):
 
     """
     Allow to manipulate all modelitems in a QAbstractItemModel or derived.
 
     :var items: list of :class:`ModelItem`
     """
-
-    ITEM_CLASS = ModelItem
 
     def item_by_named_path(self, named_path, match_column=0, sep='/',
                            column=0):
@@ -539,12 +525,11 @@ class ModelItems(TreeItems):
         return None
 
 
-class AbstractItemView(Widget):
+class AbstractItemView(Widget, cpp_class='QAbstractItemView'):
 
     """
     Specific Widget to manipulate QAbstractItemView or derived.
     """
-    CPP_CLASS = 'QAbstractItemView'
     editor_class_names = ('QLineEdit', 'QComboBox', 'QSpinBox',
                           'QDoubleSpinBox')
 
@@ -554,7 +539,7 @@ class AbstractItemView(Widget):
         this item view widget.
         """
         data = self.client.send_command('model', oid=self.oid)
-        return AbstractItemModel.create(self.client, data)
+        return AbstractItemModel(self.client, data)
 
     def _item_action(self, item, itemaction, origin=None, offset_x=None,
                      offset_y=None):
@@ -659,12 +644,11 @@ class AbstractItemView(Widget):
                         f' Possible editors: {repr(self.editor_class_names)}')
 
 
-class TableView(AbstractItemView):
+class TableView(AbstractItemView, cpp_class='QTableView'):
 
     """
     Specific widget to manipulate a QTableView widget.
     """
-    CPP_CLASS = 'QTableView'
 
     def vertical_header(self,
                         timeout=2.0, timeout_interval=0.1, wait_active=True):
@@ -701,12 +685,11 @@ class TableView(AbstractItemView):
                                   wait_active=wait_active)
 
 
-class TreeView(AbstractItemView):
+class TreeView(AbstractItemView, cpp_class='QTreeView'):
 
     """
     Specific widget to manipulate a QTreeView widget.
     """
-    CPP_CLASS = 'QTreeView'
 
     def header(self, timeout=2.0, timeout_interval=0.1, wait_active=True):
         """
@@ -723,12 +706,11 @@ class TreeView(AbstractItemView):
                                   wait_active=wait_active)
 
 
-class TabBar(Widget):
+class TabBar(Widget, cpp_class="QTabBar"):
 
     """
     Allow to manipulate a QTabBar Widget.
     """
-    CPP_CLASS = "QTabBar"
 
     def tab_texts(self):
         """
@@ -811,7 +793,7 @@ class GItem(TreeItem):
         self._action("doubleclick")
 
 
-class GItems(TreeItems):
+class GItems(TreeItems, item_class=GItem):
 
     """
     Allow to manipulate a group of QGraphicsItems.
@@ -819,15 +801,13 @@ class GItems(TreeItems):
     :var items: list of :class:`GItem` that are on top of the scene
                 (and not subitems)
     """
-    ITEM_CLASS = GItem
 
 
-class GraphicsView(Widget):
+class GraphicsView(Widget, cpp_class='QGraphicsView'):
 
     """
     Allow to manipulate an instance of QGraphicsView.
     """
-    CPP_CLASS = 'QGraphicsView'
 
     def gitems(self):
         """
@@ -835,7 +815,7 @@ class GraphicsView(Widget):
         of this QGraphicsView.
         """
         data = self.client.send_command('graphicsitems', oid=self.oid)
-        return GItems.create(self.client, data)
+        return GItems(self.client, data)
 
     def dump_gitems(self, stream='gitems.json'):
         """
@@ -866,12 +846,11 @@ class GraphicsView(Widget):
             stream.close()
 
 
-class ComboBox(Widget):
+class ComboBox(Widget, cpp_class='QComboBox'):
 
     """
     Allow to manipulate a QCombobox.
     """
-    CPP_CLASS = 'QComboBox'
 
     def model(self):
         """
@@ -879,7 +858,7 @@ class ComboBox(Widget):
         of this combobox.
         """
         data = self.client.send_command('model', oid=self.oid)
-        return AbstractItemModel.create(self.client, data)
+        return AbstractItemModel(self.client, data)
 
     def set_current_text(self, text):
         """
@@ -902,12 +881,11 @@ class ComboBox(Widget):
         self.set_property('currentIndex', index)
 
 
-class HeaderView(Widget):
+class HeaderView(Widget, cpp_class='QHeaderView'):
 
     """
     Allow to manipulate a QHeaderView.
     """
-    CPP_CLASS = 'QHeaderView'
 
     def header_texts(self):
         """
@@ -926,15 +904,13 @@ class HeaderView(Widget):
                                         indexOrName=index_or_name)
 
 
-class QuickItem(Object):
+class QuickItem(Object, cpp_class="QQuickItem"):
     """
     Represent a QQuickItem or derived.
 
     You can get a :class:`QuickItem` instance by using
     :meth:`QuickWindow.item`.
     """
-
-    CPP_CLASS = "QQuickItem"
 
     def click(self):
         """
@@ -946,7 +922,7 @@ class QuickItem(Object):
         )
 
 
-class QuickWindow(Widget):
+class QuickWindow(Widget, cpp_class="QQuickWindow"):
     """
     Represent a QQuickWindow or QQuickView.
 
@@ -957,8 +933,6 @@ class QuickWindow(Widget):
 
       quick_window = self.funq.active_widget()
     """
-
-    CPP_CLASS = "QQuickWindow"
 
     def item(self, alias=None, path=None, id=None):
         """
@@ -1024,4 +998,4 @@ class QuickWindow(Widget):
             path=path,
             qid=id,
         )
-        return Object.create(self.client, data)
+        return Object(self.client, data)
