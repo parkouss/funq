@@ -82,18 +82,33 @@ class TreeItems(BaseItems, item_class=TreeItem):
 
     def iter(self):
         """
-        Allow to iterate on every items recursively.
+        Allow to iterate on every item recursively. Kept for backward
+        compatibility. Iterate over the class instance itself instead.
 
         Example::
 
           for item in items.iter():
-              print item
+              print(item)
         """
-        items = self.items.copy()
-        while items:
-            item = items.pop(0)
-            items = item.items + items
-            yield item
+
+        return iter(self)
+
+    def __iter__(self):
+        """
+        Allow to iterate on every item recursively.
+
+        Example::
+
+          for item in items:
+              print(item)
+        """
+
+        def __iter(items):
+            for item in items:
+                yield item
+                yield from __iter(item.items)
+
+        yield from __iter(self.items)
 
 
 class WidgetMetaClass(type):
