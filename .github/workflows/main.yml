@@ -89,7 +89,7 @@ jobs:
       matrix:
         include:
           # Note: Nosetest doesn't work anymore with recent Python versions!
-          - {qt: "5", runner: "macos-12", nosetests: 0}
+          - {qt: "5", runner: "macos-13", nosetests: 0}
           - {qt: "6", runner: "macos-14", nosetests: 0}
     env:
       FUNQ_QT_MAJOR_VERSION: "${{ matrix.qt }}"
