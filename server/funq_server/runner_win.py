@@ -215,8 +215,13 @@ class WindowsRunnerInjector(RunnerInjector):
         """
         last_error = ctypes.get_last_error()
         win_error = ctypes.WinError(last_error)
+        try:
+            # Try formatting as hex.
+            return_value = "{} (0x{:X})".format(return_value, return_value)
+        except TypeError:
+            pass
         message = "Failed to inject DLL! "
-        message += "{} returned 0x{:X}. ".format(function_name, return_value)
+        message += "{} returned {}. ".format(function_name, return_value)
         message += "The last error is 0x{:X} ({}). ".format(
             last_error, str(win_error))
         message += "Maybe x86/x64 mismatch between python.exe and Qt DLLs?"
