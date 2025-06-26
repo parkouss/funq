@@ -932,7 +932,14 @@ class QuickItem(Object):
     Represent a QQuickItem or derived.
 
     You can get a :class:`QuickItem` instance by using
-    :meth:`QuickWindow.item`.
+    :meth:`QuickWindow.item` or by iterate over :meth:`QuickItem.children`
+    result
+
+    :var oid: Internal gitem ID [type: unsigned long long]
+    :var path: complete path to the object [type: str]
+    :var classes: list of names of class inheritance if it inherits from
+                  QObject. [type: list(str) or None]
+    :var items: list of subitems [type: :class:`QuickItem`]
     """
 
     CPP_CLASS = "QQuickItem"
@@ -945,6 +952,45 @@ class QuickItem(Object):
             "quick_item_click",
             oid=self.oid
         )
+
+    def children(self, recursive=False):
+        """
+        Returns children items on the :class:`QuickItem`.
+
+        :param recursive: when `True`, will call recursively for children items
+
+        Example::
+
+          quick_window = self.funq.active_widget()
+          root = quick_window.item('root')
+          children = root.children()
+          for child in children.iter():
+              print(child.properties())
+        """
+        data = self.client.send_command("quick_item_children", oid=self.oid,
+                                        recursive=recursive)
+        return QuickItems.create(self.client, data)
+
+    @classmethod
+    def create(cls, client, data):
+        """
+        Allow to create a :class: `QuickItem` from a dict data decoded from
+        json.
+        """
+        self = super(QuickItem, cls).create(client, data)
+        self.items = [cls.create(client, d) for d in data.get('items', [])]
+
+        return self
+
+
+class QuickItems(TreeItems):
+    """
+    Allow to manipulate all children in a QQuickItem.
+
+    :var items: list of :class:`QuickItem`
+    """
+
+    ITEM_CLASS = QuickItem
 
 
 class QuickWindow(Widget):
@@ -1026,4 +1072,4 @@ class QuickWindow(Widget):
             path=path,
             qid=id,
         )
-        return Object.create(self.client, data)
+        return QuickItem.create(self.client, data)

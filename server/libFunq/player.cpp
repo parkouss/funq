@@ -780,6 +780,55 @@ QtJson::JsonObject Player::model_item_action(
     return result;
 }
 
+void dump_quick_items(Player * player, const QList<QQuickItem *> & items, const qulonglong & viewid, bool recursive, QtJson::JsonObject & out) {
+#ifdef QT_QUICK_LIB
+    QtJson::JsonArray outitems;
+    foreach(QQuickItem* item, items) {
+        QtJson::JsonObject outitem;
+        qulonglong oid = player->registerObject(item);
+        outitem["oid"] = oid;
+        outitem["viewid"] = viewid;
+        QObject * itemObject = dynamic_cast<QObject *>(item);
+        if (itemObject) {
+            const QMetaObject * mo = itemObject->metaObject();
+            QStringList classes;
+            while (mo) {
+                classes << mo->className();
+                mo = mo->superClass();
+            }
+            outitem["classes"] = classes;
+            outitem["path"] = objectPath(itemObject);
+        }
+        if (recursive) {
+            dump_quick_items(player, item->childItems(), viewid, recursive, outitem);
+        }
+        outitems << outitem;
+    }
+    out["items"] = outitems;
+#else
+    (void)player;
+    (void)items;
+    (void)viewid;
+    (void)recursive;
+    (void)out;
+#endif
+}
+
+QtJson::JsonObject Player::quick_item_children(const QtJson::JsonObject & command) {
+    QtJson::JsonObject result;
+#ifdef QT_QUICK_LIB
+    QuickItemLocatorContext ctx(this, command, "oid");
+    if (ctx.hasError()) { return ctx.lastError; }
+
+    bool recursive = command["recursive"].toBool();
+
+    dump_quick_items(this, ctx.item->childItems(), ctx.id, recursive, result);
+#else
+    result = createQtQuickOnlyError();
+#endif
+    return result;
+}
+
 void Player::_model_item_action(const QString & action,
                                 QAbstractItemView * widget,
                                 const QModelIndex & index) {

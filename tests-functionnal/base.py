@@ -44,3 +44,7 @@ class AppTestCase(FunqTestCase):
 
     def get_status_text(self):
         return self.funq.widget(path='mainWindow::statusBar::QLabel').properties()['text']
+
+
+class QmlAppTestCase(FunqTestCase):
+    __app_config_name__ = 'qml_app_test'
