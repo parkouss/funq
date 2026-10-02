@@ -18,7 +18,12 @@ version = re.search("__version__ = '(.+)'", read('funq/__init__.py')).group(1)
 
 # nose n'est actuellement pas requis pour ce module
 # mais tres utile pour cadrer les tests.
-install_requires = ['nose']
+# nose 1.3.7 ne fonctionne plus a partir de Python 3.10 (collections.Callable,
+# imp), on utilise alors pynose, un fork compatible (meme module "nose").
+install_requires = [
+    'nose; python_version < "3.10"',
+    'pynose; python_version >= "3.10"',
+]
 
 setup(
     name="funq",
